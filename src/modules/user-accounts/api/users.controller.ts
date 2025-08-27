@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { UsersRepository } from '../infrastructure/users-repository.service';
+import { UsersRepository } from '../infrastructure/users.repository';
 import { CreateUserDto } from '../domain/dto/create-user.dto';
 import { UpdateUserDto } from '../domain/dto/update-user.dto';
 
