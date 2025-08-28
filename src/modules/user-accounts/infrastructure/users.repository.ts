@@ -18,14 +18,14 @@ export class UsersRepository {
         'JOIN "AccountData" ad ON u.user_id = ad.user_id',
     );
 
-    return users.map(e =>{
+    return users.map((e) => {
       return {
         id: e.user_id,
         login: e.login,
         email: e.email,
         createdAt: e.created_at,
-      }
-    })
+      };
+    });
   }
 
   findOne(id: number) {
@@ -55,6 +55,13 @@ export class UsersRepository {
 
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
+  }
+
+  async updateRecoveryCode(id: string, recoveryCode: string) {
+    await this.dataSource.query(
+      'UPDATE "EmailConfirmation" SET recovery_code = $1 WHERE id = $2',
+      [recoveryCode, id],
+    );
   }
 
   remove(id: number) {
