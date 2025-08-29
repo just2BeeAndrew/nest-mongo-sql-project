@@ -5,14 +5,13 @@ import { PasswordRecoveryCommand } from '../application/usecases/password-recove
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly commandBus: CommandBus,
-  ) {}
+  constructor(private readonly commandBus: CommandBus) {}
 
   @Post('password-recovery')
   @HttpCode(HttpStatus.NO_CONTENT)
   async passwordRecovery(@Body() body: PasswordRecoveryInputDto) {
-return this.commandBus.execute<PasswordRecoveryCommand>(new PasswordRecoveryCommand(body.email));
-    //return this.authService.passwordRecovery(body.email);
+    return this.commandBus.execute<PasswordRecoveryCommand>(
+      new PasswordRecoveryCommand(body.email),
+    );
   }
 }

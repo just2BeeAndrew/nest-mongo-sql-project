@@ -2,13 +2,13 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module';
-import { SecurityDevicesController } from './modules/user-accounts/api/security-devices.controller';
-import { AuthController } from './modules/user-accounts/api/auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
     UserAccountsModule,
+    NotificationsModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: '127.0.0.1',
@@ -19,10 +19,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       autoLoadEntities: false,
       synchronize: false,
       logging: true,
-
     }),
   ],
-  controllers: [AppController, SecurityDevicesController, AuthController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

@@ -1,4 +1,4 @@
-import {Extension} from '../domain-exception';
+import {Extension } from './domain-exception';
 import {DomainExceptionCode} from './domain-exception-codes';
 
 export type ErrorResponseBody = {
