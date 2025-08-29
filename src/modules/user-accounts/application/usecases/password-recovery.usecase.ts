@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '../../infrastructure/users.repository';
 import {v4 as uuidv4} from 'uuid'
+import { EmailService } from '../../../notifications/application/email.service';
 
 export class PasswordRecoveryCommand {
   constructor(public email: string) {}
@@ -10,6 +11,7 @@ export class PasswordRecoveryCommand {
 export class PasswordRecoveryUseCase implements ICommandHandler<PasswordRecoveryCommand>{
   constructor(
     private readonly usersRepository: UsersRepository,
+    private readonly emailService: EmailService,
   ) {}
 
   async execute(command: PasswordRecoveryCommand) {
@@ -17,7 +19,11 @@ export class PasswordRecoveryUseCase implements ICommandHandler<PasswordRecovery
 
     const recoveryCode = uuidv4()
 
-    this.usersRepository.updateRecoveryCode(user.id, recoveryCode)
+    await this.usersRepository.updateRecoveryCode(user.id, recoveryCode)
+
+    await this.emailService
+      .sendRecoveryPasswordEmail(command.email, recoveryCode)
+      .catch(console.error);
   }
 
 
