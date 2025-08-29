@@ -8,13 +8,23 @@ export class UsersQueryRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async findAllUsers(query: GetUsersQueryParams) {
+    const loginTerm = query.searchLoginTerm
+      ? `%${query.searchLoginTerm}%`
+      : `%`;
+    const emailTerm = query.searchEmailTerm
+      ? `%${query.searchEmailTerm}%`
+      : `%`;
     const users = await this.dataSource.query(
-      `SELECT u.user_id,
-              ad.login,
-              ad.email,
-              ad.created_at
+      `
+        SELECT u.user_id,
+              a.login,
+              a.email,
+              a.created_at
        FROM "Users" u
-              JOIN "AccountData" ad ON u.user_id = ad.user_id`,
+              JOIN "AccountData" a ON u.user_id = a.user_id
+       WHERE a.login ILIKE $1 AND a.email ILIKE $2
+       `,
+      [loginTerm, emailTerm],
     );
 
     return users.map((e) => {

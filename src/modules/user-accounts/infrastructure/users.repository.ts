@@ -18,20 +18,22 @@ export class UsersRepository {
 
   async findByEmail(email: string) {
     return await this.dataSource.query(
-      `SELECT u.user_id,
-              a.login,
-              a.email,
-              a.created_at,
-              a.deleted_at,
-              e.confirmation_code,
-              e.recovery_code,
-              e.issued_at,
-              e.expiration_date,
-              e.is_confirmed
-       FROM "Users" u
-              JOIN "AccountData" a ON u.user_id = a.user_id
-              LEFT JOIN "EmailConfirmation" e ON u.user_id = e.user_id
-       WHERE a.email = $1`,
+      `
+        SELECT u.user_id,
+               a.login,
+               a.email,
+               a.created_at,
+               a.deleted_at,
+               e.confirmation_code,
+               e.recovery_code,
+               e.issued_at,
+               e.expiration_date,
+               e.is_confirmed
+        FROM "Users" u
+               JOIN "AccountData" a ON u.user_id = a.user_id
+               LEFT JOIN "EmailConfirmation" e ON u.user_id = e.user_id
+        WHERE a.email = $1
+      `,
       [email],
     );
   }
