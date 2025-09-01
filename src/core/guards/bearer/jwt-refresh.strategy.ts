@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { Request } from 'express';
-import { DomainException } from '../../exceptions/domain-exception';
-import { DomainExceptionCode } from '../../exceptions/filters/domain-exception-codes';
+import { DomainException } from '../../exception/filters/domain-exception';
+import { DomainExceptionCode } from '../../exception/filters/domain-exception-codes';
 import { SessionsRepository } from '../../../modules/users/infrastructure/sessions.repository';
 
 @Injectable()

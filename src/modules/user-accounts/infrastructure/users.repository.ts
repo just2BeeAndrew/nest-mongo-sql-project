@@ -8,12 +8,73 @@ import { GetUsersQueryParams } from '../api/input-dto/get-users-query-params.inp
 @Injectable()
 export class UsersRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  async create(dto: CreateUserDto, t: any) {
+    const user = await t.query(
+      `
+          WITH insert_user AS (
+          INSERT
+          INTO Users DEFAULT
+          VALUES RETURNING user_id
+            ), insert_account_data AS (
+          INSERT
+          INTO AccountData (user_id, login, password_hash, email, created_at, deleted_at)
+          SELECT user_id, $1, $2, $3, NOW(), NULL
+          FROM insert_user
+            RETURNING user_id
+            )
+          INSERT
+          INTO EmailConfirmation (user_id, confirmation_code, recovery_code, issued_at, expiration_date, is_confirmed)
+          SELECT user_id, NULL, NULL, NOW(), NOW() + interval '1 day', false
+          FROM insert_account_data
+            RETURNING user_id;
+      `,
+      [dto.login, dto.passwordHash, dto.email],
+    );
+    return user[0].user_id.toString();
   }
 
   findOne(id: number) {
     return `This action returns a #${id} user`;
+  }
+
+  async isLoginTaken(login: string, manager?: any): Promise<boolean> {
+    const runner = manager ?? this.dataSource;
+    const result = await runner.query(
+      'SELECT 1 FROM AccountData WHERE login = $1 LIMIT 1',
+      [login]
+    );
+    return result.length > 0;
+  }
+
+  async isEmailTaken(email: string, manager?: any): Promise<boolean> {
+    const runner = manager ?? this.dataSource;
+    const result = await runner.query(
+      'SELECT 1 FROM AccountData WHERE email = $1 LIMIT 1',
+      [email]
+    );
+    return result.length > 0;
+  }
+
+  async findByLogin(login: string) {
+    return await this.dataSource.query(
+      `
+        SELECT u.user_id,
+               a.login,
+               a.email,
+               a.created_at,
+               a.deleted_at,
+               e.confirmation_code,
+               e.recovery_code,
+               e.issued_at,
+               e.expiration_date,
+               e.is_confirmed
+        FROM "Users" u
+               JOIN "AccountData" a ON u.user_id = a.user_id
+               LEFT JOIN "EmailConfirmation" e ON u.user_id = e.user_id
+        WHERE a.login = $1
+      `,
+      [login],
+    );
   }
 
   async findByEmail(email: string) {

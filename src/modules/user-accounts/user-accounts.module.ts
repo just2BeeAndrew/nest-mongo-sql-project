@@ -5,11 +5,12 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { PasswordRecoveryUseCase } from './application/usecases/password-recovery.usecase';
 import { AuthController } from './api/auth.controller';
+import { BcryptModule } from '../bcrypt/bcrypt.module';
 
 const useCases = [PasswordRecoveryUseCase];
 
 @Module({
-  imports: [CqrsModule, NotificationsModule],
+  imports: [CqrsModule, NotificationsModule, BcryptModule],
   controllers: [UsersController, AuthController],
   providers: [UsersRepository, ...useCases],
 })
