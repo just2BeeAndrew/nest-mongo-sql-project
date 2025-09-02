@@ -103,9 +103,18 @@ export class UsersRepository {
     return `This action updates a #${id} user`;
   }
 
+  async setConfirmation(userId: string){
+    await this.dataSource.query(
+      `
+      UPDATE "EmailConfirmation" SET is_confirmed = true WHERE user_id = $1 
+      `,
+      [userId]
+    )
+  }
+
   async updateRecoveryCode(id: string, recoveryCode: string) {
     await this.dataSource.query(
-      'UPDATE "EmailConfirmation" SET recovery_code = $1 WHERE id = $2',
+      'UPDATE "EmailConfirmation" SET recovery_code = $1 WHERE user_id = $2',
       [recoveryCode, id],
     );
   }

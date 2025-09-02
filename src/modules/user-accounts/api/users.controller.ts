@@ -25,7 +25,7 @@ import { CreateUserByAdminCommand } from '../application/usecases/create-user-by
 @Controller('users')
 export class UsersController {
   constructor(
-    private readonly commamdBus: CommandBus,
+    private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
     private readonly usersRepository: UsersRepository
   ) {}
@@ -34,7 +34,9 @@ export class UsersController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() body: CreateUserInputDto) {
-    const userId = await this.commamdBus.execute<CreateUserByAdminCommand,string>(new CreateUserByAdminCommand(body));
+    const userId = await this.commandBus.execute<CreateUserByAdminCommand,string>(new CreateUserByAdminCommand(body));
+
+    //return this.queryBus.execute()
   }
 
   @Get()
