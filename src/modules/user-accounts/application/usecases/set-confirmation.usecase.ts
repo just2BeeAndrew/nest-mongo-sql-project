@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '../../infrastructure/users.repository';
 
 export class SetConfirmationCommand {
-  constructor(public userId: string) {}
+  constructor(public userId: number) {}
 }
 
 @CommandHandler(SetConfirmationCommand)
@@ -11,6 +11,6 @@ export class SetConfirmationUseCase implements ICommandHandler<SetConfirmationCo
   }
 
   async execute(command: SetConfirmationCommand){
-    await this.usersRepository.setConfirmation
+    await this.usersRepository.setConfirmation(command.userId)
   }
 }

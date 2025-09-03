@@ -70,4 +70,22 @@ export class UsersQueryRepository {
       size: query.pageSize,
     });
   }
+
+  async findUserById(id: number) {
+    const user = await this.dataSource.query(
+      `
+        SELECT u.user_id,
+               a.login,
+               a.email,
+               a.created_at,
+        FROM "Users" u
+               JOIN "AccountData" a ON u.user_id = a.user_id
+               LEFT JOIN "EmailConfirmation" e ON u.user_id = e.user_id
+        WHERE u.user_id = $1
+      `,
+      [id],
+    );
+
+    return UsersViewDto.mapToView(user)
+  }
 }

@@ -13,7 +13,7 @@ export class CreateUserCommand {
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserUseCase
-  implements ICommandHandler<CreateUserCommand, string>
+  implements ICommandHandler<CreateUserCommand, number>
 {
   constructor(
     private readonly dataSource: DataSource,
@@ -21,7 +21,7 @@ export class CreateUserUseCase
     private readonly bcryptService: BcryptService,
   ) {}
 
-  async execute(command: CreateUserCommand):Promise<string> {
+  async execute(command: CreateUserCommand):Promise<number> {
     return this.dataSource.transaction(async (t) => {
       const isLoginTaken = await this.usersRepository.isLoginTaken(
         command.dto.login,

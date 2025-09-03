@@ -10,7 +10,7 @@ export class CreateUserByAdminCommand {
 
 @CommandHandler(CreateUserByAdminCommand)
 export class CreateUserByAdminUseCase
-  implements ICommandHandler<CreateUserByAdminCommand, string>
+  implements ICommandHandler<CreateUserByAdminCommand, number>
 {
   constructor(
     private readonly commandBus: CommandBus,
@@ -18,7 +18,7 @@ export class CreateUserByAdminUseCase
   ) {}
 
   async execute(command: CreateUserByAdminCommand) {
-    const userId = await this.commandBus.execute<CreateUserCommand, string>(
+    const userId = await this.commandBus.execute<CreateUserCommand, number>(
       new CreateUserCommand(command.dto),
     );
 

@@ -30,7 +30,7 @@ export class UsersRepository {
       `,
       [dto.login, dto.passwordHash, dto.email],
     );
-    return user[0].user_id.toString();
+    return user[0].user_id;
   }
 
   findOne(id: number) {
@@ -103,7 +103,7 @@ export class UsersRepository {
     return `This action updates a #${id} user`;
   }
 
-  async setConfirmation(userId: string){
+  async setConfirmation(userId: number){
     await this.dataSource.query(
       `
       UPDATE "EmailConfirmation" SET is_confirmed = true WHERE user_id = $1 

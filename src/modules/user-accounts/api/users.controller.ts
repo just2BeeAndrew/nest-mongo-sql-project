@@ -21,6 +21,7 @@ import { UsersViewDto } from './view-dto/users.view-dto';
 import { CreateUserInputDto } from './input-dto/create-users.input-dto';
 import { BasicAuthGuard } from '../../../core/guards/basic/basic-auth.guard';
 import { CreateUserByAdminCommand } from '../application/usecases/create-user-by-admin.usecase';
+import { FindUserByIdQuery } from '../application/queries/find-user-by-id.query-handler';
 
 @Controller('users')
 export class UsersController {
@@ -34,9 +35,9 @@ export class UsersController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() body: CreateUserInputDto) {
-    const userId = await this.commandBus.execute<CreateUserByAdminCommand,string>(new CreateUserByAdminCommand(body));
+    const userId = await this.commandBus.execute<CreateUserByAdminCommand,number>(new CreateUserByAdminCommand(body));
 
-    //return this.queryBus.execute()
+    return this.queryBus.execute(new FindUserByIdQuery(userId));
   }
 
   @Get()
