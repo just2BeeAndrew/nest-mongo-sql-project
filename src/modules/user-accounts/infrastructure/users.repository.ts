@@ -33,15 +33,18 @@ export class UsersRepository {
     return user[0].user_id;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    return await this.dataSource.query(
+      'SELECT 1 FROM "Users" WHERE user_id = $1 LIMIT 1',
+      [id],
+    );
   }
 
   async isLoginTaken(login: string, manager?: any): Promise<boolean> {
     const runner = manager ?? this.dataSource;
     const result = await runner.query(
-      'SELECT 1 FROM AccountData WHERE login = $1 LIMIT 1',
-      [login]
+      'SELECT 1 FROM "AccountData" WHERE login = $1 LIMIT 1',
+      [login],
     );
     return result.length > 0;
   }
@@ -49,8 +52,8 @@ export class UsersRepository {
   async isEmailTaken(email: string, manager?: any): Promise<boolean> {
     const runner = manager ?? this.dataSource;
     const result = await runner.query(
-      'SELECT 1 FROM AccountData WHERE email = $1 LIMIT 1',
-      [email]
+      'SELECT 1 FROM "AccountData" WHERE email = $1 LIMIT 1',
+      [email],
     );
     return result.length > 0;
   }
@@ -103,13 +106,13 @@ export class UsersRepository {
     return `This action updates a #${id} user`;
   }
 
-  async setConfirmation(userId: number){
+  async setConfirmation(userId: number) {
     await this.dataSource.query(
       `
       UPDATE "EmailConfirmation" SET is_confirmed = true WHERE user_id = $1 
       `,
-      [userId]
-    )
+      [userId],
+    );
   }
 
   async updateRecoveryCode(id: string, recoveryCode: string) {
@@ -119,7 +122,12 @@ export class UsersRepository {
     );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  remove(id: string) {
+    return this.dataSource.query(
+      `
+      UPDATE "AccountData" SET deleted_at = NOW() WHERE user_id = $1
+      `,
+      [id],
+    );
   }
 }

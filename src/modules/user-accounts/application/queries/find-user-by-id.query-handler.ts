@@ -7,7 +7,7 @@ export class FindUserByIdQuery {
 }
 
 @QueryHandler(FindUserByIdQuery)
-export class FindUserByUserQueryHandler
+export class FindUserByIdQueryHandler
   implements IQueryHandler<FindUserByIdQuery, UsersViewDto>
 {
   constructor(private readonly usersQueryRepository: UsersQueryRepository) {}

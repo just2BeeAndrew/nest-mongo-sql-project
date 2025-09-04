@@ -6,8 +6,22 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { PasswordRecoveryUseCase } from './application/usecases/password-recovery.usecase';
 import { AuthController } from './api/auth.controller';
 import { BcryptModule } from '../bcrypt/bcrypt.module';
+import { CreateUserUseCase } from './application/usecases/create-user.usecase';
+import { CreateUserByAdminUseCase } from './application/usecases/create-user-by-admin.usecase';
+import { DeleteUserUseCase } from './application/usecases/delete-user.usecase';
+import { SetConfirmationUseCase } from './application/usecases/set-confirmation.usecase';
+import { FindAllUsersQueryHandler } from './application/queries/find-all-users.query-handler';
+import { FindUserByIdQueryHandler } from './application/queries/find-user-by-id.query-handler';
 
-const useCases = [PasswordRecoveryUseCase];
+const useCases = [
+  PasswordRecoveryUseCase,
+  CreateUserUseCase,
+  CreateUserByAdminUseCase,
+  DeleteUserUseCase,
+  SetConfirmationUseCase,
+];
+
+const queries = [FindAllUsersQueryHandler, FindUserByIdQueryHandler]
 
 @Module({
   imports: [CqrsModule, NotificationsModule, BcryptModule],

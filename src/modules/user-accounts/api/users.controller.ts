@@ -22,6 +22,7 @@ import { CreateUserInputDto } from './input-dto/create-users.input-dto';
 import { BasicAuthGuard } from '../../../core/guards/basic/basic-auth.guard';
 import { CreateUserByAdminCommand } from '../application/usecases/create-user-by-admin.usecase';
 import { FindUserByIdQuery } from '../application/queries/find-user-by-id.query-handler';
+import { DeleteUserCommand } from '../application/usecases/delete-user.usecase';
 
 @Controller('users')
 export class UsersController {
@@ -41,14 +42,10 @@ export class UsersController {
   }
 
   @Get()
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.OK)
   async findAllUsers(@Query() query: GetUsersQueryParams): Promise<PaginatedViewDto<UsersViewDto[]>> {
     return this.queryBus.execute(new FindAllUsersQuery(query));
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersRepository.findOne(+id);
   }
 
   @Patch(':id')
@@ -57,7 +54,8 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @UseGuards(BasicAuthGuard)
   remove(@Param('id') id: string) {
-    return this.usersRepository.remove(+id);
+    return this.commandBus.execute<DeleteUserCommand>(new DeleteUserCommand(id) );
   }
 }
