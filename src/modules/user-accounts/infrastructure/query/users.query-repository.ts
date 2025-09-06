@@ -9,7 +9,9 @@ import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 export class UsersQueryRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  async findAllUsers(query: GetUsersQueryParams): Promise<PaginatedViewDto<UsersViewDto[]>> {
+  async findAllUsers(
+    query: GetUsersQueryParams,
+  ): Promise<PaginatedViewDto<UsersViewDto[]>> {
     const loginTerm = query.searchLoginTerm
       ? `%${query.searchLoginTerm}%`
       : `%`;
@@ -21,42 +23,37 @@ export class UsersQueryRepository {
       createdAt: 'a.created_at',
       login: 'a.login',
       email: 'a.email',
-    }
+    };
 
     const sortBy = sortByMapping[query.sortBy] || 'a.created_at';
 
     const users = await this.dataSource.query(
       `
-        SELECT u.user_id,
+        SELECT u.id,
                a.login,
                a.email,
                a.created_at
         FROM "Users" u
-               JOIN "AccountData" a ON u.user_id = a.user_id
+               JOIN "AccountData" a ON u.id = a.id
         WHERE a.login ILIKE $1
           AND a.email ILIKE $2
-        ORDER BY ${sortBy} COLLATE "C" ${query.sortDirection}
+          AND a.deleted_at IS NULL
+        ORDER BY ${sortBy} /*COLLATE "C"*/ ${query.sortDirection}
           LIMIT $3
         OFFSET $4
-
       `,
-      [
-        loginTerm,
-        emailTerm,
-        query.pageSize,
-        query.calculateSkip(),
-      ],
+      [loginTerm, emailTerm, query.pageSize, query.calculateSkip()],
     );
 
     const totalCountResult = await this.dataSource.query(
       `
       SELECT COUNT(*) as count
       FROM "Users" u
-             JOIN "AccountData" a ON u.user_id = a.user_id
+             JOIN "AccountData" a ON u.id = a.id
       WHERE a.login ILIKE $1
         AND a.email ILIKE $2
     `,
-      [loginTerm, emailTerm]
+      [loginTerm, emailTerm],
     );
 
     const totalCount = parseInt(totalCountResult[0]?.count || '0', 10);
@@ -74,18 +71,18 @@ export class UsersQueryRepository {
   async findUserById(id: number) {
     const user = await this.dataSource.query(
       `
-        SELECT u.user_id,
+        SELECT u.id,
                a.login,
                a.email,
                a.created_at,
         FROM "Users" u
-               JOIN "AccountData" a ON u.user_id = a.user_id
-               LEFT JOIN "EmailConfirmation" e ON u.user_id = e.user_id
-        WHERE u.user_id = $1
+               JOIN "AccountData" a ON u.id = a.id
+               LEFT JOIN "EmailConfirmation" e ON u.id = e.id
+        WHERE u.id = $1
       `,
       [id],
     );
 
-    return UsersViewDto.mapToView(user)
+    return UsersViewDto.mapToView(user);
   }
 }

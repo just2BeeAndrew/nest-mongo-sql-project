@@ -11,31 +11,31 @@ export class UsersRepository {
   async create(dto: CreateUserDto, t: any) {
     const user = await t.query(
       `
-          WITH insert_user AS (
-          INSERT
-          INTO Users DEFAULT
-          VALUES RETURNING user_id
-            ), insert_account_data AS (
-          INSERT
-          INTO AccountData (user_id, login, password_hash, email, created_at, deleted_at)
-          SELECT user_id, $1, $2, $3, NOW(), NULL
-          FROM insert_user
-            RETURNING user_id
-            )
-          INSERT
-          INTO EmailConfirmation (user_id, confirmation_code, recovery_code, issued_at, expiration_date, is_confirmed)
-          SELECT user_id, NULL, NULL, NOW(), NOW() + interval '1 day', false
-          FROM insert_account_data
-            RETURNING user_id;
+        WITH insert_user AS (
+        INSERT
+        INTO "Users" DEFAULT
+        VALUES RETURNING id
+          ), insert_account_data AS (
+        INSERT
+        INTO "AccountData" (id, login, password_hash, email, created_at, deleted_at)
+        SELECT id, $1, $2, $3, NOW(), NULL
+        FROM insert_user
+          RETURNING id
+          )
+        INSERT
+        INTO "EmailConfirmation" (id, confirmation_code, recovery_code, issued_at, expiration_date, is_confirmed)
+        SELECT id, NULL, NULL, NOW(), NOW() + interval '1 day', false
+        FROM insert_account_data
+          RETURNING id;
       `,
       [dto.login, dto.passwordHash, dto.email],
     );
-    return user[0].user_id;
+    return user[0].id;
   }
 
   async findOne(id: string) {
     return await this.dataSource.query(
-      'SELECT 1 FROM "Users" WHERE user_id = $1 LIMIT 1',
+      'SELECT 1 FROM "Users" WHERE id = $1 LIMIT 1',
       [id],
     );
   }
@@ -61,7 +61,7 @@ export class UsersRepository {
   async findByLogin(login: string) {
     return await this.dataSource.query(
       `
-        SELECT u.user_id,
+        SELECT u.id,
                a.login,
                a.email,
                a.created_at,
@@ -72,8 +72,8 @@ export class UsersRepository {
                e.expiration_date,
                e.is_confirmed
         FROM "Users" u
-               JOIN "AccountData" a ON u.user_id = a.user_id
-               LEFT JOIN "EmailConfirmation" e ON u.user_id = e.user_id
+               JOIN "AccountData" a ON u.id = a.id
+               LEFT JOIN "EmailConfirmation" e ON u.id = e.id
         WHERE a.login = $1
       `,
       [login],
@@ -83,7 +83,7 @@ export class UsersRepository {
   async findByEmail(email: string) {
     return await this.dataSource.query(
       `
-        SELECT u.user_id,
+        SELECT u.id,
                a.login,
                a.email,
                a.created_at,
@@ -94,8 +94,8 @@ export class UsersRepository {
                e.expiration_date,
                e.is_confirmed
         FROM "Users" u
-               JOIN "AccountData" a ON u.user_id = a.user_id
-               LEFT JOIN "EmailConfirmation" e ON u.user_id = e.user_id
+               JOIN "AccountData" a ON u.id = a.id
+               LEFT JOIN "EmailConfirmation" e ON u.id = e.id
         WHERE a.email = $1
       `,
       [email],
@@ -106,18 +106,18 @@ export class UsersRepository {
     return `This action updates a #${id} user`;
   }
 
-  async setConfirmation(userId: number) {
+  async setConfirmation(id: number) {
     await this.dataSource.query(
       `
-      UPDATE "EmailConfirmation" SET is_confirmed = true WHERE user_id = $1 
+      UPDATE "EmailConfirmation" SET is_confirmed = true WHERE id = $1 
       `,
-      [userId],
+      [id],
     );
   }
 
   async updateRecoveryCode(id: string, recoveryCode: string) {
     await this.dataSource.query(
-      'UPDATE "EmailConfirmation" SET recovery_code = $1 WHERE user_id = $2',
+      'UPDATE "EmailConfirmation" SET recovery_code = $1 WHERE id = $2',
       [recoveryCode, id],
     );
   }
@@ -125,7 +125,7 @@ export class UsersRepository {
   remove(id: string) {
     return this.dataSource.query(
       `
-      UPDATE "AccountData" SET deleted_at = NOW() WHERE user_id = $1
+      UPDATE "AccountData" SET deleted_at = NOW() WHERE id = $1
       `,
       [id],
     );

@@ -26,6 +26,6 @@ const queries = [FindAllUsersQueryHandler, FindUserByIdQueryHandler]
 @Module({
   imports: [CqrsModule, NotificationsModule, BcryptModule],
   controllers: [UsersController, AuthController],
-  providers: [UsersRepository, ...useCases],
+  providers: [UsersRepository, ...useCases, ...queries],
 })
 export class UserAccountsModule {}
