@@ -102,6 +102,16 @@ export class UsersRepository {
     );
   }
 
+  async findByLoginOrEmail(loginOrEmail: string){
+    return this.dataSource.query(`
+      SELECT *
+      FROM "Users" u
+             JOIN "AccountData" a ON u.id = a.id
+             LEFT JOIN "EmailConfirmation" e ON u.id = e.id
+      WHERE a.email = $1 OR a.login = $1
+    `,[loginOrEmail])
+  }
+
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }

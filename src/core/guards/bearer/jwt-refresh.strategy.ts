@@ -4,7 +4,7 @@ import { Strategy } from 'passport-jwt';
 import { Request } from 'express';
 import { DomainException } from '../../exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../exception/filters/domain-exception-codes';
-import { SessionsRepository } from '../../../modules/users/infrastructure/sessions.repository';
+import { SessionsRepository } from '../../../modules/user-accounts/infrastructure/sessions.repository';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
