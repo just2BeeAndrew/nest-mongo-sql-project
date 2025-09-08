@@ -1,5 +1,5 @@
 export class CreateSessionDomainDto {
-  sessionId: string;
+  deviceId: string;
   userId: string;
   title: string;
   ip: string;

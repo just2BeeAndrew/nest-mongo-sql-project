@@ -18,6 +18,10 @@ import { DomainException } from '../../../core/exception/filters/domain-exceptio
 import { DomainExceptionCode } from '../../../core/exception/filters/domain-exception-codes';
 import { Request, Response } from 'express';
 import { LoginCommand } from '../application/usecases/login.usecases';
+import { JwtRefreshAuthGuard } from '../../../core/guards/bearer/jwt-refresh-auth.guard';
+import { ExtractUserFromRefreshToken } from '../../../core/decorators/param/extract-user-from-refresh-token.decorator';
+import { RefreshContextDto } from '../../../core/dto/refresh-context-dto';
+import { RefreshTokenCommand } from '../application/usecases/refresh-token.usecase';
 
 @Controller('auth')
 export class AuthController {
@@ -48,6 +52,26 @@ export class AuthController {
     const { accessToken, refreshToken } =
       await this.commandBus.execute<LoginCommand>(
         new LoginCommand({ userId: user.id }, title, ip),
+      );
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+
+    return { accessToken };
+  }
+
+  @Post('refresh-token')
+  @UseGuards(JwtRefreshAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async refreshToken(
+    @ExtractUserFromRefreshToken() user: RefreshContextDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { accessToken, refreshToken } =
+      await this.commandBus.execute<RefreshTokenCommand>(
+        new RefreshTokenCommand(user.id, user.deviceId),
       );
 
     res.cookie('refreshToken', refreshToken, {

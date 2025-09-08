@@ -9,6 +9,7 @@ export class TestingRepository {
     return this.dataSource.query(
       `
       TRUNCATE TABLE "Users" CASCADE
+      TRUNCATE TABLE "Sessions"
       `,
     );
   }

@@ -29,7 +29,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
   async execute(
     command: LoginCommand,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const sessionId = uuidv4() ;
+    const deviceId = uuidv4() ;
 
     const accessToken = this.accessTokenJwtService.sign({
       id: command.dto.userId,
@@ -37,13 +37,13 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
 
     const refreshToken = this.refreshTokenJwtService.sign({
       id: command.dto.userId,
-      deviceId: sessionId.toString(),
+      deviceId: deviceId,
     });
 
     const { iat, exp } = this.refreshTokenJwtService.decode(refreshToken);
 
     await this.sessionsRepository.createSession({
-      sessionId: sessionId,
+      deviceId: deviceId,
       userId: command.dto.userId,
       title: command.title,
       ip: command.ip,
