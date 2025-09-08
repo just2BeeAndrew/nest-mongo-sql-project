@@ -7,10 +7,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import {v4 as uuidv4} from 'uuid';
 import { SessionsRepository } from '../../infrastructure/sessions.repository';
-//import { Session, SessionModelType } from '../../domain/sessions.entity';
-//import { InjectModel } from '@nestjs/mongoose';
-//import { SessionsRepository } from '../../infrastructure/sessions.repository';
-//import { Types } from 'mongoose';
 
 export class LoginCommand {
   constructor(
@@ -46,7 +42,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
 
     const { iat, exp } = this.refreshTokenJwtService.decode(refreshToken);
 
-    const newSession = this.sessionsRepository.createSession({
+    await this.sessionsRepository.createSession({
       sessionId: sessionId,
       userId: command.dto.userId,
       title: command.title,
