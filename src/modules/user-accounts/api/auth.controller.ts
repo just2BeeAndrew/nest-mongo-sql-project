@@ -25,6 +25,7 @@ import { RefreshTokenCommand } from '../application/usecases/refresh-token.useca
 import { NewPasswordInputDto } from './input-dto/new-password.input-dto';
 import { NewPasswordCommand } from '../application/usecases/new-password.usecase';
 import { ConfirmationCodeInputDto } from './input-dto/confirmation-code.input-dto';
+import { RegistrationConfirmationCommand } from '../application/usecases/registration-confirmation.usecase';
 
 @Controller('auth')
 export class AuthController {
@@ -104,6 +105,6 @@ export class AuthController {
   async registrationConfirmation(
     @Body() code: ConfirmationCodeInputDto,
   ) {
-    return this.commandBus.execute<RegistrationConfirmationCommand>(new RegistrationConfirmationCommand)
+    return this.commandBus.execute<RegistrationConfirmationCommand>(new RegistrationConfirmationCommand(code.code))
   }
 }

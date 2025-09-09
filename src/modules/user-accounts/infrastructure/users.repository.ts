@@ -127,6 +127,19 @@ export class UsersRepository {
     );
   }
 
+  async findByConfirmationCode(code: string) {
+    return this.dataSource.query(
+      `
+        SELECT *
+        FROM "Users" u
+               JOIN "AccountData" a ON u.id = a.id
+               LEFT JOIN "EmailConfirmation" e ON u.id = e.id
+        WHERE e.confirmation_code = $1
+      `,
+      [code],
+    );
+  }
+
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
@@ -153,6 +166,8 @@ export class UsersRepository {
       [passwordHash, id],
     );
   }
+
+
 
   remove(id: string) {
     return this.dataSource.query(
