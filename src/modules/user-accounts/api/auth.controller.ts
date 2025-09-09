@@ -22,6 +22,9 @@ import { JwtRefreshAuthGuard } from '../../../core/guards/bearer/jwt-refresh-aut
 import { ExtractUserFromRefreshToken } from '../../../core/decorators/param/extract-user-from-refresh-token.decorator';
 import { RefreshContextDto } from '../../../core/dto/refresh-context-dto';
 import { RefreshTokenCommand } from '../application/usecases/refresh-token.usecase';
+import { NewPasswordInputDto } from './input-dto/new-password.input-dto';
+import { NewPasswordCommand } from '../application/usecases/new-password.usecase';
+import { ConfirmationCodeInputDto } from './input-dto/confirmation-code.input-dto';
 
 @Controller('auth')
 export class AuthController {
@@ -88,5 +91,19 @@ export class AuthController {
     return this.commandBus.execute<PasswordRecoveryCommand>(
       new PasswordRecoveryCommand(body.email),
     );
+  }
+
+  @Post('new-password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async newPassword(@Body() body: NewPasswordInputDto) {
+    return this.commandBus.execute<NewPasswordCommand>(new NewPasswordCommand(body));
+  }
+
+  @Post('registration-confirmation')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async registrationConfirmation(
+    @Body() code: ConfirmationCodeInputDto,
+  ) {
+    return this.commandBus.execute<RegistrationConfirmationCommand>(new RegistrationConfirmationCommand)
   }
 }

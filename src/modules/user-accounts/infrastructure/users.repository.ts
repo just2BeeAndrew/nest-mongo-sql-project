@@ -3,7 +3,6 @@ import { CreateUserDto } from '../domain/dto/create-user.dto';
 import { UpdateUserDto } from '../domain/dto/update-user.dto';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { GetUsersQueryParams } from '../api/input-dto/get-users-query-params.input-dto';
 
 @Injectable()
 export class UsersRepository {
@@ -102,14 +101,30 @@ export class UsersRepository {
     );
   }
 
-  async findByLoginOrEmail(loginOrEmail: string){
-    return this.dataSource.query(`
+  async findByLoginOrEmail(loginOrEmail: string) {
+    return this.dataSource.query(
+      `
       SELECT *
       FROM "Users" u
              JOIN "AccountData" a ON u.id = a.id
              LEFT JOIN "EmailConfirmation" e ON u.id = e.id
       WHERE a.email = $1 OR a.login = $1
-    `,[loginOrEmail])
+    `,
+      [loginOrEmail],
+    );
+  }
+
+  async findByRecoveryCode(recoveryCode: string) {
+    return this.dataSource.query(
+      `
+      SELECT *
+      FROM "Users" u
+             JOIN "AccountData" a ON u.id = a.id
+             LEFT JOIN "EmailConfirmation" e ON u.id = e.id
+      WHERE e.recovery_code = $1 
+      `,
+      [recoveryCode],
+    );
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
@@ -129,6 +144,13 @@ export class UsersRepository {
     await this.dataSource.query(
       'UPDATE "EmailConfirmation" SET recovery_code = $1 WHERE id = $2',
       [recoveryCode, id],
+    );
+  }
+
+  async setPasswordHash(id: string, passwordHash: string) {
+    await this.dataSource.query(
+      'UPDATE "AccountData" SET password_hash = $1 WHERE id = $2',
+      [passwordHash, id],
     );
   }
 
