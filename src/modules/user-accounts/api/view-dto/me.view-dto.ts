@@ -1,11 +1,9 @@
-import { UserDocument } from '../../domain/users.entity';
-
 export class MeViewDto {
   login: string;
   email: string;
   userId: string;
 
-  static mapToView(user: UserDocument): MeViewDto {
+  static mapToView(user: any): MeViewDto {
     const dto = new MeViewDto();
 
     dto.login = user.accountData.login;
