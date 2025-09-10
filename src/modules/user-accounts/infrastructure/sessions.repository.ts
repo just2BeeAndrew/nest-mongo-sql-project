@@ -5,17 +5,17 @@ import { DataSource } from 'typeorm';
 
 @Injectable()
 export class SessionsRepository {
-  constructor(@InjectDataSource() private datasource: DataSource) {}
+  constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async findSessionById(deviceId: string) {
-    return await this.datasource.query(
+    return await this.dataSource.query(
       'SELECT 1 FROM "Sessions" WHERE device_id = $1 LIMIT 1',
       [deviceId],
     );
   }
 
   async createSession(dto: CreateSessionDomainDto) {
-    await this.datasource.query(
+    await this.dataSource.query(
       `
         INSERT INTO "Sessions" (device_id, user_id, title, ip, iat, exp, deleted_at)
         VALUES ($1, $2, $3, $4, $5, $6, NULL)
@@ -25,11 +25,20 @@ export class SessionsRepository {
   }
 
   async setSession(deviceId: string, iat: number, exp: number) {
-    await this.datasource.query(
+    await this.dataSource.query(
       `
       UPDATE "Sessions" SET iat = $1, exp = $2 WHERE device_id = $3
       `,
       [iat, exp, deviceId],
+    );
+  }
+
+  async softDeleteSession(deviceId: string) {
+    return this.dataSource.query(
+      `
+      UPDATE "Sessions" SET deleted_at = NOW() WHERE id = $1
+      `,
+      [deviceId],
     );
   }
 }

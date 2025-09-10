@@ -27,9 +27,10 @@ import { NewPasswordCommand } from '../application/usecases/new-password.usecase
 import { ConfirmationCodeInputDto } from './input-dto/confirmation-code.input-dto';
 import { RegistrationConfirmationCommand } from '../application/usecases/registration-confirmation.usecase';
 import { CreateUserInputDto } from './input-dto/create-users.input-dto';
-import { CreateUserCommand } from '../application/usecases/create-user.usecase';
 import { RegistrationCommand } from '../application/usecases/registration.usecase';
-import { RegistrationEmailRsendingInputDto } from './input-dto/registration-email-rsending.input-dto';
+import { RegistrationEmailResendingInputDto } from './input-dto/registration-email-resending.input-dto';
+import { RegistrationEmailResendingCommand } from '../application/usecases/registration-email-resending-commnad';
+import { LogoutCommand } from '../application/usecases/logout.usecase';
 
 @Controller('auth')
 export class AuthController {
@@ -125,10 +126,23 @@ export class AuthController {
   @Post('registration-email-resending')
   @HttpCode(HttpStatus.NO_CONTENT)
   async registrationEmailResending(
-    @Body() body: RegistrationEmailRsendingInputDto,
+    @Body() body: RegistrationEmailResendingInputDto,
   ) {
     return this.commandBus.execute<RegistrationEmailResendingCommand>(
       new RegistrationEmailResendingCommand(body.email),
     );
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtRefreshAuthGuard)
+  async logout(
+    @ExtractUserFromRefreshToken() user: RefreshContextDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    await this.commandBus.execute<LogoutCommand>(
+      new LogoutCommand(user.id, user.deviceId),
+    );
+    res.clearCookie('refreshToken', { httpOnly: true, secure: true });
   }
 }
