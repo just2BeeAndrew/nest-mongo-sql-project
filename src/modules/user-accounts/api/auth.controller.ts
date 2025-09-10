@@ -26,6 +26,10 @@ import { NewPasswordInputDto } from './input-dto/new-password.input-dto';
 import { NewPasswordCommand } from '../application/usecases/new-password.usecase';
 import { ConfirmationCodeInputDto } from './input-dto/confirmation-code.input-dto';
 import { RegistrationConfirmationCommand } from '../application/usecases/registration-confirmation.usecase';
+import { CreateUserInputDto } from './input-dto/create-users.input-dto';
+import { CreateUserCommand } from '../application/usecases/create-user.usecase';
+import { RegistrationCommand } from '../application/usecases/registration.usecase';
+import { RegistrationEmailRsendingInputDto } from './input-dto/registration-email-rsending.input-dto';
 
 @Controller('auth')
 export class AuthController {
@@ -97,14 +101,34 @@ export class AuthController {
   @Post('new-password')
   @HttpCode(HttpStatus.NO_CONTENT)
   async newPassword(@Body() body: NewPasswordInputDto) {
-    return this.commandBus.execute<NewPasswordCommand>(new NewPasswordCommand(body));
+    return this.commandBus.execute<NewPasswordCommand>(
+      new NewPasswordCommand(body),
+    );
   }
 
   @Post('registration-confirmation')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async registrationConfirmation(
-    @Body() code: ConfirmationCodeInputDto,
+  async registrationConfirmation(@Body() code: ConfirmationCodeInputDto) {
+    return this.commandBus.execute<RegistrationConfirmationCommand>(
+      new RegistrationConfirmationCommand(code.code),
+    );
+  }
+
+  @Post('registration')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async registration(@Body() body: CreateUserInputDto) {
+    return this.commandBus.execute<RegistrationCommand>(
+      new RegistrationCommand(body),
+    );
+  }
+
+  @Post('registration-email-resending')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async registrationEmailResending(
+    @Body() body: RegistrationEmailRsendingInputDto,
   ) {
-    return this.commandBus.execute<RegistrationConfirmationCommand>(new RegistrationConfirmationCommand(code.code))
+    return this.commandBus.execute<RegistrationEmailResendingCommand>(
+      new RegistrationEmailResendingCommand(body.email),
+    );
   }
 }

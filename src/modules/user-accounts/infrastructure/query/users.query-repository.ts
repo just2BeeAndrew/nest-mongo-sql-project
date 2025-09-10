@@ -68,7 +68,7 @@ export class UsersQueryRepository {
     });
   }
 
-  async findUserById(id: number) {
+  async findUserById(id: string) {
     const user = await this.dataSource.query(
       `
         SELECT u.id,

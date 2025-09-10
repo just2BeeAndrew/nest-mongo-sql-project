@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '../../infrastructure/users.repository';
 
 export class SetConfirmationCommand {
-  constructor(public userId: number) {}
+  constructor(public userId: string) {}
 }
 
 @CommandHandler(SetConfirmationCommand)

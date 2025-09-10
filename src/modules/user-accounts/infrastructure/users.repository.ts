@@ -144,7 +144,7 @@ export class UsersRepository {
     return `This action updates a #${id} user`;
   }
 
-  async setConfirmation(id: number) {
+  async setConfirmation(id: string) {
     await this.dataSource.query(
       `
       UPDATE "EmailConfirmation" SET is_confirmed = true WHERE id = $1 
@@ -160,14 +160,19 @@ export class UsersRepository {
     );
   }
 
+  async setConfirmationCode(id: string, code: string) {
+    await this.dataSource.query(
+      'UPDATE "EmailConfirmation" SET confirmation_code = $1 WHERE id = $2',
+      [code, id],
+    );
+  }
+
   async setPasswordHash(id: string, passwordHash: string) {
     await this.dataSource.query(
       'UPDATE "AccountData" SET password_hash = $1 WHERE id = $2',
       [passwordHash, id],
     );
   }
-
-
 
   remove(id: string) {
     return this.dataSource.query(

@@ -36,7 +36,7 @@ export class UsersController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() body: CreateUserInputDto) {
-    const userId = await this.commandBus.execute<CreateUserByAdminCommand,number>(new CreateUserByAdminCommand(body));
+    const userId = await this.commandBus.execute<CreateUserByAdminCommand,string>(new CreateUserByAdminCommand(body));
 
     return this.queryBus.execute(new FindUserByIdQuery(userId));
   }
