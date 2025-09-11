@@ -41,4 +41,13 @@ export class SessionsRepository {
       [deviceId],
     );
   }
+
+  async softDeleteSessionExcludeCurrent(userId: string, deviceId: string) {
+    return await this.dataSource.query(
+      `
+    DELETE FROM "Session"  WHERE user_id = $1 AND device_id <> $2;
+    `,
+      [userId, deviceId],
+    );
+  }
 }

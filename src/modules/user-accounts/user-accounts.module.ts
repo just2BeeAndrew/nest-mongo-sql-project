@@ -18,23 +18,33 @@ import { RegistrationConfirmationUseCase } from './application/usecases/registra
 import { RegistrationEmailResendingUseCase } from './application/usecases/registration-email-resending-commnad';
 import { LogoutUseCase } from './application/usecases/logout.usecase';
 import { MeQueryHandler } from './application/queries/me.query-handler';
+import { GetAllSessionsQueryHandler } from './application/queries/get-all-sessions.query-heandler';
+import { DeleteSessionByIdUseCase } from './application/usecases/delete-session-by-id.usecase';
+import { DeleteSessionsExcludeCurrentUseCase } from './application/usecases/delete-sessions-exclude-current.usecase';
+import { LoginUseCase } from './application/usecases/login.usecases';
+import { NewPasswordUseCase } from './application/usecases/new-password.usecase';
 
 const useCases = [
   CreateUserUseCase,
   CreateUserByAdminUseCase,
+  DeleteSessionByIdUseCase,
+  DeleteSessionsExcludeCurrentUseCase,
   DeleteUserUseCase,
+  LoginUseCase,
+  LogoutUseCase,
+  NewPasswordUseCase,
   PasswordRecoveryUseCase,
   RefreshTokenUseCase,
   RegistrationUseCase,
   RegistrationConfirmationUseCase,
   RegistrationEmailResendingUseCase,
-  LogoutUseCase,
   SetConfirmationUseCase,
 ];
 
 const queries = [
   FindAllUsersQueryHandler,
   FindUserByIdQueryHandler,
+  GetAllSessionsQueryHandler,
   MeQueryHandler,
 ];
 

@@ -12,7 +12,7 @@ export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async execute({ id }: DeleteUserCommand) {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findUserById(id);
     if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
