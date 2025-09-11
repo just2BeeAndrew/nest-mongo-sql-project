@@ -17,6 +17,7 @@ import { RegistrationUseCase } from './application/usecases/registration.usecase
 import { RegistrationConfirmationUseCase } from './application/usecases/registration-confirmation.usecase';
 import { RegistrationEmailResendingUseCase } from './application/usecases/registration-email-resending-commnad';
 import { LogoutUseCase } from './application/usecases/logout.usecase';
+import { MeQueryHandler } from './application/queries/me.query-handler';
 
 const useCases = [
   CreateUserUseCase,
@@ -31,7 +32,11 @@ const useCases = [
   SetConfirmationUseCase,
 ];
 
-const queries = [FindAllUsersQueryHandler, FindUserByIdQueryHandler];
+const queries = [
+  FindAllUsersQueryHandler,
+  FindUserByIdQueryHandler,
+  MeQueryHandler,
+];
 
 @Module({
   imports: [CqrsModule, NotificationsModule, BcryptModule],

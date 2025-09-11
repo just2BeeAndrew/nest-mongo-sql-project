@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -10,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { PasswordRecoveryInputDto } from './input-dto/password-recovery.input-dto';
 import { CommandBus } from '@nestjs/cqrs';
+import { QueryBus } from '@nestjs/cqrs';
 import { PasswordRecoveryCommand } from '../application/usecases/password-recovery.usecase';
 import { LocalAuthGuard } from '../../../core/guards/local/local-auth.guard';
 import { ExtractUserFromAccessToken } from '../../../core/decorators/param/extract-user-from-access-token.decorator';
@@ -31,10 +33,18 @@ import { RegistrationCommand } from '../application/usecases/registration.usecas
 import { RegistrationEmailResendingInputDto } from './input-dto/registration-email-resending.input-dto';
 import { RegistrationEmailResendingCommand } from '../application/usecases/registration-email-resending-commnad';
 import { LogoutCommand } from '../application/usecases/logout.usecase';
+import { SkipThrottle } from '@nestjs/throttler';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../../core/guards/bearer/jwt-auth.guard';
+import { MeViewDto } from './view-dto/me.view-dto';
+import { MeQuery } from '../application/queries/me.query-handler';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -144,5 +154,17 @@ export class AuthController {
       new LogoutCommand(user.id, user.deviceId),
     );
     res.clearCookie('refreshToken', { httpOnly: true, secure: true });
+  }
+
+  @SkipThrottle()
+  @ApiBearerAuth()
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async me(
+    @ExtractUserFromAccessToken() user: AccessContextDto,
+  ): Promise<MeViewDto> {
+    return this.queryBus.execute(new MeQuery(user.id));
+
   }
 }

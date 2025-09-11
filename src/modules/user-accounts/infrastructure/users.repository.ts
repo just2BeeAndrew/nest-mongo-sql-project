@@ -32,9 +32,14 @@ export class UsersRepository {
     return user[0].id;
   }
 
-  async findOne(id: string) {
+  async findUserById(id: string) {
     return await this.dataSource.query(
-      'SELECT 1 FROM "Users" WHERE id = $1 LIMIT 1',
+      `
+        SELECT *
+        FROM "Users" u
+               JOIN "AccountData" a ON u.id = a.id
+               LEFT JOIN "EmailConfirmation" e ON u.id = e.id
+        WHERE a.login = $1`,
       [id],
     );
   }
