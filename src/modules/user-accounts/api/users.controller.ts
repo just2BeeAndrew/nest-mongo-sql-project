@@ -24,7 +24,7 @@ import { CreateUserByAdminCommand } from '../application/usecases/create-user-by
 import { FindUserByIdQuery } from '../application/queries/find-user-by-id.query-handler';
 import { DeleteUserCommand } from '../application/usecases/delete-user.usecase';
 
-@Controller('users')
+@Controller('sa/users')
 export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,

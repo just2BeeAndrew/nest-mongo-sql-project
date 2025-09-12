@@ -23,6 +23,16 @@ import { DeleteSessionByIdUseCase } from './application/usecases/delete-session-
 import { DeleteSessionsExcludeCurrentUseCase } from './application/usecases/delete-sessions-exclude-current.usecase';
 import { LoginUseCase } from './application/usecases/login.usecases';
 import { NewPasswordUseCase } from './application/usecases/new-password.usecase';
+import { SessionsRepository } from './infrastructure/sessions.repository';
+import {
+  ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
+  REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+} from '../../core/constants/auth-tokens.inject-constants';
+import { JwtService } from '@nestjs/jwt';
+import { UsersQueryRepository } from './infrastructure/query/users.query-repository';
+import { AuthService } from './application/auth.service';
+import { SessionsQueryRepository } from './infrastructure/query/session.query-repository';
+import { AuthQueryRepository } from './infrastructure/query/auth.query-repository';
 
 const useCases = [
   CreateUserUseCase,
@@ -51,6 +61,35 @@ const queries = [
 @Module({
   imports: [CqrsModule, NotificationsModule, BcryptModule],
   controllers: [UsersController, AuthController],
-  providers: [UsersRepository, ...useCases, ...queries],
+  providers: [
+    AuthService,
+    AuthQueryRepository,
+    UsersRepository,
+    UsersQueryRepository,
+    SessionsRepository,
+    SessionsQueryRepository,
+    ...useCases,
+    ...queries,
+    {
+      provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
+      useFactory: (): JwtService => {
+        return new JwtService({
+          secret: 'access-token-secret',
+          signOptions: { expiresIn: 10 },
+        });
+      },
+      inject: [],
+    },
+    {
+      provide: REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+      useFactory: (): JwtService => {
+        return new JwtService({
+          secret: 'refresh-token-secret',
+          signOptions: { expiresIn: 20 },
+        });
+      },
+      inject: [],
+    },
+  ],
 })
 export class UserAccountsModule {}

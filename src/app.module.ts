@@ -4,11 +4,13 @@ import { AppService } from './app.service';
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { TestingModule } from './modules/testing/testing.module';
 
 @Module({
   imports: [
     UserAccountsModule,
     NotificationsModule,
+    TestingModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: '127.0.0.1',

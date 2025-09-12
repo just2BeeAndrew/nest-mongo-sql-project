@@ -7,10 +7,10 @@ export class UsersViewDto {
   static mapToView(user: any): UsersViewDto {
     const dto = new UsersViewDto();
 
-    dto.id = user.user_id.toString();
+    dto.id = user.id.toString();
     dto.login = user.login;
     dto.email = user.email;
-    dto.createdAt = user.createdAt.toISOString();
+    dto.createdAt = user.created_at.toISOString();
 
     return dto;
   }

@@ -8,8 +8,8 @@ export class TestingRepository {
   async deleteAll() {
     return this.dataSource.query(
       `
-      TRUNCATE TABLE "Users" CASCADE
-      TRUNCATE TABLE "Sessions"
+      TRUNCATE TABLE "Users" CASCADE;
+      TRUNCATE TABLE "Sessions";
       `,
     );
   }
