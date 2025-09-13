@@ -35,10 +35,10 @@ export class UsersQueryRepository {
                a.created_at
         FROM "Users" u
                JOIN "AccountData" a ON u.id = a.id
-        WHERE a.login ILIKE $1
-          AND a.email ILIKE $2
+        WHERE (a.login ILIKE $1
+          OR a.email ILIKE $2)
           AND a.deleted_at IS NULL
-        ORDER BY ${sortBy} /*COLLATE "C"*/ ${query.sortDirection}
+        ORDER BY ${sortBy} ${query.sortDirection}
           LIMIT $3
         OFFSET $4
       `,
@@ -74,7 +74,7 @@ export class UsersQueryRepository {
         SELECT u.id,
                a.login,
                a.email,
-               a.created_at,
+               a.created_at
         FROM "Users" u
                JOIN "AccountData" a ON u.id = a.id
                LEFT JOIN "EmailConfirmation" e ON u.id = e.id
@@ -83,6 +83,6 @@ export class UsersQueryRepository {
       [id],
     );
 
-    return UsersViewDto.mapToView(user);
+    return UsersViewDto.mapToView(user[0]);
   }
 }

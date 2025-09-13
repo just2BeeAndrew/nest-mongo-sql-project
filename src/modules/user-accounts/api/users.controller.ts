@@ -55,6 +55,7 @@ export class UsersController {
 
   @Delete(':id')
   @UseGuards(BasicAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.commandBus.execute<DeleteUserCommand>(new DeleteUserCommand(id) );
   }
