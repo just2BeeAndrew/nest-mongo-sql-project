@@ -20,17 +20,17 @@ export class AuthService {
     password: string,
   ): Promise<AccessContextDto | null> {
     const user = await this.usersRepository.findByLoginOrEmail(loginOrEmail);
-    if (!user) {
+    if (user.length === 0) {
       return null;
     }
 
-    if (!user.emailConfirmation.isConfirmed) {
+    if (!user.is_confirmed) {
       return null;
     }
 
     const isPasswordValid = await this.bcryptService.comparePassword({
       password: password,
-      hash: user.accountData.passwordHash,
+      hash: user.password_hash,
     });
 
     if (!isPasswordValid) {

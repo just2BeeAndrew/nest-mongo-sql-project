@@ -39,7 +39,8 @@ export class UsersRepository {
         FROM "Users" u
                JOIN "AccountData" a ON u.id = a.id
                LEFT JOIN "EmailConfirmation" e ON u.id = e.id
-        WHERE a.login = $1`,
+        WHERE a.id = $1
+          AND a.deleted_at IS NULL`,
       [id],
     );
   }
@@ -47,7 +48,7 @@ export class UsersRepository {
   async isLoginTaken(login: string, manager?: any): Promise<boolean> {
     const runner = manager ?? this.dataSource;
     const result = await runner.query(
-      'SELECT 1 FROM "AccountData" WHERE login = $1 LIMIT 1',
+      'SELECT 1 FROM "AccountData" WHERE login = $1 AND deleted_at IS NULL LIMIT 1 ',
       [login],
     );
     return result.length > 0;
@@ -56,7 +57,7 @@ export class UsersRepository {
   async isEmailTaken(email: string, manager?: any): Promise<boolean> {
     const runner = manager ?? this.dataSource;
     const result = await runner.query(
-      'SELECT 1 FROM "AccountData" WHERE email = $1 LIMIT 1',
+      'SELECT 1 FROM "AccountData" WHERE email = $1 AND deleted_at IS NULL LIMIT 1',
       [email],
     );
     return result.length > 0;

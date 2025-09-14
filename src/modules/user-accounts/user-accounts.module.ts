@@ -33,6 +33,9 @@ import { UsersQueryRepository } from './infrastructure/query/users.query-reposit
 import { AuthService } from './application/auth.service';
 import { SessionsQueryRepository } from './infrastructure/query/session.query-repository';
 import { AuthQueryRepository } from './infrastructure/query/auth.query-repository';
+import { LocalStrategy } from '../../core/guards/local/local.strategy';
+import { JwtStrategy } from '../../core/guards/bearer/jwt.strategy';
+import { JwtRefreshStrategy } from '../../core/guards/bearer/jwt-refresh.strategy';
 
 const useCases = [
   CreateUserUseCase,
@@ -68,6 +71,9 @@ const queries = [
     UsersQueryRepository,
     SessionsRepository,
     SessionsQueryRepository,
+    LocalStrategy,
+    JwtStrategy,
+    JwtRefreshStrategy,
     ...useCases,
     ...queries,
     {
