@@ -47,12 +47,14 @@ export class UsersQueryRepository {
 
     const totalCountResult = await this.dataSource.query(
       `
-      SELECT COUNT(*) as count
-      FROM "Users" u
-             JOIN "AccountData" a ON u.id = a.id
-      WHERE a.login ILIKE $1
-        AND a.email ILIKE $2
-    `,
+        SELECT COUNT(*) as count
+        FROM "Users" u
+          JOIN "AccountData" a
+        ON u.id = a.id
+        WHERE (a.login ILIKE $1
+           OR a.email ILIKE $2)
+          AND a.deleted_at IS NULL
+      `,
       [loginTerm, emailTerm],
     );
 
