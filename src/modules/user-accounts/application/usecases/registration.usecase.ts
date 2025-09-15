@@ -28,8 +28,14 @@ export class RegistrationUseCase
 
     await this.usersRepository.setConfirmationCode(userId, confirmCode);
 
-    await this.emailService
-      .sendConfirmationEmail(userId, confirmCode)
-      .catch(console.error);
+    try {
+      await this.emailService.sendConfirmationEmail(
+        command.dto.email,
+        confirmCode,
+      );
+    } catch {
+      await this.usersRepository.deleteUser(userId);
+      console.error()
+    }
   }
 }

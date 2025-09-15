@@ -10,5 +10,5 @@ export const passwordConstants = {
 }
 
 export const emailConstants = {
-  match: /^[\w.-]+@([\w-]+\.)+[\w-]{2,}$/,
+  match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
 }

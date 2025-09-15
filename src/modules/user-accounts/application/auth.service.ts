@@ -20,7 +20,7 @@ export class AuthService {
     password: string,
   ): Promise<AccessContextDto | null> {
     const user = await this.usersRepository.findByLoginOrEmail(loginOrEmail);
-    if (user.length === 0) {
+    if (!user) {
       return null;
     }
 
@@ -37,6 +37,6 @@ export class AuthService {
       return null;
     }
 
-    return { id: user._id.toString() };
+    return { id: user.id.toString() };
   }
 }

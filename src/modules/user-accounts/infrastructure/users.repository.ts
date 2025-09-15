@@ -86,7 +86,7 @@ export class UsersRepository {
   }
 
   async findByEmail(email: string) {
-    return await this.dataSource.query(
+    const user =  await this.dataSource.query(
       `
         SELECT u.id,
                a.login,
@@ -105,10 +105,12 @@ export class UsersRepository {
       `,
       [email],
     );
+
+    return user[0] || null;
   }
 
   async findByLoginOrEmail(loginOrEmail: string) {
-    return this.dataSource.query(
+    const user = await this.dataSource.query(
       `
       SELECT *
       FROM "Users" u
@@ -118,6 +120,7 @@ export class UsersRepository {
     `,
       [loginOrEmail],
     );
+    return user[0] || null;
   }
 
   async findByRecoveryCode(recoveryCode: string) {
@@ -180,12 +183,18 @@ export class UsersRepository {
     );
   }
 
-  remove(id: string) {
+  softDeleteUser(id: string) {
     return this.dataSource.query(
       `
       UPDATE "AccountData" SET deleted_at = NOW() WHERE id = $1
       `,
       [id],
     );
+  }
+
+  deleteUser(id: string) {
+    return this.dataSource.query(`
+    DELETE FROM "Users" WHERE id = $1 CASCADE
+    `);
   }
 }

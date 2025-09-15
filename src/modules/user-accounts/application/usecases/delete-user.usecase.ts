@@ -21,6 +21,6 @@ export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
       });
     }
 
-    await this.usersRepository.remove(id)
+    await this.usersRepository.softDeleteUser(id)
   }
 }

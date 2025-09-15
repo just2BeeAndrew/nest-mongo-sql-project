@@ -28,7 +28,7 @@ export class RegistrationEmailResendingUseCase
       });
     }
 
-    if (user.emailConfirmation.isConfirmed) {
+    if (user.is_confirmed) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: 'Bad Request',
@@ -44,7 +44,7 @@ export class RegistrationEmailResendingUseCase
     );
 
     await this.emailService
-      .sendConfirmationEmail(user.id, newConfirmationCode)
+      .sendConfirmationEmail(command.email, newConfirmationCode)
       .catch(console.error);
   }
 }

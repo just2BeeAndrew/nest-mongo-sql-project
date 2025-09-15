@@ -5,8 +5,5 @@ export class RegistrationEmailResendingInputDto {
   @IsStringWithTrim()
   @IsNotEmpty()
   @IsEmail()
-  @Matches(/^[\w.-]+@([\w-]+\.)+[\w-]{2,}$/, {
-    message: 'Invalid email format',
-  })
   email: string;
 }

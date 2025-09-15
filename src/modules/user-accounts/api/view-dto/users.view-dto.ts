@@ -5,7 +5,6 @@ export class UsersViewDto {
   createdAt: string;
 
   static mapToView(user: any): UsersViewDto {
-    console.log("user",user);
     const dto = new UsersViewDto();
 
     dto.id = user.id.toString();
