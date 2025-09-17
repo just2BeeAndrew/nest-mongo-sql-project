@@ -8,10 +8,13 @@ export class SessionsRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async findSessionById(deviceId: string) {
-    return await this.dataSource.query(
-      'SELECT 1 FROM "Sessions" WHERE device_id = $1 LIMIT 1',
+    console.log(deviceId);
+    const session = await this.dataSource.query(
+      'SELECT * FROM "Sessions" WHERE device_id = $1 LIMIT 1',
       [deviceId],
     );
+
+    return session[0] || null;
   }
 
   async createSession(dto: CreateSessionDomainDto) {

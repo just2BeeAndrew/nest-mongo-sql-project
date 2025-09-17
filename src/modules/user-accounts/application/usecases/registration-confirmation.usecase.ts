@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { UsersRepository } from '../../infrastructure/users.repository';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
+import { loginConstants } from '../../constants/users.constants';
 
 export class RegistrationConfirmationCommand {
   constructor(public code: string) {}
@@ -24,7 +25,7 @@ export class RegistrationConfirmationUseCase
       });
     }
 
-    if (user.emailConfirmation.isConfirmed) {
+    if (user.is_confirmed) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: "Bad Request",
@@ -32,7 +33,7 @@ export class RegistrationConfirmationUseCase
       });
     }
 
-    if (user.emailConfirmation.confirmationCode !== command.code) {
+    if (user.confirmation_code !== command.code) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: 'Bad Request',
@@ -40,7 +41,7 @@ export class RegistrationConfirmationUseCase
       });
     }
 
-    if (user.emailConfirmation.expirationDate < new Date()) {
+    if (user.expiration_date < new Date()) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: 'Bad Request',

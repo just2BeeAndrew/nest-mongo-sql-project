@@ -137,7 +137,7 @@ export class UsersRepository {
   }
 
   async findByConfirmationCode(code: string) {
-    return this.dataSource.query(
+    const user = await this.dataSource.query(
       `
         SELECT *
         FROM "Users" u
@@ -147,6 +147,8 @@ export class UsersRepository {
       `,
       [code],
     );
+
+    return user[0] || null;
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

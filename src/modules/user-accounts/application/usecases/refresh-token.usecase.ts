@@ -32,7 +32,7 @@ export class RefreshTokenUseCase
     const session = await this.sessionsRepository.findSessionById(
       command.deviceId,
     );
-    if (!session.length) {
+    if (!session) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: 'Not Found',

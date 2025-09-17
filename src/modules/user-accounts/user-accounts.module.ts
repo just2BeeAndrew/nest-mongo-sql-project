@@ -81,7 +81,7 @@ const queries = [
       useFactory: (): JwtService => {
         return new JwtService({
           secret: 'access-token-secret',
-          signOptions: { expiresIn: 10 },
+          signOptions: { expiresIn: 1000 },
         });
       },
       inject: [],
@@ -91,7 +91,7 @@ const queries = [
       useFactory: (): JwtService => {
         return new JwtService({
           secret: 'refresh-token-secret',
-          signOptions: { expiresIn: 20 },
+          signOptions: { expiresIn: 2000 },
         });
       },
       inject: [],
