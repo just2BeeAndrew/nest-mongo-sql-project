@@ -29,13 +29,10 @@ export class RegistrationUseCase
     await this.usersRepository.setConfirmationCode(userId, confirmCode);
 
     try {
-      await this.emailService.sendConfirmationEmail(
-        command.dto.email,
-        confirmCode,
-      );
+      this.emailService.sendConfirmationEmail(command.dto.email, confirmCode);
     } catch {
       await this.usersRepository.deleteUser(userId);
-      console.error()
+      console.error();
     }
   }
 }

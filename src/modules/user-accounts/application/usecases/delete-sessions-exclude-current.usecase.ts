@@ -28,7 +28,7 @@ export class DeleteSessionsExcludeCurrentUseCase
       });
     }
 
-    if (session.userId !== command.userId) {
+    if (session.user_id !== command.userId) {
       throw new DomainException({
         code: DomainExceptionCode.Forbidden,
         message: 'Forbidden',
@@ -36,7 +36,7 @@ export class DeleteSessionsExcludeCurrentUseCase
       });
     }
 
-    await this.sessionRepository.softDeleteSessionExcludeCurrent(
+    await this.sessionRepository.deleteSessionExcludeCurrent(
       command.userId,
       command.deviceId,
     );

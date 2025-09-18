@@ -21,6 +21,7 @@ export class DeleteSessionByIdUseCase
     const session = await this.sessionRepository.findSessionById(
       command.uriParam,
     );
+
     if (!session) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
@@ -29,7 +30,7 @@ export class DeleteSessionByIdUseCase
       });
     }
 
-    if (session.userId !== command.userId) {
+    if (session.user_id !== command.userId) {
       throw new DomainException({
         code: DomainExceptionCode.Forbidden,
         message: 'Forbidden',
@@ -37,6 +38,6 @@ export class DeleteSessionByIdUseCase
       });
     }
 
-    await this.sessionRepository.softDeleteSession(command.deviceId)
+    await this.sessionRepository.deleteSession(command.uriParam)
   }
 }

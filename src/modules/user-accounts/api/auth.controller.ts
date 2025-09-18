@@ -38,7 +38,9 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../core/guards/bearer/jwt-auth.guard';
 import { MeViewDto } from './view-dto/me.view-dto';
 import { MeQuery } from '../application/queries/me.query-handler';
+import { CustomThrottlerGuard } from '../../../core/guards/throttler.guard';
 
+@UseGuards(CustomThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -72,7 +74,6 @@ export class AuthController {
       await this.commandBus.execute<LoginCommand>(
         new LoginCommand({ userId: user.id }, title, ip),
       );
-    console.log(accessToken, refreshToken);
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -82,6 +83,7 @@ export class AuthController {
     return { accessToken };
   }
 
+  @SkipThrottle()
   @Post('refresh-token')
   @UseGuards(JwtRefreshAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -143,7 +145,7 @@ export class AuthController {
       new RegistrationEmailResendingCommand(body.email),
     );
   }
-
+  @SkipThrottle()
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshAuthGuard)

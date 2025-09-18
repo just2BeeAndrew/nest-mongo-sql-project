@@ -10,6 +10,7 @@ import { TestingModule } from './modules/testing/testing.module';
   imports: [
     UserAccountsModule,
     NotificationsModule,
+
     TestingModule,
     TypeOrmModule.forRoot({
       type: 'postgres',

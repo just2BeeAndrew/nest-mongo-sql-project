@@ -6,9 +6,9 @@ export class MeViewDto {
   static mapToView(user: any): MeViewDto {
     const dto = new MeViewDto();
 
-    dto.login = user.accountData.login;
-    dto.email = user.accountData.email;
-    dto.userId = user._id.toString();
+    dto.login = user.login;
+    dto.email = user.email;
+    dto.userId = user.id.toString();
 
     return dto;
   }

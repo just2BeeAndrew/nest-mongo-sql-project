@@ -36,6 +36,8 @@ import { AuthQueryRepository } from './infrastructure/query/auth.query-repositor
 import { LocalStrategy } from '../../core/guards/local/local.strategy';
 import { JwtStrategy } from '../../core/guards/bearer/jwt.strategy';
 import { JwtRefreshStrategy } from '../../core/guards/bearer/jwt-refresh.strategy';
+import { SecurityDevicesController } from './api/security-devices.controller';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 const useCases = [
   CreateUserUseCase,
@@ -62,8 +64,13 @@ const queries = [
 ];
 
 @Module({
-  imports: [CqrsModule, NotificationsModule, BcryptModule],
-  controllers: [UsersController, AuthController],
+  imports: [
+    CqrsModule,
+    NotificationsModule,
+    BcryptModule,
+    ThrottlerModule.forRoot([{ ttl: 10000, limit: 5 }]),
+  ],
+  controllers: [UsersController, AuthController, SecurityDevicesController],
   providers: [
     AuthService,
     AuthQueryRepository,
@@ -81,7 +88,7 @@ const queries = [
       useFactory: (): JwtService => {
         return new JwtService({
           secret: 'access-token-secret',
-          signOptions: { expiresIn: 1000 },
+          signOptions: { expiresIn: 10 },
         });
       },
       inject: [],
@@ -91,7 +98,7 @@ const queries = [
       useFactory: (): JwtService => {
         return new JwtService({
           secret: 'refresh-token-secret',
-          signOptions: { expiresIn: 2000 },
+          signOptions: { expiresIn: 20 },
         });
       },
       inject: [],

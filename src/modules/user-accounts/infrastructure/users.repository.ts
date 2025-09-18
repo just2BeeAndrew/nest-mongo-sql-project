@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../domain/dto/create-user.dto';
-import { UpdateUserDto } from '../domain/dto/update-user.dto';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 
@@ -33,7 +32,7 @@ export class UsersRepository {
   }
 
   async findUserById(id: string) {
-    return await this.dataSource.query(
+    const user = await this.dataSource.query(
       `
         SELECT *
         FROM "Users" u
@@ -43,6 +42,8 @@ export class UsersRepository {
           AND a.deleted_at IS NULL`,
       [id],
     );
+
+    return user[0] || null;
   }
 
   async isLoginTaken(login: string, manager?: any): Promise<boolean> {
@@ -86,7 +87,7 @@ export class UsersRepository {
   }
 
   async findByEmail(email: string) {
-    const user =  await this.dataSource.query(
+    const user = await this.dataSource.query(
       `
         SELECT u.id,
                a.login,
@@ -151,10 +152,6 @@ export class UsersRepository {
     return user[0] || null;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
   async setConfirmation(id: string) {
     await this.dataSource.query(
       `
@@ -195,8 +192,11 @@ export class UsersRepository {
   }
 
   deleteUser(id: string) {
-    return this.dataSource.query(`
+    return this.dataSource.query(
+      `
     DELETE FROM "Users" WHERE id = $1 CASCADE
-    `);
+    `,
+      [id],
+    );
   }
 }

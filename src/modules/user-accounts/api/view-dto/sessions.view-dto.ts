@@ -9,7 +9,7 @@ export class SessionsViewDto {
     dto.ip = session.ip
     dto.title = session.title
     dto.lastActiveDate = new Date(session.iat * 1000).toISOString()
-    dto.deviceId= session._id.toString();
+    dto.deviceId= session.device_id.toString();
 
     return dto;
   }

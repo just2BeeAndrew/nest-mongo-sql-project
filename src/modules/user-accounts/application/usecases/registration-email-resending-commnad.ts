@@ -43,7 +43,7 @@ export class RegistrationEmailResendingUseCase
       newConfirmationCode,
     );
 
-    await this.emailService
+    this.emailService
       .sendConfirmationEmail(command.email, newConfirmationCode)
       .catch(console.error);
   }

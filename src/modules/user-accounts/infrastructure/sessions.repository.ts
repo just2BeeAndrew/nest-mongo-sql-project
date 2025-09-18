@@ -8,7 +8,6 @@ export class SessionsRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async findSessionById(deviceId: string) {
-    console.log(deviceId);
     const session = await this.dataSource.query(
       'SELECT * FROM "Sessions" WHERE device_id = $1 LIMIT 1',
       [deviceId],
@@ -36,19 +35,19 @@ export class SessionsRepository {
     );
   }
 
-  async softDeleteSession(deviceId: string) {
+  async deleteSession(deviceId: string) {
     return this.dataSource.query(
       `
-      UPDATE "Sessions" SET deleted_at = NOW() WHERE id = $1
+      DELETE FROM "Sessions" WHERE device_id = $1
       `,
       [deviceId],
     );
   }
 
-  async softDeleteSessionExcludeCurrent(userId: string, deviceId: string) {
+  async deleteSessionExcludeCurrent(userId: string, deviceId: string) {
     return await this.dataSource.query(
       `
-    DELETE FROM "Session"  WHERE user_id = $1 AND device_id <> $2;
+    DELETE FROM "Sessions"  WHERE user_id = $1 AND device_id <> $2;
     `,
       [userId, deviceId],
     );
