@@ -48,11 +48,6 @@ export class UsersController {
     return this.queryBus.execute(new FindAllUsersQuery(query));
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersRepository.update(+id, updateUserDto);
-  }
-
   @Delete(':id')
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
