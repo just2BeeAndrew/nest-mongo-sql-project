@@ -13,7 +13,7 @@ export class BlogsRepository {
   async createBlog(dto: CreateBlogDomainDto) {
     const user = await this.dataSource.query(
       `
-    INSERT INTO "Blogs" (name, description, website_url)
+    INSERT INTO "Blogs" (name, description, "websiteUrl")
     VALUES ($1, $2, $3)
     RETURNING id
     `,

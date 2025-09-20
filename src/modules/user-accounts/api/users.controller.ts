@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { UsersRepository } from '../infrastructure/users.repository';
 import { UpdateUserDto } from '../domain/dto/update-user.dto';
-import { GetUsersQueryParams } from './input-dto/get-users-query-params.input-dto';
+import { FindUsersQueryParams } from './input-dto/get-users-query-params.input-dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FindAllUsersQuery } from '../application/queries/find-all-users.query-handler';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto';
@@ -44,7 +44,7 @@ export class UsersController {
   @Get()
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async findAllUsers(@Query() query: GetUsersQueryParams): Promise<PaginatedViewDto<UsersViewDto[]>> {
+  async findAllUsers(@Query() query: FindUsersQueryParams): Promise<PaginatedViewDto<UsersViewDto[]>> {
     return this.queryBus.execute(new FindAllUsersQuery(query));
   }
 

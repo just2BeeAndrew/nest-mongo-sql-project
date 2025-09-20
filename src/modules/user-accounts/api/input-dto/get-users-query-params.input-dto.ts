@@ -7,7 +7,7 @@ enum UsersSortBy {
   Email = 'email',
 }
 
-export class GetUsersQueryParams extends BaseQueryParams {
+export class FindUsersQueryParams extends BaseQueryParams {
   @IsEnum(UsersSortBy)
   sortBy = UsersSortBy.CreatedAt;
 

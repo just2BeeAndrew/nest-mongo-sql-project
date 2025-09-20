@@ -1,5 +1,3 @@
-
-
 export class BlogsViewDto {
   id: string;
   name: string;
@@ -14,9 +12,9 @@ export class BlogsViewDto {
     dto.id = blog.id.toString();
     dto.name = blog.name;
     dto.description = blog.description;
-    dto.websiteUrl = blog.website_гrl;
-    dto.createdAt = blog.created_at.toISOString();
-    dto.isMembership = blog.is_membership;
+    dto.websiteUrl = blog.websiteUrl;
+    dto.createdAt = blog.createdAt.toISOString();
+    dto.isMembership = blog.isMembership;
 
     return dto;
   }

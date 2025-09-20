@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { GetUsersQueryParams } from '../../api/input-dto/get-users-query-params.input-dto';
+import { FindUsersQueryParams } from '../../api/input-dto/get-users-query-params.input-dto';
 import { UsersViewDto } from '../../api/view-dto/users.view-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 
@@ -10,7 +10,7 @@ export class UsersQueryRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async findAllUsers(
-    query: GetUsersQueryParams,
+    query: FindUsersQueryParams,
   ): Promise<PaginatedViewDto<UsersViewDto[]>> {
     const loginTerm = query.searchLoginTerm
       ? `%${query.searchLoginTerm}%`
