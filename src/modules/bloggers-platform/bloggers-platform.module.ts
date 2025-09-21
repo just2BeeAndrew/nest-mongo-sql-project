@@ -5,8 +5,9 @@ import { BlogsSuperAdminController } from './api/blogs-super-admin.controller';
 import { CreateBlogUseCase } from './application/usecases/create-blog.usecase';
 import { FindBlogByIdQueryHandler } from './application/queries/find-blog-by-id-query.handler';
 import { FindAllBlogsQueryHandler } from './application/queries/get-all-blogs.query-handler';
+import { UpdateBlogUseCase } from './application/usecases/update-blog.usecase';
 
-const useCases = [CreateBlogUseCase];
+const useCases = [CreateBlogUseCase, UpdateBlogUseCase];
 const queries = [FindAllBlogsQueryHandler, FindBlogByIdQueryHandler];
 
 @Module({

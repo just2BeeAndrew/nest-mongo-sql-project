@@ -1,16 +1,14 @@
 import { Injectable } from '@nestjs/common';
-
-import { DomainException } from '../../../core/exception/filters/domain-exception';
-import { DomainExceptionCode } from '../../../core/exception/filters/domain-exception-codes';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { CreateBlogDomainDto } from '../domain/dto/create-blog.domain.dto';
+import { CreateBlogDto } from '../dto/create-blog.dto';
+import { UpdateBlogDto } from '../dto/update-blog.dto';
 
 @Injectable()
 export class BlogsRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  async createBlog(dto: CreateBlogDomainDto) {
+  async createBlog(dto: CreateBlogDto) {
     const user = await this.dataSource.query(
       `
     INSERT INTO "Blogs" (name, description, "websiteUrl")
@@ -23,14 +21,35 @@ export class BlogsRepository {
     return user[0].id;
   }
 
-  async findById(id: string){
-    // return this.BlogModel.findOne({
-    //   _id: id,
-    //   deletedAt: null,
-    // });
+  async findById(id: string) {
+    const blog = await this.dataSource.query(
+      `
+      SELECT *
+      FROM "Blogs"
+      WHERE id = $1
+        AND "deletedAt" IS NULL;
+    `,
+      [id],
+    );
+
+    return blog[0] || null;
   }
 
-  async getBlogByIdOrNotFoundFail(id: string) {
+  async update(id: string, dto: UpdateBlogDto){
+    const blog = await this.dataSource.query(`
+      UPDATE "Blogs"
+      SET name         = $1,
+          description  = $2,
+          "websiteUrl" = $3
+      WHERE id = $4
+        AND "deletedAt" IS NULL
+      RETURNING id
+    `,[dto.name, dto.description, dto.websiteUrl, id]);
+
+    return blog[0] || null;
+  }
+
+  //async getBlogByIdOrNotFoundFail(id: string) {
     // const blog = await this.findById(id);
     //
     // if (!blog) {
@@ -42,5 +61,5 @@ export class BlogsRepository {
     // }
     //
     // return blog;
-  }
+  //}
 }
