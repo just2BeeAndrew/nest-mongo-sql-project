@@ -23,6 +23,9 @@ import { FindAllBlogsQuery } from '../application/queries/get-all-blogs.query-ha
 import { UpdateBlogsInputDto } from './input-dto/update-blogs.input-dto';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
+import { CreatePostByBlogIdInputDto } from './input-dto/create-post-by-blog-id-input.dto';
+import { LikeStatus } from '../../../core/dto/like-status';
+import { CreatePostByBlogIdCommand } from '../application/usecases/create-post-by-blog-id.usecase';
 
 @Controller('sa/blogs')
 export class BlogsSuperAdminController {
@@ -66,6 +69,23 @@ export class BlogsSuperAdminController {
   async deleteBlog(@Param('id') id: string) {
     return await this.commandBus.execute<DeleteBlogCommand>(
       new DeleteBlogCommand(id),
+    );
+  }
+
+  @Post(':blogId/posts')
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(BasicAuthGuard)
+  async createPostByBlogId(
+    @Param('blogId') blogId: string,
+    @Body() body: CreatePostByBlogIdInputDto,
+  ) {
+    const postId = await this.commandBus.execute<CreatePostByBlogIdCommand>(
+      new CreatePostByBlogIdCommand({ ...body, blogId }),
+    );
+
+    return this.postsQueryRepository.getByIdOrNotFoundFail(
+      postId,
+      LikeStatus.None,
     );
   }
 }
