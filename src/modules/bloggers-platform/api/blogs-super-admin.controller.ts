@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -21,6 +22,7 @@ import { BlogsViewDto } from './view-dto/blogs.view-dto';
 import { FindAllBlogsQuery } from '../application/queries/get-all-blogs.query-handler';
 import { UpdateBlogsInputDto } from './input-dto/update-blogs.input-dto';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
+import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
 
 @Controller('sa/blogs')
 export class BlogsSuperAdminController {
@@ -53,6 +55,17 @@ export class BlogsSuperAdminController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(@Param('id') id: string, @Body() body: UpdateBlogsInputDto) {
-    return await this.commandBus.execute<UpdateBlogCommand>(new UpdateBlogCommand(id, body));
+    return await this.commandBus.execute<UpdateBlogCommand>(
+      new UpdateBlogCommand(id, body),
+    );
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(BasicAuthGuard)
+  async deleteBlog(@Param('id') id: string) {
+    return await this.commandBus.execute<DeleteBlogCommand>(
+      new DeleteBlogCommand(id),
+    );
   }
 }

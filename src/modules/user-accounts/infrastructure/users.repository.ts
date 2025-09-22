@@ -185,7 +185,10 @@ export class UsersRepository {
   softDeleteUser(id: string) {
     return this.dataSource.query(
       `
-      UPDATE "AccountData" SET deleted_at = NOW() WHERE id = $1
+        UPDATE "AccountData"
+        SET deleted_at = NOW()
+        WHERE id = $1
+          AND deleted_at IS NULL RETURNING id
       `,
       [id],
     );

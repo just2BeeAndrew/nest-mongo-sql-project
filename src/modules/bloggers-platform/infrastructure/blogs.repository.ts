@@ -21,6 +21,18 @@ export class BlogsRepository {
     return user[0].id;
   }
 
+  async softDeleteBlog(id: string) {
+    return await this.dataSource.query(
+      `
+        UPDATE "Blogs"
+        SET "deletedAt" = NOW()
+        WHERE id = $1
+          and "deletedAt" IS NULL
+        RETURNING id`,
+      [id],
+    );
+  }
+
   async findById(id: string) {
     const blog = await this.dataSource.query(
       `
@@ -35,31 +47,35 @@ export class BlogsRepository {
     return blog[0] || null;
   }
 
-  async update(id: string, dto: UpdateBlogDto){
-    const blog = await this.dataSource.query(`
+  async update(id: string, dto: UpdateBlogDto) {
+    const blog = await this.dataSource.query(
+      `
       UPDATE "Blogs"
       SET name         = $1,
           description  = $2,
-          "websiteUrl" = $3
+          "websiteUrl" = $3,
+          "updatedAt" = NOW()
       WHERE id = $4
         AND "deletedAt" IS NULL
       RETURNING id
-    `,[dto.name, dto.description, dto.websiteUrl, id]);
+    `,
+      [dto.name, dto.description, dto.websiteUrl, id],
+    );
 
     return blog[0] || null;
   }
 
   //async getBlogByIdOrNotFoundFail(id: string) {
-    // const blog = await this.findById(id);
-    //
-    // if (!blog) {
-    //   throw new DomainException({
-    //     code: DomainExceptionCode.NotFound,
-    //     message: 'Not Found',
-    //     extensions: [{ message: 'Blog not found', key: 'blog' }],
-    //   });
-    // }
-    //
-    // return blog;
+  // const blog = await this.findById(id);
+  //
+  // if (!blog) {
+  //   throw new DomainException({
+  //     code: DomainExceptionCode.NotFound,
+  //     message: 'Not Found',
+  //     extensions: [{ message: 'Blog not found', key: 'blog' }],
+  //   });
+  // }
+  //
+  // return blog;
   //}
 }
