@@ -7,7 +7,7 @@ export class GetAllSessionsQuery {
 }
 
 @QueryHandler(GetAllSessionsQuery)
-export class GetAllSessionsQueryHandler
+export class FindAllSessionsQueryHandler
   implements IQueryHandler<GetAllSessionsQuery, SessionsViewDto[]>
 {
   constructor(

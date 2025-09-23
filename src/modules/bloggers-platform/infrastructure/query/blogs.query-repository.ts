@@ -9,13 +9,15 @@ import { DataSource } from 'typeorm';
 export class BlogsQueryRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
-  async findBlogById(id: string): Promise<BlogsViewDto> {
+  async findBlogById(id: string): Promise<BlogsViewDto | null> {
     const blog = await this.dataSource.query(
       `
     SELECT id, name, description, "websiteUrl", "createdAt", "isMembership" FROM "Blogs" WHERE id = $1 and "deletedAt" IS NULL 
     `,
       [id],
     );
+
+    if (blog.length === 0) return null
 
     return BlogsViewDto.mapToView(blog[0]);
   }

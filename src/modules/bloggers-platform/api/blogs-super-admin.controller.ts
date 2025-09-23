@@ -15,7 +15,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { BasicAuthGuard } from '../../../core/guards/basic/basic-auth.guard';
 import { CreateBlogInputDto } from './input-dto/create-blogs.input-dto';
 import { CreateBlogCommand } from '../application/usecases/create-blog.usecase';
-import { FindBlogByIdQuery } from '../application/queries/find-blog-by-id-query.handler';
+import { FindBlogByIdQuery } from '../application/queries/find-blog-by-id.query-handler';
 import { FindBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto';
 import { BlogsViewDto } from './view-dto/blogs.view-dto';
@@ -26,6 +26,7 @@ import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
 import { CreatePostByBlogIdInputDto } from './input-dto/create-post-by-blog-id-input.dto';
 import { LikeStatus } from '../../../core/dto/like-status';
 import { CreatePostByBlogIdCommand } from '../application/usecases/create-post-by-blog-id.usecase';
+import { FindPostByIdQuery } from '../application/queries/find-post-by-id.query-handler';
 
 @Controller('sa/blogs')
 export class BlogsSuperAdminController {
@@ -83,9 +84,8 @@ export class BlogsSuperAdminController {
       new CreatePostByBlogIdCommand({ ...body, blogId }),
     );
 
-    return this.postsQueryRepository.getByIdOrNotFoundFail(
-      postId,
-      LikeStatus.None,
+    return this.queryBus.execute(
+      new FindPostByIdQuery(postId, LikeStatus.None),
     );
   }
 }

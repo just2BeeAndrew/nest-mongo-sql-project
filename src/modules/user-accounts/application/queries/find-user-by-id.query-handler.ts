@@ -1,6 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { UsersViewDto } from '../../api/view-dto/users.view-dto';
 import { UsersQueryRepository } from '../../infrastructure/query/users.query-repository';
+import { DomainException } from '../../../../core/exception/filters/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 
 export class FindUserByIdQuery {
   constructor(public userId: string) {}
@@ -13,6 +15,15 @@ export class FindUserByIdQueryHandler
   constructor(private readonly usersQueryRepository: UsersQueryRepository) {}
 
   async execute(query: FindUserByIdQuery): Promise<UsersViewDto> {
-    return this.usersQueryRepository.findUserById(query.userId);
+    const user = await this.usersQueryRepository.findUserById(query.userId);
+    if (!user) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Not found',
+        extensions: [{message: "User not found", key: "user"}]
+      });
+    }
+
+    return user;
   }
 }

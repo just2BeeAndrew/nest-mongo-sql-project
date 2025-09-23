@@ -1,5 +1,4 @@
 import { UsersRepository } from '../../infrastructure/users.repository';
-import { CreateUserDto } from '../../domain/dto/create-user.dto';
 import { CreateUserInputDto } from '../../api/input-dto/create-users.input-dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
@@ -42,7 +41,7 @@ export class CreateUserUseCase
       if (isEmailTaken) {
         throw new DomainException({
           code: DomainExceptionCode.BadRequest,
-          message: 'Bad Requiest ',
+          message: 'Bad Request ',
           extensions: [{ message: 'Email already taken', key: 'email' }],
         });
       }
@@ -51,7 +50,7 @@ export class CreateUserUseCase
         command.dto.password,
       );
 
-      const userid = await this.usersRepository.create(
+      return  await this.usersRepository.create(
         {
           login: command.dto.login,
           email: command.dto.email,
@@ -59,7 +58,6 @@ export class CreateUserUseCase
         },
         t,
       );
-      return userid
     });
   }
 }

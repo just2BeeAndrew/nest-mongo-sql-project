@@ -70,7 +70,7 @@ export class UsersQueryRepository {
     });
   }
 
-  async findUserById(id: string) {
+  async findUserById(id: string): Promise<UsersViewDto | null> {
     const user = await this.dataSource.query(
       `
         SELECT u.id,
@@ -80,10 +80,12 @@ export class UsersQueryRepository {
         FROM "Users" u
                JOIN "AccountData" a ON u.id = a.id
                LEFT JOIN "EmailConfirmation" e ON u.id = e.id
-        WHERE u.id = $1
+        WHERE u.id = $1 AND a.deleted_at IS NULL
       `,
       [id],
     );
+
+    if (user.length === 0) return null;
 
     return UsersViewDto.mapToView(user[0]);
   }

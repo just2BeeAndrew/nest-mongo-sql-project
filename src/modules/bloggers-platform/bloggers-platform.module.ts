@@ -3,14 +3,15 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { BlogsController } from './api/blogs.controller';
 import { BlogsSuperAdminController } from './api/blogs-super-admin.controller';
 import { CreateBlogUseCase } from './application/usecases/create-blog.usecase';
-import { FindBlogByIdQueryHandler } from './application/queries/find-blog-by-id-query.handler';
+import { FindBlogByIdQueryHandler } from './application/queries/find-blog-by-id.query-handler';
 import { FindAllBlogsQueryHandler } from './application/queries/get-all-blogs.query-handler';
 import { UpdateBlogUseCase } from './application/usecases/update-blog.usecase';
 import { DeleteBlogUseCase } from './application/usecases/delete-blog.usecase';
 import { CreatePostByBlogIdUseCase } from './application/usecases/create-post-by-blog-id.usecase';
+import { FindPostByIdQuery } from './application/queries/find-post-by-id.query-handler';
 
 const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase, CreatePostByBlogIdUseCase];
-const queries = [FindAllBlogsQueryHandler, FindBlogByIdQueryHandler];
+const queries = [FindAllBlogsQueryHandler, FindBlogByIdQueryHandler, FindPostByIdQuery];
 
 @Module({
   imports: [CqrsModule],
