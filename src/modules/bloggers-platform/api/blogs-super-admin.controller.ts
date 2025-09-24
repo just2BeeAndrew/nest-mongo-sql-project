@@ -27,6 +27,9 @@ import { CreatePostByBlogIdInputDto } from './input-dto/create-post-by-blog-id-i
 import { LikeStatus } from '../../../core/dto/like-status';
 import { CreatePostByBlogIdCommand } from '../application/usecases/create-post-by-blog-id.usecase';
 import { FindPostByIdQuery } from '../application/queries/find-post-by-id.query-handler';
+import { FindPostsQueryParams } from './input-dto/get-posts-query-params.input-dto';
+import { PostsViewDto } from './view-dto/posts.view-dto';
+import { FindPostsByBlogIdQuery } from '../application/queries/find-post-by-blogId.query-handler';
 
 @Controller('sa/blogs')
 export class BlogsSuperAdminController {
@@ -88,4 +91,18 @@ export class BlogsSuperAdminController {
       new FindPostByIdQuery(postId, LikeStatus.None),
     );
   }
+
+  @Get(':blogId/posts')
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getAllPostsByBlogId(
+    @Param('blogId') blogId: string,
+    @Query() query: FindPostsQueryParams,
+  ): Promise<PaginatedViewDto<PostsViewDto[]>> {
+    return this.queryBus.execute(
+      new FindPostsByBlogIdQuery(blogId, query),
+    );
+  }
+
+
 }

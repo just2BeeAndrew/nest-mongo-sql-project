@@ -1,0 +1,26 @@
+import { FindPostsQueryParams } from '../../api/input-dto/get-posts-query-params.input-dto';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
+import { PostsViewDto } from '../../api/view-dto/posts.view-dto';
+import { PostsQueryRepository } from '../../infrastructure/query/posts.query-repository';
+
+export class FindPostsByBlogIdQuery {
+  constructor(
+    public blogId: string,
+    public query: FindPostsQueryParams,
+  ) {}
+}
+
+@QueryHandler(FindPostsByBlogIdQuery)
+export class GetPostsByBlogIdQueryHandler
+  implements
+    IQueryHandler<FindPostsByBlogIdQuery, PaginatedViewDto<PostsViewDto[]>>
+{
+  constructor(private readonly postsQueryRepository: PostsQueryRepository) {}
+
+  async execute(
+    query: FindPostsByBlogIdQuery,
+  ): Promise<PaginatedViewDto<PostsViewDto[]>> {
+    return await this.postsQueryRepository.findPostsByBlogId(query.blogId,query.query)
+  }
+}

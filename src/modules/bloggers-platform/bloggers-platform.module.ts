@@ -10,8 +10,17 @@ import { DeleteBlogUseCase } from './application/usecases/delete-blog.usecase';
 import { CreatePostByBlogIdUseCase } from './application/usecases/create-post-by-blog-id.usecase';
 import { FindPostByIdQuery } from './application/queries/find-post-by-id.query-handler';
 
-const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase, CreatePostByBlogIdUseCase];
-const queries = [FindAllBlogsQueryHandler, FindBlogByIdQueryHandler, FindPostByIdQuery];
+const useCases = [
+  CreateBlogUseCase,
+  UpdateBlogUseCase,
+  DeleteBlogUseCase,
+  CreatePostByBlogIdUseCase,
+];
+const queries = [
+  FindAllBlogsQueryHandler,
+  FindBlogByIdQueryHandler,
+  FindPostByIdQuery,
+];
 
 @Module({
   imports: [CqrsModule],
