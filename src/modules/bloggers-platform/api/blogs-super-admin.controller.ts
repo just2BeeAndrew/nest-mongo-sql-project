@@ -19,7 +19,7 @@ import { FindBlogByIdQuery } from '../application/queries/find-blog-by-id.query-
 import { FindBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto';
 import { BlogsViewDto } from './view-dto/blogs.view-dto';
-import { FindAllBlogsQuery } from '../application/queries/get-all-blogs.query-handler';
+import { FindAllBlogsQuery } from '../application/queries/find-all-blogs.query-handler';
 import { UpdateBlogsInputDto } from './input-dto/update-blogs.input-dto';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
@@ -30,6 +30,8 @@ import { FindPostByIdQuery } from '../application/queries/find-post-by-id.query-
 import { FindPostsQueryParams } from './input-dto/get-posts-query-params.input-dto';
 import { PostsViewDto } from './view-dto/posts.view-dto';
 import { FindPostsByBlogIdQuery } from '../application/queries/find-post-by-blogId.query-handler';
+import { UpdatePostCommand } from '../application/usecases/update-post-by-blog-id.usecase';
+import { UpdatePostInputDto } from './input-dto/update-post-input.dto';
 
 @Controller('sa/blogs')
 export class BlogsSuperAdminController {
@@ -104,5 +106,14 @@ export class BlogsSuperAdminController {
     );
   }
 
-
+  @Put(':blogId/posts/:postId')
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updatePostByBlogId(
+    @Param('blogId') blogId: string,
+    @Param('postId') postId: string,
+    @Body() body:UpdatePostInputDto
+  ){
+    return this.commandBus.execute<UpdatePostCommand>(new UpdatePostCommand(blogId, postId, body));
+  }
 }

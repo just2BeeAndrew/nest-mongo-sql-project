@@ -11,7 +11,7 @@ export class FindPostByIdQuery {
 }
 
 @QueryHandler(FindPostByIdQuery)
-export class FindBlogByIdQueryHandler
+export class FindPostByIdQueryHandler
   implements IQueryHandler<FindPostByIdQuery, PostsViewDto>
 {
   constructor(private readonly blogsQueryRepository: PostsQueryRepository) {}

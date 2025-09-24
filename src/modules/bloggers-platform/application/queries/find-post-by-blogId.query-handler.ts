@@ -3,6 +3,9 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { PostsViewDto } from '../../api/view-dto/posts.view-dto';
 import { PostsQueryRepository } from '../../infrastructure/query/posts.query-repository';
+import { BlogsRepository } from '../../infrastructure/blogs.repository';
+import { DomainException } from '../../../../core/exception/filters/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 
 export class FindPostsByBlogIdQuery {
   constructor(
@@ -12,15 +15,29 @@ export class FindPostsByBlogIdQuery {
 }
 
 @QueryHandler(FindPostsByBlogIdQuery)
-export class GetPostsByBlogIdQueryHandler
+export class FindPostsByBlogIdQueryHandler
   implements
     IQueryHandler<FindPostsByBlogIdQuery, PaginatedViewDto<PostsViewDto[]>>
 {
-  constructor(private readonly postsQueryRepository: PostsQueryRepository) {}
+  constructor(
+    private readonly postsQueryRepository: PostsQueryRepository,
+    private readonly blogsRepository: BlogsRepository,
+  ) {}
 
   async execute(
     query: FindPostsByBlogIdQuery,
   ): Promise<PaginatedViewDto<PostsViewDto[]>> {
-    return await this.postsQueryRepository.findPostsByBlogId(query.blogId,query.query)
+    const blog = await this.blogsRepository.findById(query.blogId);
+    if (!blog) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Not Found',
+        extensions: [{ message: 'Blog not found', key: 'blog' }],
+      });
+    }
+    return await this.postsQueryRepository.findPostsByBlogId(
+      query.blogId,
+      query.query,
+    );
   }
 }
