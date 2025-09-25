@@ -11,6 +11,10 @@ import { CreatePostByBlogIdUseCase } from './application/usecases/create-post-by
 import { FindPostByIdQueryHandler } from './application/queries/find-post-by-id.query-handler';
 import { FindPostsByBlogIdQueryHandler } from './application/queries/find-post-by-blogId.query-handler';
 import { UpdatePostByBlogIdUsecase } from './application/usecases/update-post-by-blog-id.usecase';
+import { BlogsQueryRepository } from './infrastructure/query/blogs.query-repository';
+import { BlogsRepository } from './infrastructure/blogs.repository';
+import { PostsRepository } from './infrastructure/posts.repository';
+import { PostsQueryRepository } from './infrastructure/query/posts.query-repository';
 
 const useCases = [
   CreateBlogUseCase,
@@ -29,6 +33,13 @@ const queries = [
 @Module({
   imports: [CqrsModule],
   controllers: [BlogsController, BlogsSuperAdminController],
-  providers: [...useCases, ...queries],
+  providers: [
+    BlogsRepository,
+    BlogsQueryRepository,
+    PostsRepository,
+    PostsQueryRepository,
+    ...useCases,
+    ...queries,
+  ],
 })
 export class BloggersPlatformModule {}

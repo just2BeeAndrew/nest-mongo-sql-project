@@ -64,18 +64,4 @@ export class BlogsRepository {
 
     return blog[0] || null;
   }
-
-  //async getBlogByIdOrNotFoundFail(id: string) {
-  // const blog = await this.findById(id);
-  //
-  // if (!blog) {
-  //   throw new DomainException({
-  //     code: DomainExceptionCode.NotFound,
-  //     message: 'Not Found',
-  //     extensions: [{ message: 'Blog not found', key: 'blog' }],
-  //   });
-  // }
-  //
-  // return blog;
-  //}
 }

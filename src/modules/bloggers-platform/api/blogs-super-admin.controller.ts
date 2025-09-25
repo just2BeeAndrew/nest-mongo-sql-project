@@ -101,9 +101,7 @@ export class BlogsSuperAdminController {
     @Param('blogId') blogId: string,
     @Query() query: FindPostsQueryParams,
   ): Promise<PaginatedViewDto<PostsViewDto[]>> {
-    return this.queryBus.execute(
-      new FindPostsByBlogIdQuery(blogId, query),
-    );
+    return this.queryBus.execute(new FindPostsByBlogIdQuery(blogId, query));
   }
 
   @Put(':blogId/posts/:postId')
@@ -112,8 +110,10 @@ export class BlogsSuperAdminController {
   async updatePostByBlogId(
     @Param('blogId') blogId: string,
     @Param('postId') postId: string,
-    @Body() body:UpdatePostInputDto
-  ){
-    return this.commandBus.execute<UpdatePostCommand>(new UpdatePostCommand(blogId, postId, body));
+    @Body() body: UpdatePostInputDto,
+  ) {
+    await this.commandBus.execute<UpdatePostCommand>(
+      new UpdatePostCommand(blogId, postId, body),
+    );
   }
 }
