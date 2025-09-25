@@ -1,28 +1,24 @@
-import { UpdatePostInputDto } from '../../api/input-dto/update-post-input.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsRepository } from '../../infrastructure/blogs.repository';
 import { PostsRepository } from '../../infrastructure/posts.repository';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 
-export class UpdatePostCommand {
+export class DeletePostCommand {
   constructor(
     public blogId: string,
     public postId: string,
-    public body: UpdatePostInputDto,
   ) {}
 }
 
-@CommandHandler(UpdatePostCommand)
-export class UpdatePostByBlogIdUsecase
-  implements ICommandHandler<UpdatePostCommand>
-{
+@CommandHandler(DeletePostCommand)
+export class DeletePostByBlogIdUseCase implements ICommandHandler<DeletePostCommand> {
   constructor(
     private readonly blogsRepository: BlogsRepository,
     private readonly postsRepository: PostsRepository,
   ) {}
 
-  async execute(command: UpdatePostCommand) {
+  async execute(command: DeletePostCommand) {
     const blog = await this.blogsRepository.findById(command.blogId);
     if (!blog) {
       throw new DomainException({
@@ -32,11 +28,7 @@ export class UpdatePostByBlogIdUsecase
       });
     }
 
-    const post = await this.postsRepository.update({
-      blogId: command.blogId,
-      postId: command.postId,
-      body: command.body,
-    });
+    const post = await this.postsRepository.softDelete(command.postId)
     if (!post) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,

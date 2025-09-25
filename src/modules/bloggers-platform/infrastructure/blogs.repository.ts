@@ -27,7 +27,7 @@ export class BlogsRepository {
         UPDATE "Blogs"
         SET "deletedAt" = NOW()
         WHERE id = $1
-          and "deletedAt" IS NULL
+          AND "deletedAt" IS NULL
         RETURNING id`,
       [id],
     );
@@ -36,11 +36,11 @@ export class BlogsRepository {
   async findById(id: string) {
     const blog = await this.dataSource.query(
       `
-      SELECT *
-      FROM "Blogs"
-      WHERE id = $1
-        AND "deletedAt" IS NULL;
-    `,
+        SELECT *
+        FROM "Blogs"
+        WHERE id = $1
+          AND "deletedAt" IS NULL;
+      `,
       [id],
     );
 

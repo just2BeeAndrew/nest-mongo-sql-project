@@ -30,8 +30,9 @@ import { FindPostByIdQuery } from '../application/queries/find-post-by-id.query-
 import { FindPostsQueryParams } from './input-dto/get-posts-query-params.input-dto';
 import { PostsViewDto } from './view-dto/posts.view-dto';
 import { FindPostsByBlogIdQuery } from '../application/queries/find-post-by-blogId.query-handler';
-import { UpdatePostCommand } from '../application/usecases/update-post-by-blog-id.usecase';
+import { UpdatePostCommand } from '../application/usecases/update-post-by-blog-id.useсase';
 import { UpdatePostInputDto } from './input-dto/update-post-input.dto';
+import { DeletePostCommand } from '../application/usecases/delete-post-by-blog-id.usecase';
 
 @Controller('sa/blogs')
 export class BlogsSuperAdminController {
@@ -115,5 +116,17 @@ export class BlogsSuperAdminController {
     await this.commandBus.execute<UpdatePostCommand>(
       new UpdatePostCommand(blogId, postId, body),
     );
+  }
+
+  @Delete(':blogId/posts/:postId')
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deletePostByBlogId(
+    @Param('blogId') blogId: string,
+    @Param('postId') postId: string,
+  ){
+    await this.commandBus.execute<DeletePostCommand>(
+      new DeletePostCommand(blogId,postId)
+    )
   }
 }

@@ -40,7 +40,6 @@ export class PostsRepository {
             content            = $3,
             "updatedAt"        = NOW()
         WHERE id = $4
-          AND "blogId" = $5
           AND "deletedAt" IS NULL
       `,
       [
@@ -48,9 +47,21 @@ export class PostsRepository {
         body.body.shortDescription,
         body.body.content,
         body.postId,
-        body.blogId,
       ],
     );
     return post[0] || null;
+  }
+
+  async softDelete(id: string) {
+    return await this.dataSource.query(
+      `
+        UPDATE "Posts"
+        SET "deletedAt" = NOW()
+        WHERE id = $1
+          AND "deletedAt" IS NULL
+        RETURNING id;
+      `,
+      [id],
+    );
   }
 }
