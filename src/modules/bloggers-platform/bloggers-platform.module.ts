@@ -16,6 +16,7 @@ import { BlogsRepository } from './infrastructure/blogs.repository';
 import { PostsRepository } from './infrastructure/posts.repository';
 import { PostsQueryRepository } from './infrastructure/query/posts.query-repository';
 import { DeletePostByBlogIdUseCase } from './application/usecases/delete-post-by-blog-id.usecase';
+import { FindAllPostsQueryHandler } from './application/queries/find-all-posts.query-handler';
 
 const useCases = [
   CreateBlogUseCase,
@@ -28,6 +29,7 @@ const useCases = [
 const queries = [
   FindAllBlogsQueryHandler,
   FindBlogByIdQueryHandler,
+  FindAllPostsQueryHandler,
   FindPostByIdQueryHandler,
   FindPostsByBlogIdQueryHandler,
 ];

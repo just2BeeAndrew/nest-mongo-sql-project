@@ -44,7 +44,7 @@ export class BlogsSuperAdminController {
   @Get()
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async getAllBlogs(
+  async findAllBlogs(
     @Query() query: FindBlogsQueryParams,
   ): Promise<PaginatedViewDto<BlogsViewDto[]>> {
     return this.queryBus.execute(new FindAllBlogsQuery(query));
@@ -98,7 +98,7 @@ export class BlogsSuperAdminController {
   @Get(':blogId/posts')
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async getAllPostsByBlogId(
+  async findAllPostsByBlogId(
     @Param('blogId') blogId: string,
     @Query() query: FindPostsQueryParams,
   ): Promise<PaginatedViewDto<PostsViewDto[]>> {

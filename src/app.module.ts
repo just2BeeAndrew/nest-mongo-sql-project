@@ -9,6 +9,8 @@ import { configModule } from './dynamic-config-module';
 import { BlogsController } from './modules/bloggers-platform/api/blogs.controller';
 import { BlogsSuperAdminController } from './modules/bloggers-platform/api/blogs-super-admin.controller';
 import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
+import { PostsController } from './modules/bloggers-platform/api/posts.controller';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
   imports: [
@@ -28,8 +30,9 @@ import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-pla
       logging: true,
     }),
     BloggersPlatformModule,
+    CqrsModule.forRoot({})
   ],
-  controllers: [AppController, BlogsController, BlogsSuperAdminController],
+  controllers: [AppController, BlogsController, BlogsSuperAdminController, PostsController],
   providers: [AppService],
 })
 export class AppModule {}

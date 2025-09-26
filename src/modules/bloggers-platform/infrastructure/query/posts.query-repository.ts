@@ -10,6 +10,47 @@ import { FindPostsQueryParams } from '../../api/input-dto/get-posts-query-params
 export class PostsQueryRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
+  async findAllPosts(
+    query: FindPostsQueryParams,
+  ): Promise<PaginatedViewDto<PostsViewDto[]>> {
+    const orderBy = `p."${query.sortBy}" ${query.sortDirection}`;
+
+    const posts = await this.dataSource.query(
+      `
+        SELECT p.id,
+               p.title,
+               p."shortDescription",
+               p.content,
+               p."blogId",
+               p."blogName",
+               p."createdAt"
+        FROM "Posts" p
+               JOIN "ExtendedLikesInfo" e ON p.id = e.id
+        ORDER BY ${orderBy}
+        LIMIT $1 OFFSET $2
+      `,
+      [query.pageSize, query.calculateSkip()],
+    );
+
+    const totalCountResult = await this.dataSource.query(
+      `
+      SELECT COUNT(*) as count
+      FROM "Posts"
+    `,
+    );
+
+    const totalCount = parseInt(totalCountResult[0]?.count || '0', 10);
+
+    const items = posts.map(PostsViewDto.mapToView, LikeStatus.None);
+
+    return PaginatedViewDto.mapToView({
+      items,
+      totalCount,
+      page: query.pageNumber,
+      size: query.pageSize,
+    });
+  }
+
   async findPostById(
     id: string,
     status: LikeStatus,

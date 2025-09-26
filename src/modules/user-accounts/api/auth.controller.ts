@@ -168,6 +168,5 @@ export class AuthController {
     @ExtractUserFromAccessToken() user: AccessContextDto,
   ): Promise<MeViewDto> {
     return this.queryBus.execute(new MeQuery(user.id));
-
   }
 }
