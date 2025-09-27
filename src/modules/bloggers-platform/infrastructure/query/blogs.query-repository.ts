@@ -25,7 +25,7 @@ export class BlogsQueryRepository {
   async findAllBlogs(
     query: FindBlogsQueryParams,
   ): Promise<PaginatedViewDto<BlogsViewDto[]>> {
-    const nameTerm = query.searchNameTerm ? `${query.searchNameTerm}` : `%`;
+    const nameTerm = query.searchNameTerm ? `%${query.searchNameTerm}%` : `%`;
 
     const blogs = await this.dataSource.query(
       `
@@ -33,7 +33,7 @@ export class BlogsQueryRepository {
         FROM "Blogs"
         WHERE name ILIKE $1
           AND "deletedAt" IS NULL
-        ORDER BY ${query.sortBy} ${query.sortDirection}
+        ORDER BY "${query.sortBy}" ${query.sortDirection}
         LIMIT $2 OFFSET $3
         `,
       [nameTerm, query.pageSize, query.calculateSkip()],

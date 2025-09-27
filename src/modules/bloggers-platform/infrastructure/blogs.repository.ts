@@ -21,6 +21,22 @@ export class BlogsRepository {
     return user[0].id;
   }
 
+  async update(id: string, dto: UpdateBlogDto) {
+    return  await this.dataSource.query(
+      `
+      UPDATE "Blogs"
+      SET name         = $1,
+          description  = $2,
+          "websiteUrl" = $3,
+          "updatedAt" = NOW()
+      WHERE id = $4
+        AND "deletedAt" IS NULL
+      RETURNING id
+    `,
+      [dto.name, dto.description, dto.websiteUrl, id],
+    );
+  }
+
   async softDeleteBlog(id: string) {
     return await this.dataSource.query(
       `
@@ -47,21 +63,4 @@ export class BlogsRepository {
     return blog[0] || null;
   }
 
-  async update(id: string, dto: UpdateBlogDto) {
-    const blog = await this.dataSource.query(
-      `
-      UPDATE "Blogs"
-      SET name         = $1,
-          description  = $2,
-          "websiteUrl" = $3,
-          "updatedAt" = NOW()
-      WHERE id = $4
-        AND "deletedAt" IS NULL
-      RETURNING id
-    `,
-      [dto.name, dto.description, dto.websiteUrl, id],
-    );
-
-    return blog[0] || null;
-  }
 }

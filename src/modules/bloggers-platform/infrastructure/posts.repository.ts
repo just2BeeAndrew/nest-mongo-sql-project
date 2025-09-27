@@ -32,7 +32,7 @@ export class PostsRepository {
   }
 
   async update(body: UpdatePostDto) {
-    const post = await this.dataSource.query(
+    return  await this.dataSource.query(
       `
         UPDATE "Posts"
         SET title              = $1,
@@ -41,6 +41,7 @@ export class PostsRepository {
             "updatedAt"        = NOW()
         WHERE id = $4
           AND "deletedAt" IS NULL
+        RETURNING id
       `,
       [
         body.body.title,
@@ -49,7 +50,6 @@ export class PostsRepository {
         body.postId,
       ],
     );
-    return post[0] || null;
   }
 
   async softDelete(id: string) {

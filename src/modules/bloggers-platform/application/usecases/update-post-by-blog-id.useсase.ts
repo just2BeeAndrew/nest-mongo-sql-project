@@ -36,7 +36,7 @@ export class UpdatePostByBlogIdUseCase
       postId: command.postId,
       body: command.body,
     });
-    if (!post) {
+    if (post[0].length === 0) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: 'Not Found',

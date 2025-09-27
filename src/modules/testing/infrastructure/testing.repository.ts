@@ -10,6 +10,8 @@ export class TestingRepository {
       `
       TRUNCATE TABLE "Users" CASCADE;
       TRUNCATE TABLE "Sessions";
+      TRUNCATE TABLE "Blogs";
+      TRUNCATE TABLE "Posts" CASCADE;
       `,
     );
   }

@@ -12,7 +12,9 @@ export class DeletePostCommand {
 }
 
 @CommandHandler(DeletePostCommand)
-export class DeletePostByBlogIdUseCase implements ICommandHandler<DeletePostCommand> {
+export class DeletePostByBlogIdUseCase
+  implements ICommandHandler<DeletePostCommand>
+{
   constructor(
     private readonly blogsRepository: BlogsRepository,
     private readonly postsRepository: PostsRepository,
@@ -28,8 +30,8 @@ export class DeletePostByBlogIdUseCase implements ICommandHandler<DeletePostComm
       });
     }
 
-    const post = await this.postsRepository.softDelete(command.postId)
-    if (!post) {
+    const post = await this.postsRepository.softDelete(command.postId);
+    if (post[0].length === 0) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: 'Not Found',

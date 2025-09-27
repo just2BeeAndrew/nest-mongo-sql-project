@@ -2,6 +2,8 @@ import { CreatePostInputDto } from '../../api/input-dto/create-post.input-dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsRepository } from '../../infrastructure/blogs.repository';
 import { PostsRepository } from '../../infrastructure/posts.repository';
+import { DomainException } from '../../../../core/exception/filters/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 
 export class CreatePostByBlogIdCommand {
   constructor(public dto: CreatePostInputDto) {
@@ -15,8 +17,15 @@ export class CreatePostByBlogIdUseCase implements ICommandHandler<CreatePostByBl
 
   async execute({dto}: CreatePostByBlogIdCommand): Promise<string> {
     const blog = await this.blogsRepository.findById(dto.blogId);
+    if (!blog) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Not Found',
+        extensions: [{ message: 'Blog not found', key: 'blog' }],
+      });
+    }
 
-    return  await this.postsRepository.create({
+    return await this.postsRepository.create({
       title: dto.title,
       shortDescription: dto.shortDescription,
       content: dto.content,

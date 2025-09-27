@@ -41,7 +41,9 @@ export class PostsQueryRepository {
 
     const totalCount = parseInt(totalCountResult[0]?.count || '0', 10);
 
-    const items = posts.map(PostsViewDto.mapToView, LikeStatus.None);
+    const items = posts.map((post) =>
+      PostsViewDto.mapToView(post, LikeStatus.None),
+    );
 
     return PaginatedViewDto.mapToView({
       items,
@@ -64,7 +66,7 @@ export class PostsQueryRepository {
 
     if (post.length === 0) return null;
 
-    return PostsViewDto.mapToView(post, status);
+    return PostsViewDto.mapToView(post[0], status);
   }
 
   async findPostsByBlogId(
@@ -83,7 +85,7 @@ export class PostsQueryRepository {
         FROM "Posts" p
                JOIN "ExtendedLikesInfo" e ON p.id = e.id
         WHERE p."blogId" = $1 AND "deletedAt" IS NULL
-        ORDER BY ${query.sortBy} ${query.sortDirection}
+        ORDER BY "${query.sortBy}" ${query.sortDirection}
         LIMIT $2
         OFFSET $3
       `,
@@ -102,7 +104,9 @@ export class PostsQueryRepository {
 
     const totalCount = parseInt(totalCountResult[0]?.count || '0', 10);
 
-    const items = posts.map(PostsViewDto.mapToView, LikeStatus.None);
+    const items = posts.map((post) =>
+      PostsViewDto.mapToView(post, LikeStatus.None),
+    );
 
     return PaginatedViewDto.mapToView({
       items,
