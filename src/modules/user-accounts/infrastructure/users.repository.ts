@@ -28,10 +28,11 @@ export class UsersRepository {
       `,
       [dto.login, dto.passwordHash, dto.email],
     );
+
     return user[0].id;
   }
 
-  async findUserById(id: string) {
+  async findById(id: string) {
     const user = await this.dataSource.query(
       `
         SELECT *
@@ -197,7 +198,7 @@ export class UsersRepository {
   deleteUser(id: string) {
     return this.dataSource.query(
       `
-    DELETE FROM "Users" WHERE id = $1 CASCADE
+    DELETE FROM "Users" WHERE id = $1 RETURNING id
     `,
       [id],
     );

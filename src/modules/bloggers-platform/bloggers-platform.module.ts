@@ -17,6 +17,12 @@ import { PostsRepository } from './infrastructure/posts.repository';
 import { PostsQueryRepository } from './infrastructure/query/posts.query-repository';
 import { DeletePostByBlogIdUseCase } from './application/usecases/delete-post-by-blog-id.usecase';
 import { FindAllPostsQueryHandler } from './application/queries/find-all-posts.query-handler';
+import { CreateCommentUseCase } from './application/usecases/create-coment.usecase';
+import { UpdateCommentUseCase } from './application/usecases/update-comment.usecase';
+import { DeleteCommentUseCase } from './application/usecases/delete-comment.usecase';
+import { CalculateStatusCountUseCase } from './application/usecases/calculate-status-count.usecase';
+import { CommentLikeStatusUseCase } from './application/usecases/comment-like-status.usecase';
+import { FindCommentByIdQueryHandler } from './application/queries/find-comments-by-id.query-handler';
 
 const useCases = [
   CreateBlogUseCase,
@@ -25,6 +31,11 @@ const useCases = [
   CreatePostByBlogIdUseCase,
   UpdatePostByBlogIdUseCase,
   DeletePostByBlogIdUseCase,
+  CreateCommentUseCase,
+  UpdateCommentUseCase,
+  DeleteCommentUseCase,
+  CalculateStatusCountUseCase,
+  CommentLikeStatusUseCase,
 ];
 const queries = [
   FindAllBlogsQueryHandler,
@@ -32,6 +43,7 @@ const queries = [
   FindAllPostsQueryHandler,
   FindPostByIdQueryHandler,
   FindPostsByBlogIdQueryHandler,
+  FindCommentByIdQueryHandler
 ];
 
 @Module({

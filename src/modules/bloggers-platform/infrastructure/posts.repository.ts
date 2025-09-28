@@ -8,6 +8,21 @@ import { UpdatePostDto } from '../dto/update-post.dto';
 export class PostsRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
+  async findById(id: string) {
+    const post = await this.dataSource.query(
+      `
+        SELECT *
+        FROM "Posts" p
+               JOIN "ExtendedLikesInfo" e ON p.id = e.id
+        WHERE p.id = $1
+          AND "deletedAt" IS NULL
+        `,
+      [id],
+    );
+
+    return post[0] || null;
+  }
+
   async create(body: CreatePostDto) {
     const post = await this.dataSource.query(
       `
@@ -32,7 +47,7 @@ export class PostsRepository {
   }
 
   async update(body: UpdatePostDto) {
-    return  await this.dataSource.query(
+    return await this.dataSource.query(
       `
         UPDATE "Posts"
         SET title              = $1,

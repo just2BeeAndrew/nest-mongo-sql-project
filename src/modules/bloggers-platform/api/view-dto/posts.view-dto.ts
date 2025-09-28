@@ -25,7 +25,6 @@ export class PostsViewDto {
 
   static mapToView(post: any, status: LikeStatus): PostsViewDto {
     const dto = new PostsViewDto();
-    console.log("status",status);
 
     dto.id = post.id;
     dto.title = post.title;
