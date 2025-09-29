@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentsRepository } from '../../infrastructure/comments.repository';
-import { DomainException } from '../../../../../core/exceptions/domain-exception';
-import { DomainExceptionCode } from '../../../../../core/exceptions/filters/domain-exception-codes';
+import { DomainException } from '../../../../core/exception/filters/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 
 export class UpdateCommentCommand {
   constructor(
@@ -18,26 +18,29 @@ export class UpdateCommentUseCase
   constructor(private commentsRepository: CommentsRepository) {}
 
   async execute(command: UpdateCommentCommand) {
-    const comment = await this.commentsRepository.findCommentById(
-      command.commentId,
-    );
-    if (!comment) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'Not Found',
-        extensions: [{ message: 'Comment not found', key: 'comment' }],
-      });
-    }
+    const comment = await this.commentsRepository.update({
+      userId: command.userId,
+      commentId: command.commentId,
+      content: command.content,
+    });
 
-    if (comment.commentatorInfo.userId !== command.userId) {
-      throw new DomainException({
-        code: DomainExceptionCode.Forbidden,
-        message: 'Forbidden',
-        extensions: [{ message: 'User is not owner', key: 'user' }],
-      });
+    if (comment[0].length === 0) {
+      const commentIsExist = await this.commentsRepository.isExist(
+        command.commentId,
+      );
+      if (commentIsExist[0] === 0) {
+        throw new DomainException({
+          code: DomainExceptionCode.NotFound,
+          message: 'Not Found',
+          extensions: [{ message: 'Comment not found', key: 'comment' }],
+        });
+      } else {
+        throw new DomainException({
+          code: DomainExceptionCode.Forbidden,
+          message: 'Forbidden',
+          extensions: [{ message: 'User is not owner', key: 'user' }],
+        });
+      }
     }
-
-    comment.setComment(command.content);
-    await this.commentsRepository.save(comment);
   }
 }

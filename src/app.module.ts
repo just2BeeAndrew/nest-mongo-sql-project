@@ -11,6 +11,7 @@ import { BlogsSuperAdminController } from './modules/bloggers-platform/api/blogs
 import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
 import { PostsController } from './modules/bloggers-platform/api/posts.controller';
 import { CqrsModule } from '@nestjs/cqrs';
+import { CommentsController } from './modules/bloggers-platform/api/comments.controller';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { CqrsModule } from '@nestjs/cqrs';
     BloggersPlatformModule,
     CqrsModule.forRoot({})
   ],
-  controllers: [AppController, BlogsController, BlogsSuperAdminController, PostsController],
+  controllers: [AppController, BlogsController, BlogsSuperAdminController, PostsController, CommentsController],
   providers: [AppService],
 })
 export class AppModule {}

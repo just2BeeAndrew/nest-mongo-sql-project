@@ -2,13 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { CreateCommentDto } from '../dto/create-comment.dto';
+import { UpdateCommentDto } from '../dto/update-comment.dto';
 
 @Injectable()
 export class CommentsRepository {
-  constructor(@InjectDataSource() private datasource: DataSource) {}
+  constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  async create(body: CreateCommentDto){
-    const comment = await this.datasource.query(`
+  async isExist(id: string) {
+    return await this.dataSource.query(
+      `
+    SELECT 1 FROM "Comments" WHERE id = $1 LIMIT 1
+    `,
+      [id],
+    );
+  }
+
+  async create(body: CreateCommentDto) {
+    const comment = await this.dataSource.query(
+      `
       WITH insert_comment AS (
         INSERT INTO "Comments" (id, content, "createdAt")
           VALUES (gen_random_uuid(), $1, NOW())
@@ -24,8 +35,27 @@ export class CommentsRepository {
       SELECT id, 0, 0
       FROM "Comments"
       RETURNING id
-    `,[body.content,body.userId, body.userLogin ]);
+    `,
+      [body.content, body.userId, body.userLogin],
+    );
 
-      return comment[0].id
+    return comment[0].id;
+  }
+
+  async update(body: UpdateCommentDto) {
+    return await this.dataSource.query(
+      `
+      UPDATE "Comments" c
+      SET content     = $1,
+          "updatedAt" = NOW()
+      FROM "CommentatorInfo" ci
+      WHERE c.id = $2
+        AND c.id = ci.id
+        AND ci."userId" = $3
+        AND c."deletedAt" IS NULL
+      RETURNING c.id, ci."userId"
+    `,
+      [body.content, body.commentId, body.userId],
+    );
   }
 }
