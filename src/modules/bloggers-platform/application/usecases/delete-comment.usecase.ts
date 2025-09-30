@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentsRepository } from '../../infrastructure/comments.repository';
-import { DomainException } from '../../../../../core/exceptions/domain-exception';
-import { DomainExceptionCode } from '../../../../../core/exceptions/filters/domain-exception-codes';
+import { DomainException } from '../../../../core/exception/filters/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 
 export class DeleteCommentCommand {
   constructor(
@@ -17,27 +17,26 @@ export class DeleteCommentUseCase
   constructor(private commentRepository: CommentsRepository) {}
 
   async execute(command: DeleteCommentCommand) {
-    const comment = await this.commentRepository.findCommentById(
-      command.commentId,
+    const comment = await this.commentRepository.softDelete(
+      command.commentId, command.userId
     );
-    console.log(comment);
-    if (!comment) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'Not Found',
-        extensions: [{ message: 'User not found', key: 'user' }],
-      });
+    if (comment[0].length === 0) {
+      const commentIsExist = await this.commentsRepository.isExist(
+        command.commentId,
+      );
+      if (commentIsExist[0] === 0) {
+        throw new DomainException({
+          code: DomainExceptionCode.NotFound,
+          message: 'Not Found',
+          extensions: [{ message: 'Comment not found', key: 'comment' }],
+        });
+      } else {
+        throw new DomainException({
+          code: DomainExceptionCode.Forbidden,
+          message: 'Forbidden',
+          extensions: [{ message: 'User is not owner', key: 'user' }],
+        });
+      }
     }
-
-    if (comment.commentatorInfo.userId !== command.userId) {
-      throw new DomainException({
-        code: DomainExceptionCode.Forbidden,
-        message: 'Forbidden',
-        extensions: [{ message: 'User is not owner', key: 'user' }],
-      });
-    }
-
-    comment.softDelete();
-    await this.commentRepository.save(comment);
   }
 }

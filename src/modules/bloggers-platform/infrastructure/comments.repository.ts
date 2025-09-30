@@ -3,6 +3,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { CreateCommentDto } from '../dto/create-comment.dto';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
+import { DeleteCommentDto } from '../dto/delete-comment.dto';
 
 @Injectable()
 export class CommentsRepository {
@@ -56,6 +57,22 @@ export class CommentsRepository {
       RETURNING c.id, ci."userId"
     `,
       [body.content, body.commentId, body.userId],
+    );
+  }
+
+  async softDelete(body: DeleteCommentDto) {
+    return await this.dataSource.query(
+      `
+      UPDATE "Comments" c
+      SET "deletedAt" = NOW()
+      FROM "CommentatorInfo" ci
+      WHERE c.id = $1
+        AND c.id = ci.id
+        AND ci."userId" = $2
+        AND c."deletedAt" IS NULL
+      RETURNING c.id, ci."userId"
+    `,
+      [body.commentId, body.userId],
     );
   }
 }
