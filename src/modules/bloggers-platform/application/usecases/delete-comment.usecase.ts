@@ -14,12 +14,13 @@ export class DeleteCommentCommand {
 export class DeleteCommentUseCase
   implements ICommandHandler<DeleteCommentCommand>
 {
-  constructor(private commentRepository: CommentsRepository) {}
+  constructor(private commentsRepository: CommentsRepository) {}
 
   async execute(command: DeleteCommentCommand) {
-    const comment = await this.commentRepository.softDelete(
-      command.commentId, command.userId
-    );
+    const comment = await this.commentsRepository.softDelete({
+      commentId: command.commentId,
+      userId: command.userId,
+    });
     if (comment[0].length === 0) {
       const commentIsExist = await this.commentsRepository.isExist(
         command.commentId,

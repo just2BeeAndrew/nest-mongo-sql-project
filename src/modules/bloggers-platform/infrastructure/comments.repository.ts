@@ -18,6 +18,28 @@ export class CommentsRepository {
     );
   }
 
+  async findById(id: string) {
+    const comment = await this.dataSource.query(
+      `
+      SELECT c.id,
+             c.content,
+             c."createdAt",
+             ci."userId",
+             ci."userLogin",
+             li."likesCount",
+             li."dislikesCount"
+      FROM "Comments" c
+             JOIN "CommentatorInfo" ci ON c.id = ci.id
+             LEFT JOIN "LikesInfo" li ON c.id = li.id
+      WHERE c.id = $1
+        AND c."deletedAt" IS NULL
+    `,
+      [id],
+    );
+
+    return comment[0] || null;
+  }
+
   async create(body: CreateCommentDto) {
     const comment = await this.dataSource.query(
       `
@@ -57,6 +79,19 @@ export class CommentsRepository {
       RETURNING c.id, ci."userId"
     `,
       [body.content, body.commentId, body.userId],
+    );
+  }
+
+  async updateCounters(likesCount: number, dislikesCount: number, id: string) {
+    await this.dataSource.query(`
+        UPDATE "LikesInfo" li
+        SET "likesCount"    = $1,
+            "dislikesCount" = $2
+        FROM "Comments" c
+        WHERE c.id = li.id
+          AND c.id = $3
+          AND c."deletedAt" IS NULL
+        `, [likesCount, dislikesCount, id]
     );
   }
 

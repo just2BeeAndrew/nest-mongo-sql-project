@@ -2,12 +2,10 @@ import { CommentsRepository } from '../../infrastructure/comments.repository';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
-import { LikeStatus } from '../../../../../core/dto/like-status';
+import { LikeStatus } from '../../../../core/dto/like-status';
 import { StatusRepository } from '../../infrastructure/status.repository';
-import { Status, StatusModelType } from '../../domain/status.entity';
-import { InjectModel } from '@nestjs/mongoose';
 import { CalculateStatusCountCommand } from './calculate-status-count.usecase';
-import { Category } from '../../../../../core/dto/category';
+import { Category } from '../../../../core/dto/category';
 
 export class CommentLikeStatusCommand {
   constructor(
@@ -18,18 +16,17 @@ export class CommentLikeStatusCommand {
 }
 
 @CommandHandler(CommentLikeStatusCommand)
-export class CommentLikeStatusUseCase implements ICommandHandler<CommentLikeStatusCommand> {
+export class CommentLikeStatusUseCase
+  implements ICommandHandler<CommentLikeStatusCommand>
+{
   constructor(
-    @InjectModel(Status.name) private StatusModel: StatusModelType,
     private commandBus: CommandBus,
     private commentsRepository: CommentsRepository,
     private statusRepository: StatusRepository,
   ) {}
 
   async execute(command: CommentLikeStatusCommand) {
-    const comment = await this.commentsRepository.findCommentById(
-      command.commentId,
-    );
+    const comment = await this.commentsRepository.findById(command.commentId);
     if (!comment) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
@@ -38,10 +35,10 @@ export class CommentLikeStatusUseCase implements ICommandHandler<CommentLikeStat
       });
     }
 
-    const existingStatus = await this.statusRepository.findStatus(
+    const existingStatus = await this.statusRepository.find(
       command.userId,
       command.commentId,
-      Category.Comment
+      Category.Comment,
     );
 
     const currentStatus = existingStatus
@@ -52,17 +49,18 @@ export class CommentLikeStatusUseCase implements ICommandHandler<CommentLikeStat
       if (existingStatus.status === command.newStatus) {
         return;
       } else {
-        existingStatus.setStatus(command.newStatus);
-        await this.statusRepository.save(existingStatus);
+        await this.statusRepository.updateStatus(
+          existingStatus.id,
+          command.newStatus,
+        );
       }
     } else if (command.newStatus !== LikeStatus.None) {
-      const status = this.StatusModel.createInstance({
+      await this.statusRepository.create({
         userId: command.userId,
         categoryId: command.commentId,
         category: Category.Comment,
         status: command.newStatus,
       });
-      await this.statusRepository.save(status);
     }
 
     const updatedCounts =
@@ -75,10 +73,10 @@ export class CommentLikeStatusUseCase implements ICommandHandler<CommentLikeStat
         ),
       );
 
-    comment.setStatusCounters(
+    await this.commentsRepository.updateCounters(
       updatedCounts.likesCount,
       updatedCounts.dislikesCount,
+      comment.id,
     );
-    await this.commentsRepository.save(comment);
   }
 }

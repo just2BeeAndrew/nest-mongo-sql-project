@@ -1,4 +1,4 @@
-import { LikeStatus } from '../../../../../core/dto/like-status';
+import { LikeStatus } from '../../../../core/dto/like-status';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class CalculateStatusCountCommand {
