@@ -66,8 +66,8 @@ export class CommentLikeStatusUseCase
     const updatedCounts =
       await this.commandBus.execute<CalculateStatusCountCommand>(
         new CalculateStatusCountCommand(
-          comment.likesInfo.likesCount,
-          comment.likesInfo.dislikesCount,
+          comment.likesCount,
+          comment.dislikesCount,
           currentStatus,
           command.newStatus,
         ),

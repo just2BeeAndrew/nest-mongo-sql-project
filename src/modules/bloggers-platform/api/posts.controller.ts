@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -22,6 +23,8 @@ import { AccessContextDto } from '../../../core/dto/access-context.dto';
 import { CreateCommentInputDto } from './input-dto/create-comment.input-dto';
 import { CreateCommentCommand } from '../application/usecases/create-coment.usecase';
 import { FindCommentByIdQuery } from '../application/queries/find-comments-by-id.query-handler';
+import { LikesStatusInputDto } from '../../../core/dto/likes-status.input-dto';
+import { PostLikeStatusCommand } from '../application/usecases/post-like-status.usecase';
 
 @Controller('posts')
 export class PostsController {
@@ -29,6 +32,19 @@ export class PostsController {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
+
+  @Put(':postId/like-status')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async postLikeStatus(
+    @ExtractUserFromAccessToken() user: AccessContextDto,
+    @Param('postId') postId: string,
+    @Body() likeStatus: LikesStatusInputDto,
+  ) {
+    return this.commandBus.execute<PostLikeStatusCommand>(
+      new PostLikeStatusCommand(user.id, postId, likeStatus.likeStatus),
+    );
+  }
 
   @Post(':postId/comments')
   @HttpCode(HttpStatus.CREATED)
