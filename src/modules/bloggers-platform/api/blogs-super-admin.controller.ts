@@ -16,7 +16,7 @@ import { BasicAuthGuard } from '../../../core/guards/basic/basic-auth.guard';
 import { CreateBlogInputDto } from './input-dto/create-blogs.input-dto';
 import { CreateBlogCommand } from '../application/usecases/create-blog.usecase';
 import { FindBlogByIdQuery } from '../application/queries/find-blog-by-id.query-handler';
-import { FindBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
+import { FindBlogsQueryParams } from './input-dto/find-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto';
 import { BlogsViewDto } from './view-dto/blogs.view-dto';
 import { FindAllBlogsQuery } from '../application/queries/find-all-blogs.query-handler';
@@ -27,7 +27,7 @@ import { CreatePostByBlogIdInputDto } from './input-dto/create-post-by-blog-id-i
 import { LikeStatus } from '../../../core/dto/like-status';
 import { CreatePostByBlogIdCommand } from '../application/usecases/create-post-by-blog-id.usecase';
 import { FindPostByIdQuery } from '../application/queries/find-post-by-id.query-handler';
-import { FindPostsQueryParams } from './input-dto/get-posts-query-params.input-dto';
+import { FindPostsQueryParams } from './input-dto/find-posts-query-params.input-dto';
 import { PostsViewDto } from './view-dto/posts.view-dto';
 import { FindPostsByBlogIdQuery } from '../application/queries/find-post-by-blogId.query-handler';
 import { UpdatePostCommand } from '../application/usecases/update-post-by-blog-id.useсase';

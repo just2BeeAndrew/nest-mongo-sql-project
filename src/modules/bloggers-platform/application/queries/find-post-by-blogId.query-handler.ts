@@ -1,4 +1,4 @@
-import { FindPostsQueryParams } from '../../api/input-dto/get-posts-query-params.input-dto';
+import { FindPostsQueryParams } from '../../api/input-dto/find-posts-query-params.input-dto';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { PostsViewDto } from '../../api/view-dto/posts.view-dto';
@@ -11,6 +11,7 @@ export class FindPostsByBlogIdQuery {
   constructor(
     public blogId: string,
     public query: FindPostsQueryParams,
+    public userId?: string | null,
   ) {}
 }
 
@@ -35,9 +36,11 @@ export class FindPostsByBlogIdQueryHandler
         extensions: [{ message: 'Blog not found', key: 'blog' }],
       });
     }
+
     return await this.postsQueryRepository.findPostsByBlogId(
       query.blogId,
       query.query,
+      query.userId ?? null,
     );
   }
 }

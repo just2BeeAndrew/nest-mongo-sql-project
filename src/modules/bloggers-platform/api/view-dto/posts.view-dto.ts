@@ -1,4 +1,5 @@
 import { LikeStatus } from '../../../../core/dto/like-status';
+import { LikeDetails } from '../../dto/like-details';
 
 class newestLikesViewDTO {
   addedAt: string;
@@ -23,7 +24,7 @@ export class PostsViewDto {
   createdAt: string;
   extendedLikesInfo: LikesInfoViewDto;
 
-  static mapToView(post: any, status: LikeStatus): PostsViewDto {
+  static mapToView(post: any, status: LikeStatus, likes: LikeDetails[]): PostsViewDto {
     const dto = new PostsViewDto();
 
     dto.id = post.id;
@@ -34,15 +35,10 @@ export class PostsViewDto {
     dto.blogName = post.blogName;
     dto.createdAt = post.createdAt.toISOString();
     dto.extendedLikesInfo = {
-      likesCount: 0,//post.extendedLikesInfo.likesCount,
-      dislikesCount: 0, //post.extendedLikesInfo.dislikesCount,
+      likesCount: post.likesCount,//post.extendedLikesInfo.likesCount,
+      dislikesCount: post.dislikesCount, //post.extendedLikesInfo.dislikesCount,
       myStatus: status || LikeStatus.None ,
-      newestLikes: [],
-      // newestLikes: post.extendedLikesInfo.newestLikes.map((like) => ({
-      //   addedAt: like.addedAt,
-      //   userId: like.userId,
-      //   login: like.login,
-      // })),
+      newestLikes: likes ||[],
     };
 
     return dto;

@@ -3,7 +3,6 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { UpdatePostDto } from '../dto/update-post.dto';
-import { LikeDetails } from '../dto/like-details';
 
 @Injectable()
 export class PostsRepository {
@@ -82,8 +81,6 @@ export class PostsRepository {
       [likesCount, dislikesCount, id],
     );
   }
-
-  async updateNewestLikes(newestLikes: LikeDetails[]){}
 
   async softDelete(id: string) {
     return await this.dataSource.query(

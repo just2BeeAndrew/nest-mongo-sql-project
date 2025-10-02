@@ -5,7 +5,7 @@ enum CommentSortBy{
   CreatedAt = 'createdAt',
 }
 
-export class GetCommentsByPostIdQueryParams extends BaseQueryParams{
+export class FindCommentsByPostIdQueryParams extends BaseQueryParams{
   @IsEnum(CommentSortBy)
   sortBy: CommentSortBy = CommentSortBy.CreatedAt
 }

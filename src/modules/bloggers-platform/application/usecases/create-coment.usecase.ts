@@ -42,7 +42,7 @@ export class CreateCommentUseCase
       });
     }
     const comment = await this.commentsRepository.create({
-      postId: post.id,
+      postId: command.postId,
       content: command.content,
       userId: user.id,
       userLogin: user.login,

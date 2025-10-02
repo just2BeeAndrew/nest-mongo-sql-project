@@ -8,7 +8,6 @@ import { DomainExceptionCode } from '../../../../core/exception/filters/domain-e
 import { Category } from '../../../../core/dto/category';
 import { UsersRepository } from '../../../user-accounts/infrastructure/users.repository';
 import { CalculateStatusCountCommand } from './calculate-status-count.usecase';
-import { LikeDetails } from '../../dto/like-details';
 
 export class PostLikeStatusCommand {
   constructor(
@@ -68,7 +67,7 @@ export class PostLikeStatusUseCase
         );
       }
     } else if (command.newStatus !== LikeStatus.None) {
-      const status = this.statusRepository.create({
+      await this.statusRepository.create({
         userId: command.userId,
         login: user.login,
         categoryId: command.postId,
@@ -92,10 +91,5 @@ export class PostLikeStatusUseCase
       updatedCounts.dislikesCount,
       post.id,
     );
-
-    const newestLikes: LikeDetails[] =
-      await this.statusRepository.getNewestLikes(command.postId);
-
-    await this.postsRepository.updateNewestLikes(newestLikes);
   }
 }

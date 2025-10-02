@@ -11,12 +11,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { FindPostsQueryParams } from './input-dto/get-posts-query-params.input-dto';
+import { FindPostsQueryParams } from './input-dto/find-posts-query-params.input-dto';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto';
 import { PostsViewDto } from './view-dto/posts.view-dto';
 import { FindAllPostsQuery } from '../application/queries/find-all-posts.query-handler';
 import { FindPostByIdQuery } from '../application/queries/find-post-by-id.query-handler';
-import { LikeStatus } from '../../../core/dto/like-status';
 import { JwtAuthGuard } from '../../../core/guards/bearer/jwt-auth.guard';
 import { ExtractUserFromAccessToken } from '../../../core/decorators/param/extract-user-from-access-token.decorator';
 import { AccessContextDto } from '../../../core/dto/access-context.dto';
@@ -25,6 +24,10 @@ import { CreateCommentCommand } from '../application/usecases/create-coment.usec
 import { FindCommentByIdQuery } from '../application/queries/find-comments-by-id.query-handler';
 import { LikesStatusInputDto } from '../../../core/dto/likes-status.input-dto';
 import { PostLikeStatusCommand } from '../application/usecases/post-like-status.usecase';
+import { JwtOptionalAuthGuard } from '../../../core/guards/bearer/jwt-optional-auth.guard';
+import { ExtractOptionalUserFromRequest } from '../../../core/decorators/param/extract-optional-user-from-request.decorator';
+import { FindCommentsByPostIdQueryParams } from './input-dto/find-comments-query-params.input-dto';
+import { FindCommentByPostIdQuery } from '../application/queries/find-comment-by-post-id.query-handler';
 
 @Controller('posts')
 export class PostsController {
@@ -46,6 +49,20 @@ export class PostsController {
     );
   }
 
+  @Get(':postId/comments')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtOptionalAuthGuard)
+  async findCommentsByPostId(
+    @ExtractOptionalUserFromRequest() user: AccessContextDto | null,
+    @Param('postId') postId: string,
+    @Query() query: FindCommentsByPostIdQueryParams,
+  ) {
+    const userId = user ? user.id : null;
+    return this.queryBus.execute(
+      new FindCommentByPostIdQuery(postId, query, userId),
+    );
+  }
+
   @Post(':postId/comments')
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtAuthGuard)
@@ -61,16 +78,24 @@ export class PostsController {
   }
 
   @Get()
+  @UseGuards(JwtOptionalAuthGuard)
   @HttpCode(HttpStatus.OK)
   async findAllPosts(
+    @ExtractOptionalUserFromRequest() user: AccessContextDto | null,
     @Query() query: FindPostsQueryParams,
   ): Promise<PaginatedViewDto<PostsViewDto[]>> {
-    return this.queryBus.execute(new FindAllPostsQuery(query));
+    const userId = user ? user.id : null;
+    return this.queryBus.execute(new FindAllPostsQuery(query, userId));
   }
 
   @Get(':id')
+  @UseGuards(JwtOptionalAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async findPostById(@Param('id') id: string): Promise<PostsViewDto> {
-    return this.queryBus.execute(new FindPostByIdQuery(id, LikeStatus.None));
+  async findPostById(
+    @ExtractOptionalUserFromRequest() user: AccessContextDto | null,
+    @Param('id') id: string,
+  ): Promise<PostsViewDto> {
+    const userId = user ? user.id : null;
+    return this.queryBus.execute(new FindPostByIdQuery(id, userId));
   }
 }

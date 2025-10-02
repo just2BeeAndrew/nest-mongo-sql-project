@@ -23,6 +23,8 @@ import { DeleteCommentUseCase } from './application/usecases/delete-comment.usec
 import { CalculateStatusCountUseCase } from './application/usecases/calculate-status-count.usecase';
 import { CommentLikeStatusUseCase } from './application/usecases/comment-like-status.usecase';
 import { FindCommentByIdQueryHandler } from './application/queries/find-comments-by-id.query-handler';
+import { FindCommentsByPostIdQueryHandler } from './application/queries/find-comment-by-post-id.query-handler';
+import { PostLikeStatusUseCase } from './application/usecases/post-like-status.usecase';
 
 const useCases = [
   CreateBlogUseCase,
@@ -35,6 +37,7 @@ const useCases = [
   UpdateCommentUseCase,
   DeleteCommentUseCase,
   CalculateStatusCountUseCase,
+  PostLikeStatusUseCase,
   CommentLikeStatusUseCase,
 ];
 const queries = [
@@ -43,7 +46,8 @@ const queries = [
   FindAllPostsQueryHandler,
   FindPostByIdQueryHandler,
   FindPostsByBlogIdQueryHandler,
-  FindCommentByIdQueryHandler
+  FindCommentByIdQueryHandler,
+  FindCommentsByPostIdQueryHandler,
 ];
 
 @Module({

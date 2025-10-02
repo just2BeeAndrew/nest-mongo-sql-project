@@ -4,25 +4,46 @@ import { DomainException } from '../../../../core/exception/filters/domain-excep
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 import { PostsQueryRepository } from '../../infrastructure/query/posts.query-repository';
 import { LikeStatus } from '../../../../core/dto/like-status';
+import { Category } from '../../../../core/dto/category';
+import { StatusRepository } from '../../infrastructure/status.repository';
 
 export class FindPostByIdQuery {
-  constructor(public id: string,
-              public status: LikeStatus) {}
+  constructor(
+    public id: string,
+    public userId?: string | null,
+  ) {}
 }
 
 @QueryHandler(FindPostByIdQuery)
 export class FindPostByIdQueryHandler
   implements IQueryHandler<FindPostByIdQuery, PostsViewDto>
 {
-  constructor(private readonly blogsQueryRepository: PostsQueryRepository) {}
+  constructor(
+    private readonly statusRepository: StatusRepository,
+    private readonly blogsQueryRepository: PostsQueryRepository,
+  ) {}
 
   async execute(query: FindPostByIdQuery): Promise<PostsViewDto> {
-    const post = await this.blogsQueryRepository.findPostById(query.id, query.status );
+    let userStatus: LikeStatus = LikeStatus.None;
+
+    if (query.userId) {
+      const status = await this.statusRepository.find(
+        query.userId,
+        query.id,
+        Category.Post,
+      );
+      userStatus = status ? status.status : LikeStatus.None;
+    }
+
+    const post = await this.blogsQueryRepository.findById(
+      query.id,
+      userStatus,
+    );
     if (!post) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: 'Not found',
-        extensions: [{message: "post not found", key: "post"}]
+        extensions: [{ message: 'post not found', key: 'post' }],
       });
     }
 

@@ -13,8 +13,12 @@ export class StatusRepository {
   async find(userId: string, categoryId: string, category: Category) {
     return await this.dataSource.query(
       `
-    SELECT * FROM "Statuses" WHERE "userId" = $1 AND "categoryId" = $2 AND category = $3;
-    `,
+        SELECT *
+        FROM "Statuses"
+        WHERE "userId" = $1
+          AND "categoryId" = $2
+          AND category = $3;
+      `,
       [userId, categoryId, category],
     );
   }
@@ -22,7 +26,7 @@ export class StatusRepository {
   async create(body: CreateStatusDto) {
     await this.dataSource.query(
       `
-      INSERT INTO "Statuses" (id, "userId", login, "categoryId", category, status, "createdAt")
+      INSERT INTO "Statuses" (id, "userId", login, "categoryId", category, status, "addedAt")
       VALUES (gen_random_uuid(), $1, NULL, $2, $3, $4, NOW())
     `,
       [body.userId, body.categoryId, body.category, body.status],
@@ -38,7 +42,7 @@ export class StatusRepository {
     );
   }
 
-  async getNewestLikes(postId: string) {
+  async findNewestLikes(postId: string) {
     const newestLikes = await this.dataSource.query(
       `
       SELECT "userId"
@@ -46,7 +50,7 @@ export class StatusRepository {
       WHERE "categoryId" = $1
         AND category = 'Post'
         AND status = 'Like'
-      ORDER BY "createdAt" DESC 
+      ORDER BY "addedAt" DESC 
       LIMIT 3;
     `,
       [postId],
