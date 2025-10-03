@@ -30,7 +30,7 @@ export class PostsRepository {
         INSERT INTO "Posts" (id, title, "shortDescription", content, "blogId", "blogName", "createdAt")
           VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, NOW()) RETURNING id)
       INSERT
-      INTO "ExtendedLikesInfo" (id, "likesCount", "dislikeCount")
+      INTO "ExtendedLikesInfo" (id, "likesCount", "dislikesCount")
       SELECT id, 0, 0
       FROM insert_post
       RETURNING id;
@@ -72,7 +72,7 @@ export class PostsRepository {
       `
         UPDATE "ExtendedLikesInfo" e
         SET "likesCount"   = $1,
-            "dislikeCount" = $2
+            "dislikesCount" = $2
         FROM "Posts" p
         WHERE p.id = e.id
           AND p.id = $3

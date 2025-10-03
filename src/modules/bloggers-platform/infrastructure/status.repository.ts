@@ -11,6 +11,7 @@ export class StatusRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   async find(userId: string, categoryId: string, category: Category) {
+    console.log(userId, categoryId, category);
     return await this.dataSource.query(
       `
         SELECT *

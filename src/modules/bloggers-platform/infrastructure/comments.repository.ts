@@ -43,23 +43,23 @@ export class CommentsRepository {
   async create(body: CreateCommentDto) {
     const comment = await this.dataSource.query(
       `
-      WITH insert_comment AS (
-        INSERT INTO "Comments" (id, content, "createdAt")
-          VALUES (gen_random_uuid(), $1, NOW())
-          RETURNING id),
-           insert_commentator_info AS (
-             INSERT
-               INTO "CommentatorInfo" (id, "userId", "userLogin")
-                 SELECT id, $2, $3
-                 FROM "Comments"
-                 RETURNING id)
-      INSERT
-      INTO "LikesInfo" (id, "likesCount", "dislikesCount")
-      SELECT id, 0, 0
-      FROM "Comments"
-      RETURNING id
-    `,
-      [body.content, body.userId, body.userLogin],
+        WITH insert_comment AS (
+          INSERT INTO "Comments" (id, "postId", content, "createdAt")
+            VALUES (gen_random_uuid(), $1, $2, NOW())
+            RETURNING id),
+             insert_commentator_info AS (
+               INSERT
+                 INTO "CommentatorInfo" (id, "userId", "userLogin")
+                   SELECT id, $3, $4
+                   FROM insert_comment
+                   RETURNING id)
+        INSERT
+        INTO "LikesInfo" (id, "likesCount", "dislikesCount")
+        SELECT id, 0, 0
+        FROM insert_comment
+        RETURNING id
+      `,
+      [body.postId, body.content, body.userId, body.userLogin],
     );
 
     return comment[0].id;
@@ -83,7 +83,8 @@ export class CommentsRepository {
   }
 
   async updateCounters(likesCount: number, dislikesCount: number, id: string) {
-    await this.dataSource.query(`
+    await this.dataSource.query(
+      `
         UPDATE "LikesInfo" li
         SET "likesCount"    = $1,
             "dislikesCount" = $2
@@ -91,7 +92,8 @@ export class CommentsRepository {
         WHERE c.id = li.id
           AND c.id = $3
           AND c."deletedAt" IS NULL
-        `, [likesCount, dislikesCount, id]
+        `,
+      [likesCount, dislikesCount, id],
     );
   }
 

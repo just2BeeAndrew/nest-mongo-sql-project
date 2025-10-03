@@ -47,6 +47,8 @@ export class PostLikeStatusUseCase
       });
     }
 
+    //TODO: Разобраться почему не правильно работает поиск статусов
+
     const existingStatus = await this.statusRepository.find(
       command.userId,
       command.postId,

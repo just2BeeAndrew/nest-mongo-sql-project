@@ -28,7 +28,7 @@ export class UpdateCommentUseCase
       const commentIsExist = await this.commentsRepository.isExist(
         command.commentId,
       );
-      if (commentIsExist[0] === 0) {
+      if (commentIsExist.length === 0) {
         throw new DomainException({
           code: DomainExceptionCode.NotFound,
           message: 'Not Found',

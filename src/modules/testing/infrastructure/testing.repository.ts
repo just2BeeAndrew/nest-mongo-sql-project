@@ -12,6 +12,8 @@ export class TestingRepository {
       TRUNCATE TABLE "Sessions";
       TRUNCATE TABLE "Blogs";
       TRUNCATE TABLE "Posts" CASCADE;
+      TRUNCATE TABLE "Comments" CASCADE;
+      TRUNCATE TABLE "Statuses";
       `,
     );
   }

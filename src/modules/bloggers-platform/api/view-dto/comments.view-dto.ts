@@ -21,7 +21,7 @@ export class CommentsViewDto {
   static mapToView(comment: any, status: LikeStatus): CommentsViewDto {
     const dto = new CommentsViewDto();
 
-    dto.id = comment.id.toString();
+    dto.id = comment.id;
     dto.content = comment.content;
     dto.commentatorInfo = {
       userId: comment.userId,

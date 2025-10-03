@@ -41,13 +41,13 @@ export class CreateCommentUseCase
         extensions: [{ message: 'Post not found', key: 'post' }],
       });
     }
-    const comment = await this.commentsRepository.create({
+    const commentId = await this.commentsRepository.create({
       postId: command.postId,
       content: command.content,
       userId: user.id,
       userLogin: user.login,
     });
 
-    return comment[0].id;
+    return commentId;
   }
 }

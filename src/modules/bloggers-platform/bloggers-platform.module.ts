@@ -25,6 +25,12 @@ import { CommentLikeStatusUseCase } from './application/usecases/comment-like-st
 import { FindCommentByIdQueryHandler } from './application/queries/find-comments-by-id.query-handler';
 import { FindCommentsByPostIdQueryHandler } from './application/queries/find-comment-by-post-id.query-handler';
 import { PostLikeStatusUseCase } from './application/usecases/post-like-status.usecase';
+import { StatusRepository } from './infrastructure/status.repository';
+import { CommentsRepository } from './infrastructure/comments.repository';
+import { CommentsQueryRepository } from './infrastructure/query/comments.query-repository';
+import { UserAccountsModule } from '../user-accounts/user-accounts.module';
+import { PostsController } from './api/posts.controller';
+import { CommentsController } from './api/comments.controller';
 
 const useCases = [
   CreateBlogUseCase,
@@ -51,13 +57,16 @@ const queries = [
 ];
 
 @Module({
-  imports: [CqrsModule],
-  controllers: [BlogsController, BlogsSuperAdminController],
+  imports: [CqrsModule, UserAccountsModule],
+  controllers: [BlogsController, BlogsSuperAdminController, PostsController, CommentsController],
   providers: [
     BlogsRepository,
     BlogsQueryRepository,
     PostsRepository,
     PostsQueryRepository,
+    CommentsRepository,
+    CommentsQueryRepository,
+    StatusRepository,
     ...useCases,
     ...queries,
   ],

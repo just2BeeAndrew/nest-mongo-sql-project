@@ -18,9 +18,13 @@ export class CommentsQueryRepository {
       `
         SELECT c.id,
                c.content,
-               c."createdAt"
+               c."createdAt",
+               ci."userId",
+               ci."userLogin",
+               l."likesCount",
+               l."dislikesCount"
         FROM "Comments" c
-               JOIN "CommentatorInfo" i ON c.id = i.id
+               JOIN "CommentatorInfo" ci ON c.id = ci.id
                LEFT JOIN "LikesInfo" l ON c.id = l.id
         WHERE c.id = $1
           AND c."deletedAt" IS NULL
@@ -94,7 +98,7 @@ export class CommentsQueryRepository {
     const items = comments.map((comment) =>
       CommentsViewDto.mapToView(
         comment,
-        statusMap.get(comment._id.toString()) ?? LikeStatus.None,
+        statusMap.get(comment.id) ?? LikeStatus.None,
       ),
     );
 
