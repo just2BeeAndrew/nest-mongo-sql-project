@@ -32,7 +32,7 @@ export class FindCommentByIdQueryHandler
         query.commentId,
         Category.Comment,
       );
-      userStatus = status[0] ? status.status : LikeStatus.None;
+      userStatus = status ? status.status : LikeStatus.None;
     }
 
     const comment = await this.commentsQueryRepository.findById(

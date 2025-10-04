@@ -11,8 +11,7 @@ export class StatusRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   async find(userId: string, categoryId: string, category: Category) {
-    console.log(userId, categoryId, category);
-    return await this.dataSource.query(
+    const status =  await this.dataSource.query(
       `
         SELECT *
         FROM "Statuses"
@@ -22,15 +21,18 @@ export class StatusRepository {
       `,
       [userId, categoryId, category],
     );
+
+    return status[0] || null
   }
 
   async create(body: CreateStatusDto) {
+    console.log(body);
     await this.dataSource.query(
       `
       INSERT INTO "Statuses" (id, "userId", login, "categoryId", category, status, "addedAt")
-      VALUES (gen_random_uuid(), $1, NULL, $2, $3, $4, NOW())
+      VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, NOW())
     `,
-      [body.userId, body.categoryId, body.category, body.status],
+      [body.userId, body.login, body.categoryId, body.category, body.status],
     );
   }
 

@@ -27,7 +27,7 @@ export class PostsQueryRepository {
                p."blogName",
                p."createdAt",
                e."likesCount",
-               e."dislikeCount"
+               e."dislikesCount"
         FROM "Posts" p
                JOIN "ExtendedLikesInfo" e ON p.id = e.id
         ORDER BY ${orderBy}
@@ -159,7 +159,7 @@ export class PostsQueryRepository {
                p."blogName",
                p."createdAt",
                e."likesCount",
-               e."dislikeCount"
+               e."dislikesCount"
         FROM "Posts" p
                JOIN "ExtendedLikesInfo" e ON p.id = e.id
         WHERE p."blogId" = $1 AND "deletedAt" IS NULL
