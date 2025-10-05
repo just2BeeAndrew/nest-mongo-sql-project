@@ -75,6 +75,7 @@ export class CommentsQueryRepository {
     const totalCount = parseInt(totalCountResult[0]?.count || '0', 10);
 
     const commentIds = comments.map((comment) => comment.id);
+    console.log("commentsIds",commentIds);
 
     let statusMap = new Map<string, LikeStatus>();
     if (userId) {
@@ -84,10 +85,12 @@ export class CommentsQueryRepository {
       FROM "Statuses"
       WHERE "userId" = $1
         AND "categoryId" = ANY($2)
-        AND category = 'Post'
+        AND category = 'Comment'
       `,
         [userId, commentIds],
       );
+
+      console.log("statuses",statuses);
 
       statusMap = statuses.reduce((map, status) => {
         map.set(status.categoryId, status.status);

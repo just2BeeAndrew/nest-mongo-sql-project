@@ -32,6 +32,7 @@ export class CommentsController {
   ) {}
 
   @Put(':commentId/like-status')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async commentLikeStatus(
     @ExtractUserFromAccessToken() user: AccessContextDto,
