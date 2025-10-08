@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { TestingModule } from './modules/testing/testing.module';
 import { configModule } from './dynamic-config-module';
@@ -13,6 +13,18 @@ import { PostsController } from './modules/bloggers-platform/api/posts.controlle
 import { CqrsModule } from '@nestjs/cqrs';
 import { CommentsController } from './modules/bloggers-platform/api/comments.controller';
 
+export const options: TypeOrmModuleOptions = {
+  type: 'postgres',
+  host: '127.0.0.1',
+  port: 5400,
+  username: 'postgres_db',
+  password: 'postgres_db',
+  database: 'my_db',
+  autoLoadEntities: true,
+  synchronize: true,
+  logging: true,
+}
+
 @Module({
   imports: [
     configModule,
@@ -20,17 +32,7 @@ import { CommentsController } from './modules/bloggers-platform/api/comments.con
     UserAccountsModule,
     NotificationsModule,
     TestingModule,
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: '127.0.0.1',
-      port: 5400,
-      username: 'postgres_db',
-      password: 'postgres_db',
-      database: 'my_db',
-      autoLoadEntities: true,
-      synchronize: true,
-      logging: true,
-    }),
+    TypeOrmModule.forRoot(options),
     CqrsModule.forRoot({})
   ],
   controllers: [AppController, BlogsController, BlogsSuperAdminController, PostsController, CommentsController],
