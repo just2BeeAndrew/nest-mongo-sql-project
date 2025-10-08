@@ -37,6 +37,12 @@ import { JwtStrategy } from '../../core/guards/bearer/jwt.strategy';
 import { JwtRefreshStrategy } from '../../core/guards/bearer/jwt-refresh.strategy';
 import { SecurityDevicesController } from './api/security-devices.controller';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import {
+  AccountData,
+  EmailConfirmation,
+  User,
+} from './domain/entities/user.entity';
 
 const useCases = [
   CreateUserUseCase,
@@ -67,6 +73,7 @@ const queries = [
     NotificationsModule,
     BcryptModule,
     ThrottlerModule.forRoot([{ ttl: 10000, limit: 5 }]),
+    TypeOrmModule.forFeature([User, AccountData, EmailConfirmation]),
   ],
   controllers: [UsersController, AuthController, SecurityDevicesController],
   providers: [
@@ -102,6 +109,6 @@ const queries = [
       inject: [],
     },
   ],
-  exports: [UsersRepository]
+  exports: [UsersRepository],
 })
 export class UserAccountsModule {}

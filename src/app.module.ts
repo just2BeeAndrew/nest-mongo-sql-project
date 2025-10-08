@@ -16,6 +16,7 @@ import { CommentsController } from './modules/bloggers-platform/api/comments.con
 @Module({
   imports: [
     configModule,
+    BloggersPlatformModule,
     UserAccountsModule,
     NotificationsModule,
     TestingModule,
@@ -30,7 +31,6 @@ import { CommentsController } from './modules/bloggers-platform/api/comments.con
       synchronize: true,
       logging: true,
     }),
-    BloggersPlatformModule,
     CqrsModule.forRoot({})
   ],
   controllers: [AppController, BlogsController, BlogsSuperAdminController, PostsController, CommentsController],
