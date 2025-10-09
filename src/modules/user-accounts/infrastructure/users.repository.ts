@@ -1,35 +1,43 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../domain/dto/create-user.dto';
-import { DataSource } from 'typeorm';
-import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { User } from '../domain/entities/user.entity';
 
 @Injectable()
-export class UsersRepository {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
-  async create(dto: CreateUserDto, t: any) {
-    const user = await t.query(
-      `
-        WITH insert_user AS (
-        INSERT
-        INTO "Users" DEFAULT
-        VALUES RETURNING id
-          ), insert_account_data AS (
-        INSERT
-        INTO "AccountData" (id, login, password_hash, email, created_at, deleted_at)
-        SELECT id, $1, $2, $3, NOW(), NULL
-        FROM insert_user
-          RETURNING id
-          )
-        INSERT
-        INTO "EmailConfirmation" (id, confirmation_code, recovery_code, issued_at, expiration_date, is_confirmed)
-        SELECT id, NULL, NULL, NOW(), NOW() + interval '1 day', false
-        FROM insert_account_data
-          RETURNING id;
-      `,
-      [dto.login, dto.passwordHash, dto.email],
-    );
+export class UsersRepository extends Repository<User> {
+  constructor(
+    @InjectDataSource() private dataSource: DataSource,
+    @InjectRepository(User) repository: Repository<User>,
+  ) {
+    (repository.target, repository.manager, repository.queryRunner);
+  }
+  async createUser(user: User) {
+    return await this.save(user);
 
-    return user[0].id;
+    // const user = await t.query(
+    //   `
+    //     WITH insert_user AS (
+    //     INSERT
+    //     INTO "Users" DEFAULT
+    //     VALUES RETURNING id
+    //       ), insert_account_data AS (
+    //     INSERT
+    //     INTO "AccountData" (id, login, password_hash, email, created_at, deleted_at)
+    //     SELECT id, $1, $2, $3, NOW(), NULL
+    //     FROM insert_user
+    //       RETURNING id
+    //       )
+    //     INSERT
+    //     INTO "EmailConfirmation" (id, confirmation_code, recovery_code, issued_at, expiration_date, is_confirmed)
+    //     SELECT id, NULL, NULL, NOW(), NOW() + interval '1 day', false
+    //     FROM insert_account_data
+    //       RETURNING id;
+    //   `,
+    //   [dto.login, dto.passwordHash, dto.email],
+    // );
+    //
+    // return user[0].id;
   }
 
   async findById(id: string) {
