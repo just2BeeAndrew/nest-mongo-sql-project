@@ -16,17 +16,13 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
-  //обратная связь с AccountData
-  @OneToOne(() => AccountData, (acccountData) =>acccountData.user, {
-    cascade: true,
-    onDelete: 'CASCADE'
+  @OneToOne(() => AccountData, (accountData) =>accountData.user, {
+    cascade: true
   })
   accountData: AccountData;
 
-  //обратная связь с EmailConfirmation
   @OneToOne(() => EmailConfirmation, (emailConfirmation) =>emailConfirmation.user, {
     cascade: true,
-    onDelete: 'CASCADE'
   })
   emailConfirmation: EmailConfirmation;
 }
@@ -44,7 +40,7 @@ export class AccountData {
 
   @Column()
   email: string;
-
+//TODO: Вынести в абстрактную сущность
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
@@ -54,14 +50,9 @@ export class AccountData {
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
 
-  @OneToOne(() => User, { cascade: true, onDelete: 'CASCADE' })
+  @OneToOne(() => User)
   @JoinColumn({ name: 'userId' })
   user: User;
-
-  @BeforeInsert()
-  setId() {
-    this.userId = this.user.id;
-  }
 }
 
 @Entity()
@@ -84,12 +75,7 @@ export class EmailConfirmation {
   @Column({ default: false })
   isConfirmed: boolean;
 
-  @OneToOne(() => User, { cascade: true, onDelete: 'CASCADE' })
+  @OneToOne(() => User)
   @JoinColumn({ name: 'userId' })
   user: User;
-
-  @BeforeInsert()
-  setId() {
-    this.userId = this.user.id;
-  }
 }

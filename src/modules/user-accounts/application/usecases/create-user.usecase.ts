@@ -17,7 +17,7 @@ export class CreateUserCommand {
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserUseCase
-  implements ICommandHandler<CreateUserCommand, number>
+  implements ICommandHandler<CreateUserCommand, string>
 {
   constructor(
     private readonly dataSource: DataSource,
@@ -26,8 +26,6 @@ export class CreateUserUseCase
   ) {}
 
   async execute(command: CreateUserCommand) {
-    const manager = this.dataSource.manager
-
     const passwordHash = await this.bcryptService.createHash(
       command.dto.password,
     );
@@ -35,24 +33,26 @@ export class CreateUserUseCase
     const user = new User();
 
     const accountData = new AccountData();
-    accountData.user = user; //устанавливаю связь с User
     accountData.login = command.dto.login;
     accountData.email = command.dto.email;
     accountData.passwordHash = passwordHash;
 
-    // Привязываем к User для каскада
-    user.accountData = accountData;
+    accountData.user = user; //устанавливаю связь с User
 
     const emailConfirmation = new EmailConfirmation();
-    emailConfirmation.user = user;
     emailConfirmation.issuedAt = new Date();
     emailConfirmation.expirationTime = new Date(
       Date.now() + 24 * 60 * 60 * 1000,
     );
 
+    emailConfirmation.user = user;
+
+    user.accountData = accountData;
     user.emailConfirmation = emailConfirmation;
 
-    await this.usersRepository.createUser(user)
+    const createdUser = await this.usersRepository.saveUser(user)
+
+    return createdUser.id;
 
     // return this.dataSource.transaction(async (t) => {
     //   const isLoginTaken = await this.usersRepository.isLoginTaken(

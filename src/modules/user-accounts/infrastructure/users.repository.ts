@@ -10,9 +10,9 @@ export class UsersRepository extends Repository<User> {
     @InjectDataSource() private dataSource: DataSource,
     @InjectRepository(User) repository: Repository<User>,
   ) {
-    (repository.target, repository.manager, repository.queryRunner);
+    super(repository.target, repository.manager, repository.queryRunner);
   }
-  async createUser(user: User) {
+  async saveUser(user: User) {
     return await this.save(user);
 
     // const user = await t.query(
