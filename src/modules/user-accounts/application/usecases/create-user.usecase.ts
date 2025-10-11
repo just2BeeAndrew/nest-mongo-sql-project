@@ -5,11 +5,9 @@ import { DomainException } from '../../../../core/exception/filters/domain-excep
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 import { BcryptService } from '../../../bcrypt/application/bcrypt.service';
 import { DataSource } from 'typeorm';
-import {
-  AccountData,
-  EmailConfirmation,
-  User,
-} from '../../domain/entities/user.entity';
+import { User } from '../../domain/entities/user.entity';
+import {AccountData} from '../../domain/entities/account-data.entity';
+import { EmailConfirmation } from '../../domain/entities/email-confirmation.entity';
 
 export class CreateUserCommand {
   constructor(public readonly dto: CreateUserInputDto) {}
@@ -50,7 +48,7 @@ export class CreateUserUseCase
     user.accountData = accountData;
     user.emailConfirmation = emailConfirmation;
 
-    const createdUser = await this.usersRepository.saveUser(user)
+    const createdUser = await this.usersRepository.saveUser(user);
 
     return createdUser.id;
 

@@ -38,11 +38,9 @@ import { JwtRefreshStrategy } from '../../core/guards/bearer/jwt-refresh.strateg
 import { SecurityDevicesController } from './api/security-devices.controller';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import {
-  AccountData,
-  EmailConfirmation,
-  User,
-} from './domain/entities/user.entity';
+import { User } from './domain/entities/user.entity';
+import { EmailConfirmation } from './domain/entities/email-confirmation.entity';
+import { AccountData } from './domain/entities/account-data.entity';
 
 const useCases = [
   CreateUserUseCase,

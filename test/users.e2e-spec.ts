@@ -1,13 +1,11 @@
 import { HttpStatus, INestApplication, LoggerService } from '@nestjs/common';
-import { Connection, DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule, options } from '../src/app.module';
-import * as module from 'node:module';
+import { AppModule } from '../src/app.module';
 import { appSetup } from '../src/setup/app.setup';
-import { CreateUserDto } from '../src/modules/user-accounts/domain/dto/create-user.dto';
 import request from 'supertest';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserAccountsModule } from '../src/modules/user-accounts/user-accounts.module';
+import { User } from '../src/modules/user-accounts/domain/entities/user.entity';
+import { AccountData } from '../src/modules/user-accounts/domain/entities/account-data.entity';
 
 class TestLogger implements LoggerService {
   log(message: string) {}
@@ -20,10 +18,12 @@ class TestLogger implements LoggerService {
 describe('Users (e2e)', () => {
   let app: INestApplication;
   let dataSource: DataSource;
+  let userRepository: Repository<User>;
+  let accountDataRepository: Repository<AccountData>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [TypeOrmModule.forRoot(options), UserAccountsModule, AppModule],
+      imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -32,6 +32,9 @@ describe('Users (e2e)', () => {
     await app.init();
 
     dataSource = moduleFixture.get(DataSource);
+
+    userRepository = dataSource.getRepository(User);
+    accountDataRepository = dataSource.getRepository(AccountData);
 
     await dataSource.synchronize(true);
   });
