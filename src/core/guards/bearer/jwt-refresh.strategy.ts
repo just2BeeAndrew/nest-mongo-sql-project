@@ -5,19 +5,21 @@ import { Request } from 'express';
 import { DomainException } from '../../exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../exception/filters/domain-exception-codes';
 import { SessionsRepository } from '../../../modules/user-accounts/infrastructure/sessions.repository';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
   'jwt-refresh',
 ) {
-  constructor(private readonly sessionsRepository: SessionsRepository) {
+  constructor(private readonly sessionsRepository: SessionsRepository,
+              configService: ConfigService,) {
     super({
       jwtFromRequest: (req: Request) => {
         return req?.cookies?.refreshToken;
       },
       ignoreExpiration: true,
-      secretOrKey: 'refresh-token-secret',
+      secretOrKey: configService.getOrThrow<string>('REFRESH_TOKEN_SECRET'),
       passReqToCallback: true,
     });
   }

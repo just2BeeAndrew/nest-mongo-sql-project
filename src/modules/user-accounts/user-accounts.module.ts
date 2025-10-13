@@ -41,6 +41,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './domain/entities/user.entity';
 import { EmailConfirmation } from './domain/entities/email-confirmation.entity';
 import { AccountData } from './domain/entities/account-data.entity';
+import { ConfigService } from '@nestjs/config';
 
 const useCases = [
   CreateUserUseCase,
@@ -88,23 +89,29 @@ const queries = [
     ...queries,
     {
       provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
-      useFactory: (): JwtService => {
+      useFactory: (configService: ConfigService): JwtService => {
         return new JwtService({
-          secret: 'access-token-secret',
-          signOptions: { expiresIn: 10000 },
+          secret: configService.get<string>('ACCESS_TOKEN_SECRET'),
+          signOptions: {
+            expiresIn:
+              configService.get<number>('ACCESS_TOKEN_EXPIRATION') || 10000,
+          },
         });
       },
-      inject: [],
+      inject: [ConfigService],
     },
     {
       provide: REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
-      useFactory: (): JwtService => {
+      useFactory: (configService: ConfigService): JwtService => {
         return new JwtService({
-          secret: 'refresh-token-secret',
-          signOptions: { expiresIn: 20000 },
+          secret: configService.get<string>('REFRESH_TOKEN_SECRET'),
+          signOptions: {
+            expiresIn:
+              configService.get<number>('REFRESH_TOKEN_EXPIRATION') || 20000,
+          },
         });
       },
-      inject: [],
+      inject: [ConfigService],
     },
   ],
   exports: [UsersRepository],

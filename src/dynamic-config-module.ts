@@ -1,5 +1,7 @@
 import { ConfigModule } from '@nestjs/config';
 import dbConfig from '../config/db.config';
+import * as dotenv from 'dotenv'
+dotenv.config();
 
 export const configModule = ConfigModule.forRoot({
   isGlobal: true,
