@@ -13,7 +13,7 @@ import { PostsController } from './modules/bloggers-platform/api/posts.controlle
 import { CqrsModule } from '@nestjs/cqrs';
 import { CommentsController } from './modules/bloggers-platform/api/comments.controller';
 import { ConfigModule } from '@nestjs/config';
-import { DbConfigService } from '../config/db.config.service';
+import { DbConfigService } from './core/config/db.config.service';
 
 //TODO: сделать ревью подключения бд
 @Module({
