@@ -14,11 +14,13 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { CommentsController } from './modules/bloggers-platform/api/comments.controller';
 import { ConfigModule } from '@nestjs/config';
 import { DbConfigService } from './core/config/db.config.service';
+import { CoreModule } from './core/core.module';
 
 //TODO: сделать ревью подключения бд
 @Module({
   imports: [
     configModule,
+    CoreModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useClass: DbConfigService,

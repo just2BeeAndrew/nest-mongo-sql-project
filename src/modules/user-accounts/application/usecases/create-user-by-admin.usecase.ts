@@ -1,6 +1,5 @@
 import { CreateUserInputDto } from '../../api/input-dto/create-users.input-dto';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UsersRepository } from '../../infrastructure/users.repository';
 import { CreateUserCommand } from './create-user.usecase';
 import { SetConfirmationCommand } from './set-confirmation.usecase';
 
@@ -14,7 +13,6 @@ export class CreateUserByAdminUseCase
 {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly usersRepository: UsersRepository,
   ) {}
 
   async execute(command: CreateUserByAdminCommand) {

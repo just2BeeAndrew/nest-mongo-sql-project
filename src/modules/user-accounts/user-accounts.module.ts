@@ -41,7 +41,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './domain/entities/user.entity';
 import { EmailConfirmation } from './domain/entities/email-confirmation.entity';
 import { AccountData } from './domain/entities/account-data.entity';
-import { ConfigService } from '@nestjs/config';
+import { UserAccountsConfig } from '../../core/config/user-accounts.config';
 
 const useCases = [
   CreateUserUseCase,
@@ -89,29 +89,29 @@ const queries = [
     ...queries,
     {
       provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
-      useFactory: (configService: ConfigService): JwtService => {
+      useFactory: (userAccountsConfig: UserAccountsConfig): JwtService => {
         return new JwtService({
-          secret: configService.get<string>('ACCESS_TOKEN_SECRET'),
+          secret: userAccountsConfig.accessTokenSecret,
           signOptions: {
             expiresIn:
-              configService.get<number>('ACCESS_TOKEN_EXPIRATION') || 10000,
+              userAccountsConfig.accessTokenExpiration,
           },
         });
       },
-      inject: [ConfigService],
+      inject: [UserAccountsConfig],
     },
     {
       provide: REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
-      useFactory: (configService: ConfigService): JwtService => {
+      useFactory: (userAccountsConfig: UserAccountsConfig): JwtService => {
         return new JwtService({
-          secret: configService.get<string>('REFRESH_TOKEN_SECRET'),
+          secret: userAccountsConfig.refreshTokenSecret,
           signOptions: {
             expiresIn:
-              configService.get<number>('REFRESH_TOKEN_EXPIRATION') || 20000,
+              userAccountsConfig.refreshTokenExpiration
           },
         });
       },
-      inject: [ConfigService],
+      inject: [UserAccountsConfig],
     },
   ],
   exports: [UsersRepository],

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from '../domain/dto/create-user.dto';
 import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { User } from '../domain/entities/user.entity';
@@ -55,9 +54,8 @@ export class UsersRepository extends Repository<User> {
     return user[0] || null;
   }
 
-  async isLoginTaken(login: string, manager?: any): Promise<boolean> {
-    const runner = manager ?? this.dataSource;
-    const result = await runner.query(
+  async isLoginTaken(login: string): Promise<boolean> {
+    const result = await this.query(
       'SELECT 1 FROM "AccountData" WHERE login = $1 AND deleted_at IS NULL LIMIT 1 ',
       [login],
     );

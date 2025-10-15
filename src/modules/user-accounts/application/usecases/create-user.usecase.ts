@@ -24,6 +24,17 @@ export class CreateUserUseCase
   ) {}
 
   async execute(command: CreateUserCommand) {
+      const isLoginTaken = await this.usersRepository.isLoginTaken(
+        command.dto.login,
+      );
+      if (isLoginTaken) {
+        throw new DomainException({
+          code: DomainExceptionCode.BadRequest,
+          message: 'Bad Request ',
+          extensions: [{ message: 'Login already taken', key: 'login' }],
+        });
+      }
+
     const passwordHash = await this.bcryptService.createHash(
       command.dto.password,
     );
