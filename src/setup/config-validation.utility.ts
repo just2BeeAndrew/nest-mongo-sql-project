@@ -11,6 +11,18 @@ export const configValidationUtility = {
     }
   },
 
+  convertToBoolean(value: string) {
+    const trimmedValue = value?.trim();
+    if (trimmedValue === 'true') return true;
+    if (trimmedValue === '1') return true;
+    if (trimmedValue === 'enabled') return true;
+    if (trimmedValue === 'false') return false;
+    if (trimmedValue === '0') return false;
+    if (trimmedValue === 'disabled') return false;
+
+    return null;
+  },
+
   getEnumValues<T extends Record<string, string>>(enumObj: T): string[] {
     return Object.values(enumObj);
   },

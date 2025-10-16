@@ -76,6 +76,7 @@ const queries = [
   ],
   controllers: [UsersController, AuthController, SecurityDevicesController],
   providers: [
+    UserAccountsConfig,
     AuthService,
     AuthQueryRepository,
     UsersRepository,

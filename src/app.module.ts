@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module';
@@ -12,23 +12,30 @@ import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-pla
 import { PostsController } from './modules/bloggers-platform/api/posts.controller';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CommentsController } from './modules/bloggers-platform/api/comments.controller';
-import { ConfigModule } from '@nestjs/config';
-import { DbConfigService } from './core/config/db.config.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CoreModule } from './core/core.module';
+import { CoreConfig } from './core/config/core.config';
 
+const testingModule:any = [];
+if(process.env.NODE_ENV === 'testing'){
+  testingModule.push(TestingModule);
+}
 //TODO: сделать ревью подключения бд
 @Module({
   imports: [
     configModule,
     CoreModule,
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useClass: DbConfigService,
+      inject: [ConfigService, CoreConfig],
+      useFactory: (configService: ConfigService, coreConfig:CoreConfig) => {
+        const DBConfigFactory = configService.get('db');
+        return DBConfigFactory(coreConfig)
+      }
     }),
     BloggersPlatformModule,
     UserAccountsModule,
     NotificationsModule,
-    TestingModule,
+    ...testingModule,
     CqrsModule.forRoot({}),
   ],
   controllers: [
@@ -38,6 +45,18 @@ import { CoreModule } from './core/core.module';
     PostsController,
     CommentsController,
   ],
-  providers: [AppService],
+  providers: [AppService, CoreConfig],
+  exports: [CoreConfig]
 })
-export class AppModule {}
+export class AppModule {
+  static async forRoot(coreConfig: CoreConfig): Promise<DynamicModule> {
+    // такой мудрёный способ мы используем, чтобы добавить к основным модулям необязательный модуль.
+    // чтобы не обращаться в декораторе к переменной окружения через process.env в декораторе, потому что
+    // запуск декораторов происходит на этапе склейки всех модулей до старта жизненного цикла самого NestJS
+
+    return {
+      module: AppModule,
+      imports: [...(coreConfig.includeTestingModule ? [TestingModule] : [])], // Add dynamic modules here
+    };
+  }
+}
