@@ -16,8 +16,7 @@ export class DeleteBlogUseCase implements ICommandHandler<DeleteBlogCommand> {
     if (blog[0].length === 0) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Not found',
-        extensions: [{ message: 'Blog not found', key: 'blog' }],
+        extensions: [{ message: 'Blog not found', field: 'blog' }],
       });
     }
   }

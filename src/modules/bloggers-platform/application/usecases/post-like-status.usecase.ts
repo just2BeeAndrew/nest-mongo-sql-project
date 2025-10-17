@@ -33,8 +33,7 @@ export class PostLikeStatusUseCase
     if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Not Found',
-        extensions: [{ message: 'User not found', key: 'user' }],
+        extensions: [{ message: 'User not found', field: 'user' }],
       });
     }
 
@@ -42,8 +41,7 @@ export class PostLikeStatusUseCase
     if (!post) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Not found',
-        extensions: [{ message: 'Post not found', key: 'post' }],
+        extensions: [{ message: 'Post not found', field: 'post' }],
       });
     }
 

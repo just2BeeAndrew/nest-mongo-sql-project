@@ -8,8 +8,6 @@ export class CustomThrottlerGuard extends ThrottlerGuard {
   protected async throwThrottlingException(context: ExecutionContext, throttlerLimitDetail: ThrottlerLimitDetail,): Promise<void> {
     throw new DomainException({
       code: DomainExceptionCode.TooManyRequests,
-      message: 'Too many requests',
-      extensions: []
     });
   }
 }

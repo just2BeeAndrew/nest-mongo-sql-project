@@ -32,8 +32,7 @@ export class FindCommentsByPostIdQueryHandler
     if (!post) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Not Found',
-        extensions: [{ message: 'Post not found', key: 'post' }],
+        extensions: [{ message: 'Post not found', field: 'post' }],
       });
     }
 

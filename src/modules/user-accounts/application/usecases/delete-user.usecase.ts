@@ -16,8 +16,7 @@ export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
     if (user.length === 0) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Not found',
-        extensions: [{ message: 'User not found', key: 'user' }],
+        extensions: [{ message: 'User not found', field: 'user' }],
       });
     }
   }

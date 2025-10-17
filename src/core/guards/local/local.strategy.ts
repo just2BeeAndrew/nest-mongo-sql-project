@@ -17,8 +17,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
     if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
-        message: 'Invalid login or password',
-        extensions: [{message:'Invalid login or password', key: "login or password"}],
+        extensions: [{message:'Invalid login or password', field: "login or password"}],
       });
     }
     return user;

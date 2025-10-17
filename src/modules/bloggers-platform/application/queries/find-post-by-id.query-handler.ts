@@ -42,8 +42,7 @@ export class FindPostByIdQueryHandler
     if (!post) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Not found',
-        extensions: [{ message: 'post not found', key: 'post' }],
+        extensions: [{ message: 'post not found', field: 'post' }],
       });
     }
 

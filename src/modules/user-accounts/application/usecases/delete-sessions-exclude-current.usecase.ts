@@ -23,16 +23,14 @@ export class DeleteSessionsExcludeCurrentUseCase
     if (!session) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Not found',
-        extensions: [{message: "Session not found", key: "session"}]
+        extensions: [{message: "Session not found", field: "session"}]
       });
     }
 
     if (session.user_id !== command.userId) {
       throw new DomainException({
         code: DomainExceptionCode.Forbidden,
-        message: 'Forbidden',
-        extensions: [{message: "User is not owner", key: "user"}]
+        extensions: [{message: "User is not owner", field: "user"}]
       });
     }
 

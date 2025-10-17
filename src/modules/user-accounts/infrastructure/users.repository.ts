@@ -1,15 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, IsNull, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { User } from '../domain/entities/user.entity';
+import { AccountData } from '../domain/entities/account-data.entity';
+import { EmailConfirmation } from '../domain/entities/email-confirmation.entity';
 
 @Injectable()
 export class UsersRepository extends Repository<User> {
   constructor(
     @InjectDataSource() private dataSource: DataSource,
-    @InjectRepository(User) repository: Repository<User>,
+    @InjectRepository(User) private usersRepository: Repository<User>,
+    @InjectRepository(AccountData)
+    private accountDataRepository: Repository<AccountData>,
+    @InjectRepository(EmailConfirmation)
+    private emailConfirmationRepository: Repository<EmailConfirmation>,
   ) {
-    super(repository.target, repository.manager, repository.queryRunner);
+    super(
+      usersRepository.target,
+      usersRepository.manager,
+      usersRepository.queryRunner,
+    );
   }
   async saveUser(user: User) {
     return await this.save(user);
@@ -40,58 +50,39 @@ export class UsersRepository extends Repository<User> {
   }
 
   async findById(id: string) {
-    const user = await this.dataSource.query(
-      `
-        SELECT *
-        FROM "Users" u
-               JOIN "AccountData" a ON u.id = a.id
-               LEFT JOIN "EmailConfirmation" e ON u.id = e.id
-        WHERE a.id = $1
-          AND a.deleted_at IS NULL`,
-      [id],
-    );
-
-    return user[0] || null;
+    return await this.usersRepository.findOne({
+      where: {
+        id,
+        accountData: {
+          deletedAt: IsNull(),
+        },
+      },
+      relations: {
+        accountData: true,
+        emailConfirmation: true,
+      },
+    });
   }
 
   async isLoginTaken(login: string): Promise<boolean> {
-    const result = await this.query(
-      'SELECT 1 FROM "AccountData" WHERE login = $1 AND deleted_at IS NULL LIMIT 1 ',
-      [login],
-    );
-    return result.length > 0;
+    return await this.accountDataRepository.exists({
+      where: {
+        login,
+        deletedAt: IsNull(),
+      },
+    });
   }
 
   async isEmailTaken(email: string, manager?: any): Promise<boolean> {
-    const runner = manager ?? this.dataSource;
-    const result = await runner.query(
-      'SELECT 1 FROM "AccountData" WHERE email = $1 AND deleted_at IS NULL LIMIT 1',
-      [email],
-    );
-    return result.length > 0;
+    return await this.accountDataRepository.exists({
+      where: {
+        email,
+        deletedAt: IsNull(),
+      },
+    });
   }
 
-  async findByLogin(login: string) {
-    return await this.dataSource.query(
-      `
-        SELECT u.id,
-               a.login,
-               a.email,
-               a.created_at,
-               a.deleted_at,
-               e.confirmation_code,
-               e.recovery_code,
-               e.issued_at,
-               e.expiration_date,
-               e.is_confirmed
-        FROM "Users" u
-               JOIN "AccountData" a ON u.id = a.id
-               LEFT JOIN "EmailConfirmation" e ON u.id = e.id
-        WHERE a.login = $1
-      `,
-      [login],
-    );
-  }
+  async findByLogin(login: string) {}
 
   async findByEmail(email: string) {
     const user = await this.dataSource.query(
@@ -160,11 +151,9 @@ export class UsersRepository extends Repository<User> {
   }
 
   async setConfirmation(id: string) {
-    await this.dataSource.query(
-      `
-      UPDATE "EmailConfirmation" SET is_confirmed = true WHERE id = $1 
-      `,
-      [id],
+    await this.emailConfirmationRepository.update(
+      { userId: id },
+      { isConfirmed: true },
     );
   }
 

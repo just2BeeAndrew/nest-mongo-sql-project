@@ -25,8 +25,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (err || !user) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
-        message: 'Unauthorized',
-        extensions: [{message: "User unauthorized", key: "user"}]
+        extensions: [{message: "User unauthorized", field: "user"}]
       });
     }
     return user;

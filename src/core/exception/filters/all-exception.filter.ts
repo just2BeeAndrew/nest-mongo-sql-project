@@ -4,57 +4,59 @@ import {
   ExceptionFilter,
   HttpStatus,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { DomainExceptionCode } from './domain-exception-codes';
-import { Extension } from './domain-exception';
+import { DomainException, Extension } from './domain-exception';
 
 @Catch()
 export class AllExceptionFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
 
     console.error(exception);
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let code = exception.code;
+    let responseBody: { errorsMessages: { message: string; field: string }[] } = {
+      errorsMessages: []
+    };
 
-    const responseBody = this.buildResponseBody(exception.extensions);
-
-    switch (code) {
-      case DomainExceptionCode.NotFound:
-        status = HttpStatus.NOT_FOUND;
-        break;
-      case DomainExceptionCode.BadRequest:
-        status = HttpStatus.BAD_REQUEST;
-        break;
-      case DomainExceptionCode.Forbidden:
-        status = HttpStatus.FORBIDDEN;
-        break;
-      case DomainExceptionCode.ValidationError:
-        status = HttpStatus.BAD_REQUEST;
-        break;
-      case DomainExceptionCode.Unauthorized:
-        status = HttpStatus.UNAUTHORIZED;
-        break;
-      case DomainExceptionCode.EmailNotConfirmed:
-        status = HttpStatus.BAD_REQUEST;
-        break;
-      case DomainExceptionCode.ConfirmationCodeExpired:
-        status = HttpStatus.BAD_REQUEST;
-        break;
-      case DomainExceptionCode.PasswordRecoveryCodeExpired:
-        status = HttpStatus.BAD_REQUEST;
-        break;
-      case DomainExceptionCode.TooManyRequests:
-        status = HttpStatus.TOO_MANY_REQUESTS;
-        break;
-      default:
-        status = HttpStatus.INTERNAL_SERVER_ERROR;
+    if (this.isDomainException(exception)) {
+      const { code, extensions } = exception;
+      status = this.getStatusFromCode(code);
+      responseBody = this.buildResponseBody(extensions);
     }
 
     response.status(status).json(responseBody);
+  }
+
+  private isDomainException(exception: any): exception is DomainException {
+    return exception instanceof DomainException;
+  }
+
+  private getStatusFromCode(code: DomainExceptionCode): HttpStatus {
+    switch (code) {
+      case DomainExceptionCode.NotFound:
+        return HttpStatus.NOT_FOUND;
+      case DomainExceptionCode.BadRequest:
+        return HttpStatus.BAD_REQUEST;
+      case DomainExceptionCode.Forbidden:
+        return HttpStatus.FORBIDDEN;
+      case DomainExceptionCode.ValidationError:
+        return HttpStatus.BAD_REQUEST;
+      case DomainExceptionCode.Unauthorized:
+        return HttpStatus.UNAUTHORIZED;
+      case DomainExceptionCode.EmailNotConfirmed:
+        return HttpStatus.BAD_REQUEST;
+      case DomainExceptionCode.ConfirmationCodeExpired:
+        return HttpStatus.BAD_REQUEST;
+      case DomainExceptionCode.PasswordRecoveryCodeExpired:
+        return HttpStatus.BAD_REQUEST;
+      case DomainExceptionCode.TooManyRequests:
+        return HttpStatus.TOO_MANY_REQUESTS;
+      default:
+        return HttpStatus.INTERNAL_SERVER_ERROR;
+    }
   }
 
   private buildResponseBody(extensions?: Extension[]): {
@@ -64,7 +66,7 @@ export class AllExceptionFilter implements ExceptionFilter {
 
     const errorsMessages = safeExtensions.map((ext) => ({
       message: ext.message,
-      field: ext.key,
+      field: ext.field,
     }));
 
     return { errorsMessages };

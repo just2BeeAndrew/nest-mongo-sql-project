@@ -6,7 +6,7 @@ import { DomainExceptionCode } from '../../../../core/exception/filters/domain-e
 import { BcryptService } from '../../../bcrypt/application/bcrypt.service';
 import { DataSource } from 'typeorm';
 import { User } from '../../domain/entities/user.entity';
-import {AccountData} from '../../domain/entities/account-data.entity';
+import { AccountData } from '../../domain/entities/account-data.entity';
 import { EmailConfirmation } from '../../domain/entities/email-confirmation.entity';
 
 export class CreateUserCommand {
@@ -24,16 +24,25 @@ export class CreateUserUseCase
   ) {}
 
   async execute(command: CreateUserCommand) {
-      const isLoginTaken = await this.usersRepository.isLoginTaken(
-        command.dto.login,
-      );
-      if (isLoginTaken) {
-        throw new DomainException({
-          code: DomainExceptionCode.BadRequest,
-          message: 'Bad Request ',
-          extensions: [{ message: 'Login already taken', key: 'login' }],
-        });
-      }
+    const isLoginTaken = await this.usersRepository.isLoginTaken(
+      command.dto.login,
+    );
+    if (isLoginTaken) {
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        extensions: [{ message: 'Login already taken', field: 'login' }],
+      });
+    }
+
+    const isEmailTaken = await this.usersRepository.isEmailTaken(
+      command.dto.email,
+    );
+    if (isEmailTaken) {
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        extensions: [{ message: 'Email already taken', field: 'email' }],
+      });
+    }
 
     const passwordHash = await this.bcryptService.createHash(
       command.dto.password,
@@ -62,44 +71,5 @@ export class CreateUserUseCase
     const createdUser = await this.usersRepository.saveUser(user);
 
     return createdUser.id;
-
-    // return this.dataSource.transaction(async (t) => {
-    //   const isLoginTaken = await this.usersRepository.isLoginTaken(
-    //     command.dto.login,
-    //     t,
-    //   );
-    //   if (isLoginTaken) {
-    //     throw new DomainException({
-    //       code: DomainExceptionCode.BadRequest,
-    //       message: 'Bad Request ',
-    //       extensions: [{ message: 'Login already taken', key: 'login' }],
-    //     });
-    //   }
-    //
-    //   const isEmailTaken = await this.usersRepository.isEmailTaken(
-    //     command.dto.email,
-    //     t,
-    //   );
-    //   if (isEmailTaken) {
-    //     throw new DomainException({
-    //       code: DomainExceptionCode.BadRequest,
-    //       message: 'Bad Request ',
-    //       extensions: [{ message: 'Email already taken', key: 'email' }],
-    //     });
-    //   }
-    //
-    //   const passwordHash = await this.bcryptService.createHash(
-    //     command.dto.password,
-    //   );
-    //
-    //   return  await this.usersRepository.create(
-    //     {
-    //       login: command.dto.login,
-    //       email: command.dto.email,
-    //       passwordHash: passwordHash,
-    //     },
-    //     t,
-    //   );
-    // });
   }
 }

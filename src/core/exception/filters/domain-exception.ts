@@ -3,22 +3,19 @@ import { DomainExceptionCode } from './domain-exception-codes';
 export class Extension {
   constructor(
     public message: string,
-    public key: string,
+    public field: string,
   ) {}
 }
 
 export class DomainException extends Error {
-  message: string;
-  code: DomainExceptionCode
-  extensions: Extension[]
+  code: DomainExceptionCode;
+  extensions: Extension[];
 
   constructor(errorInfo: {
-    code: DomainExceptionCode,
-    message: string,
-    extensions?: Extension[]
+    code: DomainExceptionCode;
+    extensions?: Extension[];
   }) {
-    super(errorInfo.message);
-    this.message = errorInfo.message;
+    super();
     this.code = errorInfo.code;
     this.extensions = errorInfo.extensions || [];
   }

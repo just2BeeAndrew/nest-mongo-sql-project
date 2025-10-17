@@ -24,8 +24,7 @@ export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
     if (!session) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Not Found',
-        extensions: [{message: 'Session not found', key:'device'}]
+        extensions: [{message: 'Session not found', field:'device'}]
       });
     }
 

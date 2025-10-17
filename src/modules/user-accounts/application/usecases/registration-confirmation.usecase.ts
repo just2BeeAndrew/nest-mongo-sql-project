@@ -20,32 +20,28 @@ export class RegistrationConfirmationUseCase
     if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        message: 'Not found',
-        extensions: [{ message: 'User not found', key: 'code' }],
+        extensions: [{ message: 'User not found', field: 'code' }],
       });
     }
 
     if (user.is_confirmed) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        message: "Bad Request",
-        extensions: [{ message: 'User already confirmed', key: 'code' }],
+        extensions: [{ message: 'User already confirmed', field: 'code' }],
       });
     }
 
     if (user.confirmation_code !== command.code) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        message: 'Bad Request',
-        extensions: [{ message: 'Invalid confirmation code', key: 'code' }],
+        extensions: [{ message: 'Invalid confirmation code', field: 'code' }],
       });
     }
 
     if (user.expiration_date < new Date()) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        message: 'Bad Request',
-        extensions: [{ message: 'Invalid expiration date', key: 'expirationDate' }],
+        extensions: [{ message: 'Invalid expiration date', field: 'expirationDate' }],
       });
     }
 

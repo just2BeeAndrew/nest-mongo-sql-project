@@ -2,7 +2,7 @@ import { Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AccountData } from './account-data.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
 
-@Entity()
+@Entity("User")
 export class User {
   @PrimaryGeneratedColumn('uuid')
   public id: string;

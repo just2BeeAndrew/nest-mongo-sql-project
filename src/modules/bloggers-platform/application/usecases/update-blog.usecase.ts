@@ -20,8 +20,7 @@ export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
     if (blog[0].length === 0) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Not Found',
-        extensions: [{ message: 'Blog not found', key: 'blog' }],
+        extensions: [{ message: 'Blog not found', field: 'blog' }],
       });
     }
   }

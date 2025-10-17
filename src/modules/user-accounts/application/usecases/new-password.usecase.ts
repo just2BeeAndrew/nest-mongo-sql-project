@@ -23,7 +23,6 @@ export class NewPasswordUseCase implements ICommandHandler<NewPasswordCommand> {
     if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        message: 'User not found',
       });
     }
     const newPasswordHash = await this.bcryptService.createHash(
