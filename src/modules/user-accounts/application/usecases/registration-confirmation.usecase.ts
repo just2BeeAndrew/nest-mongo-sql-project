@@ -16,35 +16,41 @@ export class RegistrationConfirmationUseCase
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async execute(command: RegistrationConfirmationCommand) {
-    const user = await this.usersRepository.findByConfirmationCode(command.code);
+    const user = await this.usersRepository.findByConfirmationCode(
+      command.code,
+    );
     if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        extensions: [{ message: 'User not found', field: 'code' }],
+        message: 'User not found',
+        field: 'code',
       });
     }
 
     if (user.is_confirmed) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        extensions: [{ message: 'User already confirmed', field: 'code' }],
+        message: 'User already confirmed',
+        field: 'code',
       });
     }
 
     if (user.confirmation_code !== command.code) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        extensions: [{ message: 'Invalid confirmation code', field: 'code' }],
+        message: 'Invalid confirmation code',
+        field: 'code',
       });
     }
 
     if (user.expiration_date < new Date()) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        extensions: [{ message: 'Invalid expiration date', field: 'expirationDate' }],
+        message: 'Invalid expiration date',
+        field: 'expirationDate',
       });
     }
 
-    await this.usersRepository.setConfirmation(user.id)
+    await this.usersRepository.setConfirmation(user.id);
   }
 }

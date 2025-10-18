@@ -25,17 +25,19 @@ export class DeleteSessionByIdUseCase
     if (!session) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        extensions: [{ message: 'device not found', field: 'device' }],
+        message: 'device not found',
+        field: 'device',
       });
     }
 
     if (session.user_id !== command.userId) {
       throw new DomainException({
         code: DomainExceptionCode.Forbidden,
-        extensions: [{ message: 'User is not owner', field: 'user' }],
+        message: 'User is not owner',
+        field: 'user',
       });
     }
 
-    await this.sessionRepository.deleteSession(command.uriParam)
+    await this.sessionRepository.deleteSession(command.uriParam);
   }
 }

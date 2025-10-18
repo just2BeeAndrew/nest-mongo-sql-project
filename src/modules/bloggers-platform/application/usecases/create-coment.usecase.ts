@@ -28,7 +28,8 @@ export class CreateCommentUseCase
     if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        extensions: [{ message: 'User not found', field: 'user' }],
+        message: 'User not found',
+        field: 'user',
       });
     }
 
@@ -36,7 +37,8 @@ export class CreateCommentUseCase
     if (!post) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        extensions: [{ message: 'Post not found', field: 'post' }],
+        message: 'Post not found',
+        field: 'post',
       });
     }
     const commentId = await this.commentsRepository.create({

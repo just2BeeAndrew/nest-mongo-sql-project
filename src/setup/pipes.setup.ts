@@ -3,37 +3,31 @@ import {
   ValidationError,
   ValidationPipe,
 } from '@nestjs/common';
-import {
-  Extension,
-  DomainException
-} from '../core/exception/filters/domain-exception';
-
+import { DomainException } from '../core/exception/filters/domain-exception';
 
 import { DomainExceptionCode } from '../core/exception/filters/domain-exception-codes';
 
 export const errorFormatter = (
   errors: ValidationError[],
-  errorMessage?: any,
-): Extension[] => {
-  const errorsForResponse = errorMessage || [];
-
+  errorMessage: Array<{ message: string; field: string }> = [],
+): Array<{ message: string; field: string }> => {
   for (const error of errors) {
     if (!error.constraints && error.children?.length) {
-      errorFormatter(error.children, errorsForResponse);
+      errorFormatter(error.children, errorMessage);
     } else if (error.constraints) {
       const constrainKeys = Object.keys(error.constraints);
 
       for (const key of constrainKeys) {
-        errorsForResponse.push({
+        errorMessage.push({
           message: error.constraints[key]
             ? `${error.constraints[key]}; Received value: ${error?.value}`
             : '',
-          key: error.property,
+          field: error.property,
         });
       }
     }
   }
-  return errorsForResponse;
+  return errorMessage;
 };
 
 export function pipesSetup(app: INestApplication) {
@@ -44,10 +38,12 @@ export function pipesSetup(app: INestApplication) {
 
       exceptionFactory: (errors) => {
         const formattedErrors = errorFormatter(errors);
+        const firstError = formattedErrors[0];
 
         throw new DomainException({
           code: DomainExceptionCode.ValidationError,
-          extensions: formattedErrors,
+          message: firstError?.message || 'Validation error',
+          field: firstError?.field || 'unknown',
         });
       },
     }),

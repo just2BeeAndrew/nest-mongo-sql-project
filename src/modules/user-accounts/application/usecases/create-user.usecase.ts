@@ -30,7 +30,8 @@ export class CreateUserUseCase
     if (isLoginTaken) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        extensions: [{ message: 'Login already taken', field: 'login' }],
+        message: 'Login already taken',
+        field: 'login',
       });
     }
 
@@ -40,7 +41,8 @@ export class CreateUserUseCase
     if (isEmailTaken) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        extensions: [{ message: 'Email already taken', field: 'email' }],
+        message: 'Email already taken',
+        field: 'email',
       });
     }
 

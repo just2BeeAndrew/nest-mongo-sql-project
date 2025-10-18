@@ -19,7 +19,7 @@ export class FindUserByIdQueryHandler
     if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        extensions: [{message: "User not found", field: "user"}]
+        message: "User not found", field: "user"
       });
     }
 

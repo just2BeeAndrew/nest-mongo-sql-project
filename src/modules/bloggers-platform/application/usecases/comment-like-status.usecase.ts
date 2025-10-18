@@ -30,7 +30,7 @@ export class CommentLikeStatusUseCase
     if (!comment) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        extensions: [{ message: 'Comment not found', field: 'comment' }],
+        message: 'Comment not found', field: 'comment'
       });
     }
 

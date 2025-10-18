@@ -27,7 +27,8 @@ export class UpdatePostByBlogIdUseCase
     if (!blog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        extensions: [{ message: 'Blog not found', field: 'blog' }],
+        message: 'Blog not found',
+        field: 'blog',
       });
     }
 
@@ -38,7 +39,8 @@ export class UpdatePostByBlogIdUseCase
     if (post[0].length === 0) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        extensions: [{ message: 'Post not found', field: 'post' }],
+        message: 'Post not found',
+        field: 'post',
       });
     }
   }

@@ -6,21 +6,25 @@ import { DomainException } from '../../../../core/exception/filters/domain-excep
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 
 export class CreatePostByBlogIdCommand {
-  constructor(public dto: CreatePostInputDto) {
-  }
+  constructor(public dto: CreatePostInputDto) {}
 }
 
 @CommandHandler(CreatePostByBlogIdCommand)
-export class CreatePostByBlogIdUseCase implements ICommandHandler<CreatePostByBlogIdCommand,string> {
-  constructor(private readonly blogsRepository: BlogsRepository,
-              private readonly postsRepository: PostsRepository,) {}
+export class CreatePostByBlogIdUseCase
+  implements ICommandHandler<CreatePostByBlogIdCommand, string>
+{
+  constructor(
+    private readonly blogsRepository: BlogsRepository,
+    private readonly postsRepository: PostsRepository,
+  ) {}
 
-  async execute({dto}: CreatePostByBlogIdCommand): Promise<string> {
+  async execute({ dto }: CreatePostByBlogIdCommand): Promise<string> {
     const blog = await this.blogsRepository.findById(dto.blogId);
     if (!blog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        extensions: [{ message: 'Blog not found', field: 'blog' }],
+        message: 'Blog not found',
+        field: 'blog',
       });
     }
 
@@ -30,6 +34,6 @@ export class CreatePostByBlogIdUseCase implements ICommandHandler<CreatePostByBl
       content: dto.content,
       blogId: dto.blogId,
       blogName: blog.name,
-    })
+    });
   }
 }

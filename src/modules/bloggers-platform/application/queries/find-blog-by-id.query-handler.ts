@@ -19,7 +19,7 @@ export class FindBlogByIdQueryHandler
     if (!blog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        extensions: [{message: "Blog not found", field: "blog"}]
+        message: "Blog not found", field: "blog"
       });
     }
 

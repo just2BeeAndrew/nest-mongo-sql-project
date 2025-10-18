@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { DomainExceptionCode } from './domain-exception-codes';
-import { DomainException, Extension } from './domain-exception';
+import { DomainException } from './domain-exception';
 
 @Catch()
 export class AllExceptionFilter implements ExceptionFilter {
@@ -17,14 +17,21 @@ export class AllExceptionFilter implements ExceptionFilter {
     console.error(exception);
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let responseBody: { errorsMessages: { message: string; field: string }[] } = {
-      errorsMessages: []
-    };
+    let responseBody: { errorsMessages: { message: string; field: string }[] } =
+      {
+        errorsMessages: [],
+      };
 
     if (this.isDomainException(exception)) {
-      const { code, extensions } = exception;
-      status = this.getStatusFromCode(code);
-      responseBody = this.buildResponseBody(extensions);
+      status = this.getStatusFromCode(exception.code);
+      responseBody = {
+        errorsMessages: [
+          {
+            message: exception.message,
+            field: exception.field,
+          },
+        ],
+      };
     }
 
     response.status(status).json(responseBody);
@@ -57,18 +64,5 @@ export class AllExceptionFilter implements ExceptionFilter {
       default:
         return HttpStatus.INTERNAL_SERVER_ERROR;
     }
-  }
-
-  private buildResponseBody(extensions?: Extension[]): {
-    errorsMessages: { message: string; field: string }[];
-  } {
-    const safeExtensions = Array.isArray(extensions) ? extensions : [];
-
-    const errorsMessages = safeExtensions.map((ext) => ({
-      message: ext.message,
-      field: ext.field,
-    }));
-
-    return { errorsMessages };
   }
 }

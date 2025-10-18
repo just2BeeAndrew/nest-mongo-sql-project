@@ -26,7 +26,7 @@ export class JwtRefreshAuthGuard extends AuthGuard('jwt-refresh') {
     if (err || !user) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
-        extensions: [{ message: 'User unauthorized', field: 'user' }],
+        message: 'User unauthorized', field: 'user'
       });
     }
     return user;

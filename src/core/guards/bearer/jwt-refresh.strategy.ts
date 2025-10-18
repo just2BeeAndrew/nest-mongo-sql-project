@@ -29,7 +29,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     if (!refreshToken) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
-        extensions: [{ message: 'Refresh token expired', field: 'refreshToken' }],
+        message: 'Refresh token expired', field: 'refreshToken'
       });
     }
 
@@ -38,7 +38,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     if (payload.exp && payload.exp < tokenExpiration) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
-        extensions: [{ message: 'Refresh token expired', field: 'refreshToken' }],
+        message: 'Refresh token expired', field: 'refreshToken'
       });
     }
 
@@ -49,14 +49,14 @@ export class JwtRefreshStrategy extends PassportStrategy(
     if (!session) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
-        extensions: [{ message: 'Session not found', field: 'session' }],
+        message: 'Session not found', field: 'session'
       });
     }
 
     if (Number(session.iat) !== Number(payload.iat)) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
-        extensions: [{ message: 'Refresh token expired', field: 'refreshToken' }],
+        message: 'Refresh token expired', field: 'refreshToken'
       });
     }
 

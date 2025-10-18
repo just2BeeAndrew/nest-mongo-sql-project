@@ -28,14 +28,17 @@ export class RefreshTokenUseCase
     private readonly sessionsRepository: SessionsRepository,
   ) {}
 
-  async execute(command: RefreshTokenCommand): Promise<{accessToken: string, refreshToken: string}> {
+  async execute(
+    command: RefreshTokenCommand,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const session = await this.sessionsRepository.findSessionById(
       command.deviceId,
     );
     if (!session) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        extensions: [{message: "Session not found", field: "session"}]
+        message: 'Session not found',
+        field: 'session',
       });
     }
 
@@ -50,8 +53,12 @@ export class RefreshTokenUseCase
 
     const refreshPayload = this.refreshTokenJwtService.decode(refreshToken);
 
-    await this.sessionsRepository.setSession(command.deviceId, refreshPayload.iat, refreshPayload.exp);
+    await this.sessionsRepository.setSession(
+      command.deviceId,
+      refreshPayload.iat,
+      refreshPayload.exp,
+    );
 
-    return {accessToken, refreshToken};
+    return { accessToken, refreshToken };
   }
 }
