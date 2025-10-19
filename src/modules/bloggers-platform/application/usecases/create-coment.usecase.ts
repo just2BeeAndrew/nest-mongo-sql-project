@@ -41,13 +41,13 @@ export class CreateCommentUseCase
         field: 'post',
       });
     }
-    const commentId = await this.commentsRepository.create({
-      postId: command.postId,
-      content: command.content,
-      userId: user.id,
-      userLogin: user.login,
-    });
-
-    return commentId;
+    // const commentId = await this.commentsRepository.create({
+    //   postId: command.postId,
+    //   content: command.content,
+    //   userId: user.id,
+    //   userLogin: user.login,
+    // });
+    //
+    // return commentId;
   }
 }

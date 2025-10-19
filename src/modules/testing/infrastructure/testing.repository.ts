@@ -1,20 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { User } from '../../user-accounts/domain/entities/user.entity';
 
 @Injectable()
 export class TestingRepository {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private dataSource: DataSource,
+    @InjectRepository(User) private usersRepository: Repository<User>,
+  ) {}
   async deleteAll() {
-    return this.dataSource.query(
-      `
-      TRUNCATE TABLE "Users" CASCADE;
-      TRUNCATE TABLE "Sessions";
-      TRUNCATE TABLE "Blogs";
-      TRUNCATE TABLE "Posts" CASCADE;
-      TRUNCATE TABLE "Comments" CASCADE;
-      TRUNCATE TABLE "Statuses";
-      `,
-    );
+    await this.dataSource.query(`TRUNCATE TABLE "User" CASCADE;`);
   }
 }

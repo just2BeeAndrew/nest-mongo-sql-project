@@ -25,7 +25,7 @@ import { FindUserByIdQuery } from '../application/queries/find-user-by-id.query-
 import { DeleteUserCommand } from '../application/usecases/delete-user.usecase';
 
 @Controller('sa/users')
-export class UsersController {
+export class UsersSuperAdminController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,

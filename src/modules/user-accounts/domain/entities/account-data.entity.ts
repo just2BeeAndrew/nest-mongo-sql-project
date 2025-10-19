@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity("AccountData")
+@Entity('AccountData')
 export class AccountData {
   @PrimaryColumn({ type: 'uuid' })
   userId: string;
@@ -33,7 +33,9 @@ export class AccountData {
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
 
-  @OneToOne(() => User)
-  @JoinColumn({ name: 'userId' })
+  @OneToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({
+    name: 'userId',
+  })
   user: User;
 }

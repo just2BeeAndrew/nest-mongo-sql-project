@@ -154,16 +154,8 @@ export class UsersRepository extends Repository<User> {
     );
   }
 
-  softDeleteUser(id: string) {
-    return this.dataSource.query(
-      `
-        UPDATE "AccountData"
-        SET deleted_at = NOW()
-        WHERE id = $1
-          AND deleted_at IS NULL RETURNING id
-      `,
-      [id],
-    );
+  async softDeleteUser(id: string) {
+    return await this.accountDataRepository.softDelete({userId: id});
   }
 
   deleteUser(id: string) {

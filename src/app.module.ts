@@ -34,6 +34,7 @@ if(process.env.NODE_ENV === 'testing'){
     }),
     BloggersPlatformModule,
     UserAccountsModule,
+    TestingModule,
     NotificationsModule,
     ...testingModule,
     CqrsModule.forRoot({}),

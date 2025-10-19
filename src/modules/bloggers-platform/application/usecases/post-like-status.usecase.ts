@@ -66,14 +66,14 @@ export class PostLikeStatusUseCase
           command.newStatus,
         );
       }
-    } else if (command.newStatus !== LikeStatus.None) {
-      await this.statusRepository.create({
-        userId: command.userId,
-        login: user.login,
-        categoryId: command.postId,
-        category: Category.Post,
-        status: command.newStatus,
-      });
+    // } else if (command.newStatus !== LikeStatus.None) {
+    //   await this.statusRepository.create({
+    //     userId: command.userId,
+    //     login: user.login,
+    //     categoryId: command.postId,
+    //     category: Category.Post,
+    //     status: command.newStatus,
+    //   });
     }
 
     const updatedCounts =

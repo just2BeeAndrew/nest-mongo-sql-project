@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity("EmailConfirmation")
+@Entity('EmailConfirmation')
 export class EmailConfirmation {
   @PrimaryColumn({ type: 'uuid' })
   userId: string;
@@ -21,7 +21,9 @@ export class EmailConfirmation {
   @Column({ default: false })
   isConfirmed: boolean;
 
-  @OneToOne(() => User)
-  @JoinColumn({ name: 'userId' })
+  @OneToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({
+    name: 'userId',
+  })
   user: User;
 }

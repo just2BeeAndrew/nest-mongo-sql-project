@@ -66,7 +66,7 @@ export class UsersQueryRepository {
   }
 
   async findUserById(id: string): Promise<UsersViewDto | null> {
-    const user = this.usersRepository
+    const user = await this.usersRepository
       .createQueryBuilder('u')
       .leftJoin('u.accountData', 'a')
       .select('u.id', 'id')
@@ -79,6 +79,6 @@ export class UsersQueryRepository {
 
     if (!user) return null;
 
-     return UsersViewDto.mapToView(user);
+    return UsersViewDto.mapToView(user);
   }
 }
