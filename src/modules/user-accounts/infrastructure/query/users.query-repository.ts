@@ -66,22 +66,19 @@ export class UsersQueryRepository {
   }
 
   async findUserById(id: string): Promise<UsersViewDto | null> {
-    // const user = await this.dataSource.query(
-    //   `
-    //     SELECT u.id,
-    //            a.login,
-    //            a.email,
-    //            a.created_at
-    //     FROM "Users" u
-    //            JOIN "AccountData" a ON u.id = a.id
-    //            LEFT JOIN "EmailConfirmation" e ON u.id = e.id
-    //     WHERE u.id = $1 AND a.deleted_at IS NULL
-    //   `,
-    //   [id],
-    // );
-    //
-    // if (user.length === 0) return null;
-    //
-    // return UsersViewDto.mapToView(user[0]);
+    const user = this.usersRepository
+      .createQueryBuilder('u')
+      .leftJoin('u.accountData', 'a')
+      .select('u.id', 'id')
+      .addSelect('a.login', 'login')
+      .addSelect('a.email', 'email')
+      .addSelect('a.createdAt', 'createdAt')
+      .where('u.id=:id', { id })
+      .andWhere('a.deletedAt IS NULL')
+      .getRawOne();
+
+    if (!user) return null;
+
+     return UsersViewDto.mapToView(user);
   }
 }
