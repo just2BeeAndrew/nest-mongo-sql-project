@@ -23,30 +23,6 @@ export class UsersRepository extends Repository<User> {
   }
   async saveUser(user: User) {
     return await this.save(user);
-
-    // const user = await t.query(
-    //   `
-    //     WITH insert_user AS (
-    //     INSERT
-    //     INTO "Users" DEFAULT
-    //     VALUES RETURNING id
-    //       ), insert_account_data AS (
-    //     INSERT
-    //     INTO "AccountData" (id, login, password_hash, email, created_at, deleted_at)
-    //     SELECT id, $1, $2, $3, NOW(), NULL
-    //     FROM insert_user
-    //       RETURNING id
-    //       )
-    //     INSERT
-    //     INTO "EmailConfirmation" (id, confirmation_code, recovery_code, issued_at, expiration_date, is_confirmed)
-    //     SELECT id, NULL, NULL, NOW(), NOW() + interval '1 day', false
-    //     FROM insert_account_data
-    //       RETURNING id;
-    //   `,
-    //   [dto.login, dto.passwordHash, dto.email],
-    // );
-    //
-    // return user[0].id;
   }
 
   async findById(id: string) {
