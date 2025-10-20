@@ -1,9 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Repository } from 'typeorm';
 import { UsersRepository } from '../../infrastructure/users.repository';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
-import { loginConstants } from '../../constants/users.constants';
 
 export class RegistrationConfirmationCommand {
   constructor(public code: string) {}
@@ -27,7 +25,7 @@ export class RegistrationConfirmationUseCase
       });
     }
 
-    if (user.is_confirmed) {
+    if (user.emailConfirmation.isConfirmed) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: 'User already confirmed',
@@ -35,7 +33,7 @@ export class RegistrationConfirmationUseCase
       });
     }
 
-    if (user.confirmation_code !== command.code) {
+    if (user.emailConfirmation.confirmationCode !== command.code) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: 'Invalid confirmation code',
@@ -43,7 +41,7 @@ export class RegistrationConfirmationUseCase
       });
     }
 
-    if (user.expiration_date < new Date()) {
+    if (user.emailConfirmation.expirationTime < new Date()) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: 'Invalid expiration date',

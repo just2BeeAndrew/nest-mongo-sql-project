@@ -49,7 +49,7 @@ export class UsersRepository extends Repository<User> {
     });
   }
 
-  async isEmailTaken(email: string, manager?: any): Promise<boolean> {
+  async isEmailTaken(email: string): Promise<boolean> {
     return await this.accountDataRepository.exists({
       where: {
         email,
@@ -58,72 +58,90 @@ export class UsersRepository extends Repository<User> {
     });
   }
 
-  async findByLogin(login: string) {}
-
   async findByEmail(email: string) {
-    const user = await this.dataSource.query(
-      `
-        SELECT u.id,
-               a.login,
-               a.email,
-               a.created_at,
-               a.deleted_at,
-               e.confirmation_code,
-               e.recovery_code,
-               e.issued_at,
-               e.expiration_date,
-               e.is_confirmed
-        FROM "Users" u
-               JOIN "AccountData" a ON u.id = a.id
-               LEFT JOIN "EmailConfirmation" e ON u.id = e.id
-        WHERE a.email = $1
-      `,
-      [email],
-    );
-
-    return user[0] || null;
+    return await this.usersRepository.findOne({
+      where: {
+        accountData: {
+          email,
+          deletedAt: IsNull(),
+        },
+      },
+      relations: {
+        accountData: true,
+        emailConfirmation: true,
+      },
+      select: {
+        id: true,
+        accountData: {
+          login: true,
+          email: true,
+          createdAt: true,
+          deletedAt: true,
+        },
+        emailConfirmation: {
+          confirmationCode: true,
+          recoveryCode: true,
+          issuedAt: true,
+          expirationTime: true,
+          isConfirmed: true,
+        },
+      },
+    });
   }
 
   async findByLoginOrEmail(loginOrEmail: string) {
-    const user = await this.dataSource.query(
-      `
-      SELECT *
-      FROM "Users" u
-             JOIN "AccountData" a ON u.id = a.id
-             LEFT JOIN "EmailConfirmation" e ON u.id = e.id
-      WHERE a.email = $1 OR a.login = $1
-    `,
-      [loginOrEmail],
-    );
-    return user[0] || null;
+    return await this.usersRepository.findOne({
+      where: [
+        {
+          accountData: {
+            login: loginOrEmail,
+          },
+        },
+        {
+          accountData: {
+            email: loginOrEmail,
+          },
+        },
+      ],
+      relations: {
+        accountData: true,
+        emailConfirmation: true,
+      },
+    });
   }
 
-  async findByRecoveryCode(recoveryCode: string) {
-    return this.dataSource.query(
-      `
-      SELECT *
-      FROM "Users" u
-             JOIN "AccountData" a ON u.id = a.id
-             LEFT JOIN "EmailConfirmation" e ON u.id = e.id
-      WHERE e.recovery_code = $1 
-      `,
-      [recoveryCode],
-    );
+  async findByRecoveryCode(code: string) {
+    return await this.usersRepository.findOne({
+      where: {
+        accountData: {
+          deletedAt: IsNull(),
+        },
+        emailConfirmation: {
+          recoveryCode: code,
+        },
+      },
+      relations: {
+        accountData: true,
+        emailConfirmation: true,
+      },
+    });
   }
 
   async findByConfirmationCode(code: string) {
-    const user = await this.dataSource.query(
-      `
-        SELECT *
-        FROM "Users" u
-               JOIN "AccountData" a ON u.id = a.id
-               LEFT JOIN "EmailConfirmation" e ON u.id = e.id
-        WHERE e.confirmation_code = $1
-      `,
-      [code],
-    );
-
-    return user[0] || null;
+    return await this.usersRepository.findOne({
+      where: {
+        accountData: {
+          deletedAt: IsNull(),
+        },
+        emailConfirmation: {
+          confirmationCode: code,
+        },
+      },
+      relations: {
+        accountData: true,
+        emailConfirmation: true,
+      },
+    });
   }
 
   async setConfirmation(id: string) {
@@ -134,36 +152,31 @@ export class UsersRepository extends Repository<User> {
   }
 
   async updateRecoveryCode(id: string, recoveryCode: string) {
-    await this.dataSource.query(
-      'UPDATE "EmailConfirmation" SET recovery_code = $1 WHERE id = $2',
-      [recoveryCode, id],
+    await this.emailConfirmationRepository.update(
+      { userId: id },
+      { recoveryCode: recoveryCode },
     );
   }
 
   async setConfirmationCode(id: string, code: string) {
-    await this.dataSource.query(
-      'UPDATE "EmailConfirmation" SET confirmation_code = $1 WHERE id = $2',
-      [code, id],
+    await this.emailConfirmationRepository.update(
+      { userId: id },
+      { confirmationCode: code },
     );
   }
 
   async setPasswordHash(id: string, passwordHash: string) {
-    await this.dataSource.query(
-      'UPDATE "AccountData" SET password_hash = $1 WHERE id = $2',
-      [passwordHash, id],
+    await this.accountDataRepository.update(
+      { userId: id },
+      { passwordHash: passwordHash },
     );
   }
 
   async softDeleteUser(id: string) {
-    return await this.accountDataRepository.softDelete({userId: id});
+    return await this.accountDataRepository.softDelete({ userId: id });
   }
 
-  deleteUser(id: string) {
-    return this.dataSource.query(
-      `
-    DELETE FROM "Users" WHERE id = $1 RETURNING id
-    `,
-      [id],
-    );
+  async deleteUser(id: string) {
+    await this.usersRepository.delete(id);
   }
 }

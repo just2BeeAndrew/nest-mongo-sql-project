@@ -1,12 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../infrastructure/users.repository';
-import { JwtService } from '@nestjs/jwt';
 import { AccessContextDto } from '../../../core/dto/access-context.dto';
 import { BcryptService } from '../../bcrypt/application/bcrypt.service';
-
-import { v4 as uuidv4 } from 'uuid';
-import { EmailService } from '../../notifications/application/email.service';
-
 
 @Injectable()
 export class AuthService {
@@ -31,7 +26,7 @@ export class AuthService {
 
     const isPasswordValid = await this.bcryptService.comparePassword({
       password: password,
-      hash: user.password_hash,
+      hash: user.accountData.passwordHash,
     });
 
     if (!isPasswordValid) {
