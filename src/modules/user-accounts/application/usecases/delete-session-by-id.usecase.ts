@@ -30,7 +30,7 @@ export class DeleteSessionByIdUseCase
       });
     }
 
-    if (session.user_id !== command.userId) {
+    if (session.userId !== command.userId) {
       throw new DomainException({
         code: DomainExceptionCode.Forbidden,
         message: 'User is not owner',

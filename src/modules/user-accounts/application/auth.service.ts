@@ -20,7 +20,6 @@ export class AuthService {
     }
 
     // if (!user.is_confirmed) {
-    //   console.log("2");
     //   return null;
     // }
 

@@ -1,28 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, IsNull, Repository } from 'typeorm';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { IsNull, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../domain/entities/user.entity';
 import { AccountData } from '../domain/entities/account-data.entity';
 import { EmailConfirmation } from '../domain/entities/email-confirmation.entity';
 
 @Injectable()
-export class UsersRepository extends Repository<User> {
+export class UsersRepository {
   constructor(
-    @InjectDataSource() private dataSource: DataSource,
     @InjectRepository(User) private usersRepository: Repository<User>,
     @InjectRepository(AccountData)
     private accountDataRepository: Repository<AccountData>,
     @InjectRepository(EmailConfirmation)
     private emailConfirmationRepository: Repository<EmailConfirmation>,
-  ) {
-    super(
-      usersRepository.target,
-      usersRepository.manager,
-      usersRepository.queryRunner,
-    );
-  }
+  ) {}
+
   async saveUser(user: User) {
-    return await this.save(user);
+    return await this.usersRepository.save(user);
   }
 
   async findById(id: string) {

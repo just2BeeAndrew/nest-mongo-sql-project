@@ -5,8 +5,12 @@ import {
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from '../../../../core/constants/auth-tokens.inject-constants';
 import { JwtService } from '@nestjs/jwt';
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { SessionsRepository } from '../../infrastructure/sessions.repository';
+import { Session } from '../../domain/entities/session.entity';
+import { UsersRepository } from '../../infrastructure/users.repository';
+import { DomainException } from '../../../../core/exception/filters/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 
 export class LoginCommand {
   constructor(
@@ -24,12 +28,13 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     @Inject(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)
     private readonly refreshTokenJwtService: JwtService,
     private readonly sessionsRepository: SessionsRepository,
+    private readonly usersRepository: UsersRepository,
   ) {}
 
   async execute(
     command: LoginCommand,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const deviceId = uuidv4() ;
+    const deviceId = uuidv4();
 
     const accessToken = this.accessTokenJwtService.sign({
       id: command.dto.userId,
@@ -42,14 +47,27 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
 
     const { iat, exp } = this.refreshTokenJwtService.decode(refreshToken);
 
-    await this.sessionsRepository.createSession({
-      deviceId: deviceId,
-      userId: command.dto.userId,
-      title: command.title,
-      ip: command.ip,
-      iat: iat,
-      exp: exp,
-    });
+    const user = await this.usersRepository.findById(command.dto.userId);
+    if (!user) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'User does not exist',
+        field: 'userId',
+      });
+    }
+
+    const session = Session.create(
+      {
+        deviceId: deviceId,
+        title: command.title,
+        ip: command.ip,
+        iat: iat,
+        exp: exp,
+      },
+      user,
+    );
+
+    await this.sessionsRepository.saveSession(session);
 
     return { accessToken, refreshToken };
   }

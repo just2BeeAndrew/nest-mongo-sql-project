@@ -1,55 +1,42 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSessionDomainDto } from '../domain/dto/create-session.domain.dto';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Not, Repository } from 'typeorm';
+import { Session } from '../domain/entities/session.entity';
 
 @Injectable()
 export class SessionsRepository {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(Session)
+    private sessionRepository: Repository<Session>,
+  ) {}
 
-  async findSessionById(deviceId: string) {
-    const session = await this.dataSource.query(
-      'SELECT * FROM "Sessions" WHERE device_id = $1 LIMIT 1',
-      [deviceId],
-    );
-
-    return session[0] || null;
+  async saveSession(session: Session) {
+    return await this.sessionRepository.save(session);
   }
 
-  async createSession(dto: CreateSessionDomainDto) {
-    await this.dataSource.query(
-      `
-        INSERT INTO "Sessions" (device_id, user_id, title, ip, iat, exp, deleted_at)
-        VALUES ($1, $2, $3, $4, $5, $6, NULL)
-      `,
-      [dto.deviceId, dto.userId, dto.title, dto.ip, dto.iat, dto.exp],
-    );
+  async findSessionById(deviceId: string) {
+    return await this.sessionRepository.findOne({
+      where: {
+        deviceId: deviceId,
+      },
+    });
   }
 
   async setSession(deviceId: string, iat: number, exp: number) {
-    await this.dataSource.query(
-      `
-      UPDATE "Sessions" SET iat = $1, exp = $2 WHERE device_id = $3
-      `,
-      [iat, exp, deviceId],
+    await this.sessionRepository.update(
+      { deviceId: deviceId },
+      { iat: new Date(iat * 1000), exp: new Date(exp) },
     );
   }
 
   async deleteSession(deviceId: string) {
-    return this.dataSource.query(
-      `
-      DELETE FROM "Sessions" WHERE device_id = $1
-      `,
-      [deviceId],
-    );
+    await this.sessionRepository.delete(deviceId);
   }
 
   async deleteSessionExcludeCurrent(userId: string, deviceId: string) {
-    return await this.dataSource.query(
-      `
-    DELETE FROM "Sessions"  WHERE user_id = $1 AND device_id <> $2;
-    `,
-      [userId, deviceId],
-    );
+    await this.sessionRepository.delete({
+      userId: userId,
+      deviceId: Not(deviceId),
+    });
   }
 }

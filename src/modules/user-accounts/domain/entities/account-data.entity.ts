@@ -33,7 +33,7 @@ export class AccountData {
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
 
-  @OneToOne(() => User, { onDelete: 'CASCADE' })
+  @OneToOne(() => User)
   @JoinColumn({
     name: 'userId',
   })
