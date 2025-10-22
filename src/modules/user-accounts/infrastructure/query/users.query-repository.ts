@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { FindUsersQueryParams } from '../../api/input-dto/get-users-query-params.input-dto';
 import { UsersViewDto } from '../../api/view-dto/users.view-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
@@ -9,38 +9,37 @@ import { User } from '../../domain/entities/user.entity';
 @Injectable()
 export class UsersQueryRepository {
   constructor(
-    @InjectDataSource() private dataSource: DataSource,
     @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
 
   async findAllUsers(
     query: FindUsersQueryParams,
   ): Promise<PaginatedViewDto<UsersViewDto[]>> {
-    const loginTerm = query.searchLoginTerm
-      ? `%${query.searchLoginTerm}%`
-      : `%`;
-    const emailTerm = query.searchEmailTerm
-      ? `%${query.searchEmailTerm}%`
-      : `%`;
-
-    enum Sort {
-      createdAt = 'a.createdAt',
-      login = 'a.login',
-      email = 'a.email',
-    }
-
-    const sortBy = Sort[query.sortBy] || Sort.createdAt;
-
     //создал базовый поиск для переиспользования в методе
     const createBaseQuery = () => {
-      return this.usersRepository
+      const qb = this.usersRepository
         .createQueryBuilder('u')
-        .leftJoin('u.accountData', 'a')
-        .where('(a.login ILIKE :loginTerm OR a.email ILIKE :emailTerm)', {
-          loginTerm,
-          emailTerm,
-        })
-        .andWhere('a.deletedAt IS NULL');
+        .innerJoin('u.accountData', 'a')
+        .where('a.deletedAt IS NULL');
+
+      const conditions: string[] = [];
+      const parameters: any = {};
+
+      if (query.searchLoginTerm) {
+        conditions.push('a.login ILIKE :loginTerm');
+        parameters.loginTerm = `%${query.searchLoginTerm}%`;
+      }
+
+      if (query.searchEmailTerm) {
+        conditions.push('a.email ILIKE :emailTerm');
+        parameters.emailTerm = `%${query.searchEmailTerm}%`;
+      }
+
+      if (conditions.length > 0) {
+        qb.andWhere(`(${conditions.join(' OR ')})`, parameters);
+      }
+
+      return qb;
     };
 
     const users = await createBaseQuery()
@@ -48,7 +47,10 @@ export class UsersQueryRepository {
       .addSelect('a.login', 'login')
       .addSelect('a.email', 'email')
       .addSelect('a.createdAt', 'createdAt')
-      .orderBy(sortBy, query.sortDirection)
+      .orderBy(
+        `a.${query.sortBy}`,
+        query.sortDirection.toUpperCase() as 'ASC' | 'DESC',
+      )
       .limit(query.pageSize)
       .offset(query.calculateSkip())
       .getRawMany();

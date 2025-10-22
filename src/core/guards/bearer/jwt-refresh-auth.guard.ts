@@ -22,11 +22,11 @@ export class JwtRefreshAuthGuard extends AuthGuard('jwt-refresh') {
   }
 
   handleRequest(err, user) {
-    console.log("error", err, "user", user);
+    console.log('error', err, 'user', user);
     if (err || !user) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
-        message: 'User unauthorized', field: 'user'
+        extension: [{ message: 'User unauthorized', field: 'user' }],
       });
     }
     return user;

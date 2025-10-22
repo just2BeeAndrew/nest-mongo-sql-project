@@ -23,8 +23,7 @@ export class PasswordRecoveryUseCase
     if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'User not found',
-        field: 'email',
+        extension: [{ message: 'User not found', field: 'email' }],
       });
     }
 

@@ -33,8 +33,7 @@ export class PostLikeStatusUseCase
     if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'User not found',
-        field: 'user',
+        extension: [{ message: 'User not found', field: 'user' }],
       });
     }
 
@@ -42,8 +41,7 @@ export class PostLikeStatusUseCase
     if (!post) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Post not found',
-        field: 'post',
+        extension: [{ message: 'Post not found', field: 'post' }],
       });
     }
 
@@ -66,14 +64,14 @@ export class PostLikeStatusUseCase
           command.newStatus,
         );
       }
-    // } else if (command.newStatus !== LikeStatus.None) {
-    //   await this.statusRepository.create({
-    //     userId: command.userId,
-    //     login: user.login,
-    //     categoryId: command.postId,
-    //     category: Category.Post,
-    //     status: command.newStatus,
-    //   });
+      // } else if (command.newStatus !== LikeStatus.None) {
+      //   await this.statusRepository.create({
+      //     userId: command.userId,
+      //     login: user.login,
+      //     categoryId: command.postId,
+      //     category: Category.Post,
+      //     status: command.newStatus,
+      //   });
     }
 
     const updatedCounts =

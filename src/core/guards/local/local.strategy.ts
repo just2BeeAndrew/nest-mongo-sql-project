@@ -12,12 +12,17 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
     super({ usernameField: 'loginOrEmail' });
   }
 
-  async validate(loginOrEmail: string, password: string): Promise<AccessContextDto> {
+  async validate(
+    loginOrEmail: string,
+    password: string,
+  ): Promise<AccessContextDto> {
     const user = await this.authService.validateUser(loginOrEmail, password);
     if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
-        message:'Invalid login or password', field: "login or password"
+        extension: [
+          { message: 'Invalid login or password', field: 'login or password' },
+        ],
       });
     }
     return user;

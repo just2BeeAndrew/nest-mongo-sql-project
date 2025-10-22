@@ -17,22 +17,24 @@ export class AllExceptionFilter implements ExceptionFilter {
     console.error(exception);
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let responseBody: { errorsMessages: { message: string; field: string }[] } =
+    const responseBody: { errorsMessages: { message: string; field: string }[] } =
       {
         errorsMessages: [],
       };
 
     if (this.isDomainException(exception)) {
       status = this.getStatusFromCode(exception.code);
-      responseBody = {
-        errorsMessages: [
-          {
-            message: exception.message,
-            field: exception.field,
-          },
-        ],
-      };
+
+      responseBody.errorsMessages = exception.extension.map((ext) => ({
+        message: ext.message,
+        field: ext.field,
+      }));
     }
+
+    if (status === HttpStatus.INTERNAL_SERVER_ERROR && responseBody.errorsMessages.length === 0) {
+      responseBody.errorsMessages.push({ message: 'Internal Server Error', field: 'server' });
+    }
+
 
     response.status(status).json(responseBody);
   }

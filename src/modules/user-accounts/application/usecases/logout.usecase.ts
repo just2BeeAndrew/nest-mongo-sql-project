@@ -13,9 +13,7 @@ export class LogoutCommand {
 
 @CommandHandler(LogoutCommand)
 export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
-  constructor(
-    private readonly sessionRepository: SessionsRepository,
-  ) {}
+  constructor(private readonly sessionRepository: SessionsRepository) {}
 
   async execute(command: LogoutCommand) {
     const session = await this.sessionRepository.findSessionById(
@@ -24,7 +22,7 @@ export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
     if (!session) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Session not found', field:'device'
+        extension: [{ message: 'Session not found', field: 'device' }],
       });
     }
 

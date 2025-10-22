@@ -23,16 +23,14 @@ export class RegistrationEmailResendingUseCase
     if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        message: 'User not found',
-        field: 'email',
+        extension: [{ message: 'User not found', field: 'email' }],
       });
     }
 
     if (user.emailConfirmation.isConfirmed) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        message: 'User already confirmed',
-        field: 'email',
+        extension: [{ message: 'User already confirmed', field: 'email' }],
       });
     }
 

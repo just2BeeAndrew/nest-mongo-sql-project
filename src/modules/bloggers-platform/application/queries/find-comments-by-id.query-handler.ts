@@ -42,7 +42,7 @@ export class FindCommentByIdQueryHandler
     if (!comment) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Comment not found', field: 'comment'
+        extension: [{ message: 'Comment not found', field: 'comment' }],
       });
     }
 

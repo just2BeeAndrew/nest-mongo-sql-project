@@ -51,8 +51,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'User does not exist',
-        field: 'userId',
+        extension: [{ message: 'User does not exist', field: 'userId' }],
       });
     }
 

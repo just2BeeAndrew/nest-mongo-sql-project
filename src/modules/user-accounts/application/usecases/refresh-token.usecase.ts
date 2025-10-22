@@ -37,8 +37,7 @@ export class RefreshTokenUseCase
     if (!session) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Session not found',
-        field: 'session',
+        extension: [{ message: 'Session not found', field: 'session' }],
       });
     }
 

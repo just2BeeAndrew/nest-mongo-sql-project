@@ -25,8 +25,7 @@ export class DeletePostByBlogIdUseCase
     if (!blog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Blog not found',
-        field: 'blog',
+        extension: [{ message: 'Blog not found', field: 'blog' }],
       });
     }
 
@@ -34,8 +33,7 @@ export class DeletePostByBlogIdUseCase
     if (post[0].length === 0) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Post not found',
-        field: 'post',
+        extension: [{ message: 'Post not found', field: 'post' }],
       });
     }
   }

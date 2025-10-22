@@ -42,6 +42,7 @@ import { User } from './domain/entities/user.entity';
 import { EmailConfirmation } from './domain/entities/email-confirmation.entity';
 import { AccountData } from './domain/entities/account-data.entity';
 import { UserAccountsConfig } from '../../core/config/user-accounts.config';
+import { Session } from './domain/entities/session.entity';
 
 const useCases = [
   CreateUserUseCase,
@@ -72,7 +73,7 @@ const queries = [
     NotificationsModule,
     BcryptModule,
     ThrottlerModule.forRoot([{ ttl: 10000, limit: 5 }]),
-    TypeOrmModule.forFeature([User, AccountData, EmailConfirmation]),
+    TypeOrmModule.forFeature([User, AccountData, EmailConfirmation, Session]),
   ],
   controllers: [UsersSuperAdminController, AuthController, SecurityDevicesController],
   providers: [

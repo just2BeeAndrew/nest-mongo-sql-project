@@ -28,14 +28,12 @@ export class DeleteCommentUseCase
       if (commentIsExist.length === 0) {
         throw new DomainException({
           code: DomainExceptionCode.NotFound,
-          message: 'Comment not found',
-          field: 'comment',
+          extension: [{ message: 'Comment not found', field: 'comment' }],
         });
       } else {
         throw new DomainException({
           code: DomainExceptionCode.Forbidden,
-          message: 'User is not owner',
-          field: 'user',
+          extension: [{ message: 'User is not owner', field: 'user' }],
         });
       }
     }

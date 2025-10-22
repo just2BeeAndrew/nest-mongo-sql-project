@@ -60,8 +60,7 @@ export class AuthController {
     if (!title) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Header not found',
-        field: ' Header',
+        extension: [{ message: 'Header not found', field: ' Header' }],
       });
     }
 

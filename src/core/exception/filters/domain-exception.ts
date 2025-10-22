@@ -1,19 +1,22 @@
 import { DomainExceptionCode } from './domain-exception-codes';
 
+export class Extension {
+  constructor(
+    public message: string,
+    public field: string,
+  ) {}
+}
+
 export class DomainException extends Error {
   code: DomainExceptionCode;
-  message: string;
-  field: string
+  extension: Extension[];
 
   constructor(errorInfo: {
     code: DomainExceptionCode;
-    message?: string;
-    field?: string;
+    extension?: Extension[];
   }) {
-    super(errorInfo.message);
+    super();
     this.code = errorInfo.code;
-    this.message = errorInfo.message ?? 'error';
-    this.field = errorInfo.field ?? 'unknown';
-
+    this.extension = errorInfo.extension || [];
   }
 }

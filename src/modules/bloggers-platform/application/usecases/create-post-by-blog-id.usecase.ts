@@ -23,8 +23,7 @@ export class CreatePostByBlogIdUseCase
     if (!blog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'Blog not found',
-        field: 'blog',
+        extension: [{ message: 'Blog not found', field: 'blog' }],
       });
     }
 

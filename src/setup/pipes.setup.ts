@@ -3,8 +3,10 @@ import {
   ValidationError,
   ValidationPipe,
 } from '@nestjs/common';
-import { DomainException } from '../core/exception/filters/domain-exception';
-
+import {
+  DomainException,
+  Extension,
+} from '../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../core/exception/filters/domain-exception-codes';
 
 export const errorFormatter = (
@@ -34,16 +36,18 @@ export function pipesSetup(app: INestApplication) {
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
-      stopAtFirstError: true,
+      stopAtFirstError: false,
 
       exceptionFactory: (errors) => {
         const formattedErrors = errorFormatter(errors);
-        const firstError = formattedErrors[0];
+
+        const extensions = formattedErrors.map(
+          (error) => new Extension(error.message, error.field),
+        );
 
         throw new DomainException({
           code: DomainExceptionCode.ValidationError,
-          message: firstError?.message || 'Validation error',
-          field: firstError?.field || 'unknown',
+          extension: extensions,
         });
       },
     }),

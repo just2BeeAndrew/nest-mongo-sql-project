@@ -25,16 +25,14 @@ export class DeleteSessionByIdUseCase
     if (!session) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'device not found',
-        field: 'device',
+        extension: [{ message: 'device not found', field: 'device' }],
       });
     }
 
     if (session.userId !== command.userId) {
       throw new DomainException({
         code: DomainExceptionCode.Forbidden,
-        message: 'User is not owner',
-        field: 'user',
+        extension: [{ message: 'User is not owner', field: 'user' }],
       });
     }
 

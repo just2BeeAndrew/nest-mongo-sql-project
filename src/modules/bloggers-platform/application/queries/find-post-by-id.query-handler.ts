@@ -35,14 +35,11 @@ export class FindPostByIdQueryHandler
       userStatus = status ? status.status : LikeStatus.None;
     }
 
-    const post = await this.blogsQueryRepository.findById(
-      query.id,
-      userStatus,
-    );
+    const post = await this.blogsQueryRepository.findById(query.id, userStatus);
     if (!post) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: 'post not found', field: 'post'
+        extension: [{ message: 'post not found', field: 'post' }],
       });
     }
 
