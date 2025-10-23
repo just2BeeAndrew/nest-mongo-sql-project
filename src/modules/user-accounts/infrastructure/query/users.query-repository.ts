@@ -15,6 +15,7 @@ export class UsersQueryRepository {
   async findAllUsers(
     query: FindUsersQueryParams,
   ): Promise<PaginatedViewDto<UsersViewDto[]>> {
+    const sortDirection = query.sortDirection.toUpperCase() as 'ASC' | 'DESC';
     //создал базовый поиск для переиспользования в методе
     const createBaseQuery = () => {
       const qb = this.usersRepository
@@ -42,22 +43,26 @@ export class UsersQueryRepository {
       return qb;
     };
 
-    const users = await createBaseQuery()
+    const users = createBaseQuery()
       .select('u.id', 'id')
       .addSelect('a.login', 'login')
       .addSelect('a.email', 'email')
-      .addSelect('a.createdAt', 'createdAt')
-      .orderBy(
-        `a.${query.sortBy}`,
-        query.sortDirection.toUpperCase() as 'ASC' | 'DESC',
-      )
+      .addSelect('a.createdAt', 'createdAt');
+
+    if (query.sortBy === 'createdAt') {
+      users.orderBy('a.createdAt', sortDirection);
+    } else {
+      users.orderBy(`LOWER(a.${query.sortBy})`, sortDirection);
+    }
+
+    const usersSorted = await users
       .limit(query.pageSize)
       .offset(query.calculateSkip())
       .getRawMany();
 
     const totalCount = await createBaseQuery().getCount();
 
-    const items = users.map(UsersViewDto.mapToView);
+    const items = usersSorted.map(UsersViewDto.mapToView);
 
     return PaginatedViewDto.mapToView({
       items,
