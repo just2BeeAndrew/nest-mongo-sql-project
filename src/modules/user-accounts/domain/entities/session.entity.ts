@@ -1,10 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { User } from './user.entity';
 import { CreateSessionDomainDto } from '../dto/create-session.domain.dto';
 
@@ -28,8 +22,8 @@ export class Session {
   @ManyToOne(() => User, (user) => user.sessions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: User;
-
-  userId:string
+  @Column({ type: 'uuid' })
+  userId: string;
 
   static create(dto: CreateSessionDomainDto, user: User): Session {
     const session = new Session();
@@ -38,7 +32,7 @@ export class Session {
     session.ip = dto.ip;
     session.iat = new Date(dto.iat * 1000);
     session.exp = new Date(dto.exp * 1000);
-    session.user = user
+    session.user = user;
 
     return session;
   }

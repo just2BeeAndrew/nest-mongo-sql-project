@@ -1,13 +1,15 @@
+import { User } from '../../domain/entities/user.entity';
+
 export class MeViewDto {
   login: string;
   email: string;
   userId: string;
 
-  static mapToView(user: any): MeViewDto {
+  static mapToView(user: User): MeViewDto {
     const dto = new MeViewDto();
 
-    dto.login = user.login;
-    dto.email = user.email;
+    dto.login = user.accountData.login;
+    dto.email = user.accountData.email;
     dto.userId = user.id.toString();
 
     return dto;

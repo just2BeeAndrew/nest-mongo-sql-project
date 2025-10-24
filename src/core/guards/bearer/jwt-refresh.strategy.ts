@@ -6,6 +6,7 @@ import { DomainException } from '../../exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../exception/filters/domain-exception-codes';
 import { SessionsRepository } from '../../../modules/user-accounts/infrastructure/sessions.repository';
 import { ConfigService } from '@nestjs/config';
+import { RefreshContextDto } from '../../dto/refresh-context-dto';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -26,7 +27,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     });
   }
 
-  async validate(req: Request, payload: any) {
+  async validate(req: Request, payload: RefreshContextDto): Promise<RefreshContextDto> {
     const refreshToken = req.cookies?.refreshToken;
     if (!refreshToken) {
       throw new DomainException({
@@ -37,10 +38,9 @@ export class JwtRefreshStrategy extends PassportStrategy(
       });
     }
 
-    const tokenExpiration = Math.floor(Date.now() / 1000);
-    console.log(payload.iat, payload.exp, tokenExpiration);
+    const currentTime = Math.floor(Date.now() / 1000);
 
-    if (payload.exp && payload.exp < tokenExpiration) {
+    if (payload.exp && payload.exp < currentTime) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
         extension: [
@@ -60,7 +60,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
       });
     }
 
-    if (Number(session.iat) !== Number(payload.iat)) {
+    if (Math.floor(session.iat.getTime()/1000) !== Number(payload.iat)) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
         extension: [

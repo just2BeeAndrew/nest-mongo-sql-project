@@ -47,6 +47,8 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
 
     const { iat, exp } = this.refreshTokenJwtService.decode(refreshToken);
 
+    console.log("iat",iat,"exp", exp);
+
     const user = await this.usersRepository.findById(command.dto.userId);
     if (!user) {
       throw new DomainException({
@@ -65,7 +67,8 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
       },
       user,
     );
-    console.log(session);
+
+    console.log("session", session.iat, session.exp);
 
     await this.sessionsRepository.saveSession(session);
 
