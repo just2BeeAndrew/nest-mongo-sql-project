@@ -52,7 +52,7 @@ export class UsersQueryRepository {
     if (query.sortBy === 'createdAt') {
       users.orderBy('a.createdAt', sortDirection);
     } else {
-      users.orderBy(`LOWER(a.${query.sortBy})`, sortDirection);
+      users.orderBy(`a.${query.sortBy}`, sortDirection);
     }
 
     const usersSorted = await users

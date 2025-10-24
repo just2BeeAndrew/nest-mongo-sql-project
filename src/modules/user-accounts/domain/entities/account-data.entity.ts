@@ -15,13 +15,13 @@ export class AccountData {
   @PrimaryColumn({ type: 'uuid' })
   userId: string;
 
-  @Column()
+  @Column({collation: 'C.utf8'})
   login: string;
 
   @Column()
   passwordHash: string;
 
-  @Column()
+  @Column({collation: 'C.utf8'})
   email: string;
   //TODO: Вынести в абстрактную сущность
   @CreateDateColumn({ type: 'timestamptz' })

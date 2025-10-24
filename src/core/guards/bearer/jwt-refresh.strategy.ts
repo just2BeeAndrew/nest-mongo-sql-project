@@ -38,6 +38,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     }
 
     const tokenExpiration = Math.floor(Date.now() / 1000);
+    console.log(payload.iat, payload.exp, tokenExpiration);
 
     if (payload.exp && payload.exp < tokenExpiration) {
       throw new DomainException({

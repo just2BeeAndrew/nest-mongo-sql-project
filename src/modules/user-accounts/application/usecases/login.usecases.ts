@@ -65,6 +65,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
       },
       user,
     );
+    console.log(session);
 
     await this.sessionsRepository.saveSession(session);
 
