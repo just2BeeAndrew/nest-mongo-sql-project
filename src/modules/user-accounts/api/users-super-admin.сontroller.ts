@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   HttpCode,
@@ -11,8 +10,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersRepository } from '../infrastructure/users.repository';
-import { UpdateUserDto } from '../domain/dto/update-user.dto';
 import { FindUsersQueryParams } from './input-dto/get-users-query-params.input-dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FindAllUsersQuery } from '../application/queries/find-all-users.query-handler';
@@ -25,11 +22,10 @@ import { FindUserByIdQuery } from '../application/queries/find-user-by-id.query-
 import { DeleteUserCommand } from '../application/usecases/delete-user.usecase';
 
 @Controller('sa/users')
-export class UsersSuperAdminController {
+export class UsersSuperAdminOntroller {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-    private readonly usersRepository: UsersRepository
   ) {}
 
   @Post()

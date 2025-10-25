@@ -25,7 +25,7 @@ export class User {
 
   @OneToMany(() => Session, (session) => session.user, { cascade: true })
   sessions: Session[];
-
+//createdAt updated at deletedAt
   static create(dto: CreateUserDto) {
     const user = new User();
 
@@ -49,4 +49,6 @@ export class User {
 
     return user;
   }
+
+  //TODO: вынести обновления
 }
