@@ -1,24 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { CreateBlogDto } from '../dto/create-blog.dto';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
+import { Blog } from '../domain/entities/blog.entity';
 
 @Injectable()
 export class BlogsRepository {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(Blog) private blogRepository: Repository<Blog>,
+    @InjectDataSource() private dataSource: DataSource) {}
 
-  async createBlog(dto: CreateBlogDto) {
-    const user = await this.dataSource.query(
-      `
-    INSERT INTO "Blogs" (name, description, "websiteUrl")
-    VALUES ($1, $2, $3)
-    RETURNING id
-    `,
-      [dto.name, dto.description, dto.websiteUrl],
-    );
-
-    return user[0].id;
+  async saveBlog(blog: Blog): Promise<Blog> {
+    return this.blogRepository.save(blog);
   }
 
   async update(id: string, dto: UpdateBlogDto) {

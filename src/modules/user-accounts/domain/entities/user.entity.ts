@@ -35,7 +35,7 @@ export class User {
     accountData.passwordHash = dto.passwordHash;
 
     accountData.user = user; //устанавливаю связь с User
-
+//Разнести по сущностям
     const emailConfirmation = new EmailConfirmation();
     emailConfirmation.issuedAt = new Date();
     emailConfirmation.expirationTime = new Date(

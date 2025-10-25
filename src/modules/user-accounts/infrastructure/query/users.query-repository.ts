@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FindUsersQueryParams } from '../../api/input-dto/get-users-query-params.input-dto';
-import { UsersViewDto } from '../../api/view-dto/users.view-dto';
+import { UserRaw, UsersViewDto } from '../../api/view-dto/users.view-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { User } from '../../domain/entities/user.entity';
 
@@ -82,7 +82,7 @@ export class UsersQueryRepository {
       .addSelect('a.createdAt', 'createdAt')
       .where('u.id=:id', { id })
       .andWhere('a.deletedAt IS NULL')
-      .getRawOne();
+      .getRawOne<UserRaw>();
 
     if (!user) return null;
 

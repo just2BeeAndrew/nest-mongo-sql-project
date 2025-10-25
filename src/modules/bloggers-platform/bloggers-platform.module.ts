@@ -31,6 +31,8 @@ import { CommentsQueryRepository } from './infrastructure/query/comments.query-r
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
 import { PostsController } from './api/posts.controller';
 import { CommentsController } from './api/comments.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Blog } from './domain/entities/blog.entity';
 
 const useCases = [
   CreateBlogUseCase,
@@ -57,7 +59,7 @@ const queries = [
 ];
 
 @Module({
-  imports: [CqrsModule, UserAccountsModule],
+  imports: [CqrsModule, UserAccountsModule, TypeOrmModule.forFeature([Blog])],
   controllers: [BlogsController, BlogsSuperAdminController, PostsController, CommentsController],
   providers: [
     BlogsRepository,

@@ -45,15 +45,15 @@ export class CreateUserUseCase
     const passwordHash = await this.bcryptService.createHash(
       command.dto.password,
     );
-    //TODO: показатьб на код ревью
+    //TODO: показать на код ревью
     const user = User.create({
       login: command.dto.login,
       email: command.dto.email,
       passwordHash: passwordHash,
     });
 
-    const createdUser = await this.usersRepository.saveUser(user);
+    await this.usersRepository.saveUser(user);
 
-    return createdUser.id;
+    return user.id;
   }
 }
