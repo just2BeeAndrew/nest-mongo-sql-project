@@ -47,8 +47,6 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
 
     const { iat, exp } = this.refreshTokenJwtService.decode(refreshToken);
 
-    console.log("iat",iat,"exp", exp);
-
     const user = await this.usersRepository.findById(command.dto.userId);
     if (!user) {
       throw new DomainException({

@@ -12,12 +12,16 @@ export class DeleteBlogUseCase implements ICommandHandler<DeleteBlogCommand> {
   constructor(private readonly blogsRepository: BlogsRepository) {}
 
   async execute({ id }: DeleteBlogCommand) {
-    const blog = await this.blogsRepository.softDeleteBlog(id);
-    if (blog[0].length === 0) {
+    const blog = await this.blogsRepository.findById(id);
+    if (!blog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        extension: [{message: 'Blog not found', field: 'blog'}]
+        extension:[{message:"Blog not found", field:"blogId"}],
       });
     }
+
+    blog.softDelete();
+
+    await this.blogsRepository.saveBlog(blog);
   }
 }

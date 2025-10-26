@@ -1,12 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { CreatePostDto } from '../dto/create-post.dto';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { UpdatePostDto } from '../dto/update-post.dto';
+import { Post } from '../domain/entities/post.entity';
 
 @Injectable()
 export class PostsRepository {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(@InjectDataSource() private dataSource: DataSource,
+              @InjectRepository(PostsRepository) private postsRepository: Repository<Post>) {}
+
+  async savePost(post:Post): Promise<Post> {
+    return this.postsRepository.save(post)
+  }
 
   async findById(id: string) {
     const post = await this.dataSource.query(
@@ -21,29 +26,6 @@ export class PostsRepository {
     );
 
     return post[0] || null;
-  }
-
-  async create(body: CreatePostDto) {
-    const post = await this.dataSource.query(
-      `
-      WITH insert_post AS (
-        INSERT INTO "Posts" (id, title, "shortDescription", content, "blogId", "blogName", "createdAt")
-          VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, NOW()) RETURNING id)
-      INSERT
-      INTO "ExtendedLikesInfo" (id, "likesCount", "dislikesCount")
-      SELECT id, 0, 0
-      FROM insert_post
-      RETURNING id;
-    `,
-      [
-        body.title,
-        body.shortDescription,
-        body.content,
-        body.blogId,
-        body.blogName,
-      ],
-    );
-    return post[0].id;
   }
 
   async update(body: UpdatePostDto) {

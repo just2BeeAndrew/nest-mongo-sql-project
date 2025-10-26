@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { PostsViewDto } from '../../api/view-dto/posts.view-dto';
 import { LikeStatus } from '../../../../core/dto/like-status';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { FindPostsQueryParams } from '../../api/input-dto/find-posts-query-params.input-dto';
 import { LikeDetails } from '../../dto/like-details';
+import { Post } from '../../domain/entities/post.entity';
 
 @Injectable()
 export class PostsQueryRepository {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(Post) private postsRepository: Repository<Post>,
+  ) {}
 
   async findAll(
     query: FindPostsQueryParams,
@@ -107,41 +110,40 @@ export class PostsQueryRepository {
     });
   }
 
-  async findById(
-    id: string,
-    status: LikeStatus,
-  ): Promise<PostsViewDto | null> {
-    const post = await this.dataSource.query(
-      `
-        SELECT *
-        FROM "Posts" p
-               JOIN "ExtendedLikesInfo" e ON p.id = e.id
-        WHERE p.id = $1
-          AND "deletedAt" IS NULL
-      `,
-      [id],
-    );
+  async findById(id: string, status: LikeStatus): Promise<PostsViewDto | null> {
+    const post = await this.postsRepository
+      .createQueryBuilder('p')
+      .leftJoin('p.blog', 'b')
+      .select([
+        'p.id AS id',
+        'p.title AS title',
+        'p.shortDescription AS "shortDescription"',
+        'p.content AS content',
+        'p.blogId AS "blogId"',
+        'b.name AS "blogName"',
+      ]);
 
-    if (post.length === 0) return null;
+    if (!post) return null;
 
-    const newestLikesRaw = await this.dataSource.query(
-      `
-    SELECT "userId", "login", "addedAt"
-    FROM "Statuses"
-    WHERE "categoryId" = $1
-      AND category = 'Post'
-      AND status = 'Like'
-    ORDER BY "addedAt" DESC
-    LIMIT 3
-    `,
-      [id],
-    );
+    // const newestLikesRaw = await this.dataSource.query(
+    //   `
+    // SELECT "userId", "login", "addedAt"
+    // FROM "Statuses"
+    // WHERE "categoryId" = $1
+    //   AND category = 'Post'
+    //   AND status = 'Like'
+    // ORDER BY "addedAt" DESC
+    // LIMIT 3
+    // `,
+    //   [id],
+    // );
+    //
+    // const newestLikes = newestLikesRaw.map(
+    //   (like) =>
+    //     new LikeDetails(new Date(like.addedAt), like.userId, like.login),
+    // );
 
-    const newestLikes = newestLikesRaw.map(
-      (like) => new LikeDetails(new Date(like.addedAt), like.userId, like.login),
-    );
-
-    return PostsViewDto.mapToView(post[0], status, newestLikes );
+    return PostsViewDto.mapToView(post, status, [] /*newestLikes*/);
   }
 
   async findPostsByBlogId(

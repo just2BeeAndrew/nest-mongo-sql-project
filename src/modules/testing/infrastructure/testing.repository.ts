@@ -11,8 +11,8 @@ export class TestingRepository {
   ) {}
   async deleteAll() {
     await this.dataSource.query(`TRUNCATE TABLE "User" CASCADE;`);
-    await this.dataSource.query(`TRUNCATE TABLE "AccountData" CASCADE;`);
-    await this.dataSource.query(`TRUNCATE TABLE "EmailConfirmation" CASCADE;`);
+    await this.dataSource.query(`TRUNCATE TABLE "AccountData";`);
+    await this.dataSource.query(`TRUNCATE TABLE "EmailConfirmation";`);
     await this.dataSource.query(`TRUNCATE TABLE "Session" CASCADE;`);
     await this.dataSource.query(`TRUNCATE TABLE "Blog" CASCADE;`);
   }

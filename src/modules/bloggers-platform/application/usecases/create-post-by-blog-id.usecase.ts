@@ -4,6 +4,7 @@ import { BlogsRepository } from '../../infrastructure/blogs.repository';
 import { PostsRepository } from '../../infrastructure/posts.repository';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
+import { Post } from '../../domain/entities/post.entity';
 
 export class CreatePostByBlogIdCommand {
   constructor(public dto: CreatePostInputDto) {}
@@ -27,12 +28,19 @@ export class CreatePostByBlogIdUseCase
       });
     }
 
-    return await this.postsRepository.create({
-      title: dto.title,
-      shortDescription: dto.shortDescription,
-      content: dto.content,
-      blogId: dto.blogId,
-      blogName: blog.name,
-    });
+    const post = Post.create(
+      {
+        title: dto.title,
+        shortDescription: dto.shortDescription,
+        content: dto.content,
+      },
+      blog.id
+    );
+
+    console.log(post);
+
+    await this.postsRepository.savePost(post);
+
+    return post.id
   }
 }

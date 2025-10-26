@@ -23,7 +23,7 @@ export class User {
   )
   emailConfirmation: EmailConfirmation;
 
-  @OneToMany(() => Session, (session) => session.user, { cascade: true })
+  @OneToMany(() => Session, (session) => session.user)
   sessions: Session[];
 //createdAt updated at deletedAt
   static create(dto: CreateUserDto) {

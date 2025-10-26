@@ -1,0 +1,19 @@
+import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import { BaseEntity } from '../../../../core/entities/base.entity';
+import { Post } from './post.entity';
+
+@Entity()
+export class ExtendedLikesInfo extends BaseEntity {
+  @PrimaryColumn()
+  postId: string;
+
+  @Column({ tyoe: Number, default: 0 })
+  likesCount: number;
+
+  @Column({ type: Number, default: 0 })
+  dislikesCount: number;
+
+  @OneToOne(() => Post)
+  @JoinColumn({ name: 'postId' })
+  post: Post;
+}

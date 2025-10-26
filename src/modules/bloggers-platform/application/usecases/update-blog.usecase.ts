@@ -16,12 +16,16 @@ export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
   constructor(private readonly blogsRepository: BlogsRepository) {}
 
   async execute(command: UpdateBlogCommand) {
-    const blog = await this.blogsRepository.update(command.id, command.dto);
-    if (blog[0].length === 0) {
+    const blog = await this.blogsRepository.findById(command.id);
+    if (!blog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         extension: [{ message: 'Blog not found', field: 'blog' }],
       });
     }
+
+    blog.updateBlog(command.dto);
+
+    await this.blogsRepository.saveBlog(blog);
   }
 }

@@ -26,14 +26,14 @@ export class FindPostByIdQueryHandler
   async execute(query: FindPostByIdQuery): Promise<PostsViewDto> {
     let userStatus: LikeStatus = LikeStatus.None;
 
-    if (query.userId) {
-      const status = await this.statusRepository.find(
-        query.userId,
-        query.id,
-        Category.Post,
-      );
-      userStatus = status ? status.status : LikeStatus.None;
-    }
+    // if (query.userId) {
+    //   const status = await this.statusRepository.find(
+    //     query.userId,
+    //     query.id,
+    //     Category.Post,
+    //   );
+    //   userStatus = status ? status.status : LikeStatus.None;
+    // }
 
     const post = await this.blogsQueryRepository.findById(query.id, userStatus);
     if (!post) {

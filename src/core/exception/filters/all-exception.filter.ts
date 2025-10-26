@@ -17,7 +17,7 @@ export class AllExceptionFilter implements ExceptionFilter {
     console.error(exception);
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    const responseBody: { errorsMessages: { message: string; field: string }[] } =
+    const responseBody: { errorsMessages: { message: string; field?: string }[] } =
       {
         errorsMessages: [],
       };
