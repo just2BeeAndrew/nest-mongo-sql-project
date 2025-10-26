@@ -15,54 +15,71 @@ export class UsersQueryRepository {
   async findAllUsers(
     query: FindUsersQueryParams,
   ): Promise<PaginatedViewDto<UsersViewDto[]>> {
+    const loginTerm = query.searchLoginTerm
+      ? `%${query.searchLoginTerm}%`
+      : null;
+    const emailTerm = query.searchEmailTerm
+      ? `%${query.searchEmailTerm}%`
+      : null;
+
     const sortDirection = query.sortDirection.toUpperCase() as 'ASC' | 'DESC';
-    //создал базовый поиск для переиспользования в методе
-    const createBaseQuery = () => {
-      const qb = this.usersRepository
-        .createQueryBuilder('u')
-        .innerJoin('u.accountData', 'a')
-        .where('a.deletedAt IS NULL');
 
-      const conditions: string[] = [];
-      const parameters: any = {};
+    let qb = this.usersRepository
+      .createQueryBuilder('u')
+      .innerJoin('u.accountData', 'a')
+      .select([
+        'u.id AS id',
+        'a.login AS login',
+        'a.email AS email',
+        'a.createdAt AS "createdAt"',
+      ])
+      .where('a.deletedAt IS NULL');
 
-      if (query.searchLoginTerm) {
-        conditions.push('a.login ILIKE :loginTerm');
-        parameters.loginTerm = `%${query.searchLoginTerm}%`;
-      }
-
-      if (query.searchEmailTerm) {
-        conditions.push('a.email ILIKE :emailTerm');
-        parameters.emailTerm = `%${query.searchEmailTerm}%`;
-      }
-
-      if (conditions.length > 0) {
-        qb.andWhere(`(${conditions.join(' OR ')})`, parameters);
-      }
-
-      return qb;
-    };
-
-    const users = createBaseQuery()
-      .select('u.id', 'id')
-      .addSelect('a.login', 'login')
-      .addSelect('a.email', 'email')
-      .addSelect('a.createdAt', 'createdAt');
-
-    if (query.sortBy === 'createdAt') {
-      users.orderBy('a.createdAt', sortDirection);
-    } else {
-      users.orderBy(`a.${query.sortBy}`, sortDirection);
+    if (loginTerm && emailTerm) {
+      qb = qb.andWhere(
+        '(a.login ILIKE :loginTerm OR a.email ILIKE :emailTerm)',
+        {
+          loginTerm,
+          emailTerm,
+        },
+      );
+    } else if (loginTerm) {
+      qb = qb.andWhere('a.login ILIKE :loginTerm', { loginTerm });
+    } else if (emailTerm) {
+      qb = qb.andWhere('a.email ILIKE :emailTerm', { emailTerm });
     }
 
-    const usersSorted = await users
+    if (query.sortBy === 'createdAt') {
+      qb = qb.orderBy('a.createdAt', sortDirection);
+    } else {
+      qb = qb.orderBy(`a.${query.sortBy}`, sortDirection);
+    }
+
+    qb = qb
       .limit(query.pageSize)
-      .offset(query.calculateSkip())
-      .getRawMany();
+      .offset(query.calculateSkip());
 
-    const totalCount = await createBaseQuery().getCount();
+    const users = await qb.getRawMany<UserRaw>();
 
-    const items = usersSorted.map(UsersViewDto.mapToView);
+    let countUsers = this.usersRepository
+      .createQueryBuilder('u')
+      .innerJoin('u.accountData', 'a')
+      .where('a.deletedAt IS NULL');
+
+    if (loginTerm && emailTerm) {
+      countUsers = countUsers.andWhere('(a.login ILIKE :loginTerm OR a.email ILIKE :emailTerm)', {
+        loginTerm,
+        emailTerm,
+      });
+    } else if (loginTerm) {
+      countUsers = countUsers.andWhere('a.login ILIKE :loginTerm', { loginTerm });
+    } else if (emailTerm) {
+      countUsers = countUsers.andWhere('a.email ILIKE :emailTerm', { emailTerm });
+    }
+
+    const totalCount = await countUsers.getCount();
+
+    const items = users.map(UsersViewDto.mapToView);
 
     return PaginatedViewDto.mapToView({
       items,

@@ -16,12 +16,12 @@ export class BlogsQueryRepository {
   async findBlogById(id: string): Promise<BlogsViewDto | null> {
     const blog = await this.blogsRepository
       .createQueryBuilder('b')
-      .select('b.id','id')
-      .addSelect('b.name','name')
-      .addSelect('b.description','description')
-      .addSelect('b.websiteUrl','websiteUrl')
-      .addSelect('b.createdAt','createdAt')
-      .addSelect('b.isMembership','isMembership')
+      .select('b.id', 'id')
+      .addSelect('b.name', 'name')
+      .addSelect('b.description', 'description')
+      .addSelect('b.websiteUrl', 'websiteUrl')
+      .addSelect('b.createdAt', 'createdAt')
+      .addSelect('b.isMembership', 'isMembership')
       .where('b.id=:id', { id })
       .andWhere('b.deletedAt IS NULL')
       .getRawOne<BlogRaw>();
@@ -34,31 +34,42 @@ export class BlogsQueryRepository {
   async findAllBlogs(
     query: FindBlogsQueryParams,
   ): Promise<PaginatedViewDto<BlogsViewDto[]>> {
-    const nameTerm = query.searchNameTerm ? `%${query.searchNameTerm}%` : `%`;
+    const nameTerm = query.searchNameTerm ? `%${query.searchNameTerm}%` : null;
 
-    const blogs = await this.dataSource.query(
-      `
-        SELECT id, name, description, "websiteUrl", "createdAt", "isMembership"
-        FROM "Blogs"
-        WHERE name ILIKE $1
-          AND "deletedAt" IS NULL
-        ORDER BY "${query.sortBy}" ${query.sortDirection}
-        LIMIT $2 OFFSET $3
-        `,
-      [nameTerm, query.pageSize, query.calculateSkip()],
-    );
+    const sortDirection = query.sortDirection.toUpperCase() as 'ASC' | 'DESC';
 
-    const totalCountResult = await this.dataSource.query(
-      `
-        SELECT COUNT(*) as count
-        FROM "Blogs"
-        WHERE name ILIKE $1
-          AND "deletedAt" IS NULL
-        `,
-      [nameTerm],
-    );
+    let qb = this.blogsRepository
+      .createQueryBuilder('b')
+      .select([
+        'b.id AS id',
+        'b.name AS name',
+        'b.description AS description',
+        'b.websiteUrl AS "websiteUrl"',
+        'b.createdAt AS "createdAt"',
+        'b.isMembership AS "isMembership"',
+      ])
+      .where('b.deletedAt IS NULL');
 
-    const totalCount = parseInt(totalCountResult[0].count, 10);
+    if (nameTerm) {
+      qb = qb.andWhere('b.name ILIKE :nameTerm', { nameTerm });
+    }
+
+    qb = qb
+      .orderBy(`b.${query.sortBy}`, sortDirection)
+      .limit(query.pageSize)
+      .offset(query.calculateSkip());
+
+    const blogs = await qb.getRawMany<BlogRaw>();
+
+    let countBlogs = this.blogsRepository
+      .createQueryBuilder('b')
+      .where('b.deletedAt IS NULL');
+
+    if (nameTerm) {
+      countBlogs = countBlogs.andWhere('b.name ILIKE :nameTerm', { nameTerm });
+    }
+
+    const totalCount = await countBlogs.getCount();
 
     const items = blogs.map(BlogsViewDto.mapToView);
 

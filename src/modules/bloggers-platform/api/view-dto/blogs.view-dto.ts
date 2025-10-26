@@ -16,6 +16,7 @@ export class BlogsViewDto {
   isMembership: boolean;
 
   static mapToView(blog: BlogRaw): BlogsViewDto {
+    console.log(blog);
     const dto = new BlogsViewDto();
 
     dto.id = blog.id;
