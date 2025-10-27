@@ -3,7 +3,7 @@ import { CommentsViewDto } from '../../api/view-dto/comments.view-dto';
 import { CommentsQueryRepository } from '../../infrastructure/query/comments.query-repository';
 import { LikeStatus } from '../../../../core/dto/like-status';
 import { Category } from '../../../../core/dto/category';
-import { StatusRepository } from '../../infrastructure/status.repository';
+import { PostStatusRepository } from '../../infrastructure/post-status.repository';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 
@@ -20,7 +20,7 @@ export class FindCommentByIdQueryHandler
 {
   constructor(
     private readonly commentsQueryRepository: CommentsQueryRepository,
-    private readonly statusRepository: StatusRepository,
+    private readonly statusRepository: PostStatusRepository,
   ) {}
 
   async execute(query: FindCommentByIdQuery): Promise<CommentsViewDto> {

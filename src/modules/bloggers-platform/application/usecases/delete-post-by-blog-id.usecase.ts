@@ -29,12 +29,16 @@ export class DeletePostByBlogIdUseCase
       });
     }
 
-    const post = await this.postsRepository.softDelete(command.postId);
-    if (post[0].length === 0) {
+    const post = await this.postsRepository.findById(command.postId);
+    if (!post) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         extension: [{ message: 'Post not found', field: 'post' }],
       });
     }
+
+    post.softDelete();
+
+    await this.postsRepository.savePost(post)
   }
 }

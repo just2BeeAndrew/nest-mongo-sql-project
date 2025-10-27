@@ -1,52 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
-import { UpdatePostDto } from '../dto/update-post.dto';
+import { DataSource, IsNull, Repository } from 'typeorm';
 import { Post } from '../domain/entities/post.entity';
 
 @Injectable()
 export class PostsRepository {
-  constructor(@InjectDataSource() private dataSource: DataSource,
-              @InjectRepository(PostsRepository) private postsRepository: Repository<Post>) {}
+  constructor(
+    @InjectDataSource() private dataSource: DataSource,
+    @InjectRepository(PostsRepository)
+    private postsRepository: Repository<Post>,
+  ) {}
 
-  async savePost(post:Post): Promise<Post> {
-    return this.postsRepository.save(post)
+  async savePost(post: Post): Promise<Post> {
+    return this.postsRepository.save(post);
   }
 
   async findById(id: string) {
-    const post = await this.dataSource.query(
-      `
-        SELECT *
-        FROM "Posts" p
-               JOIN "ExtendedLikesInfo" e ON p.id = e.id
-        WHERE p.id = $1
-          AND "deletedAt" IS NULL
-        `,
-      [id],
-    );
-
-    return post[0] || null;
-  }
-
-  async update(body: UpdatePostDto) {
-    return await this.dataSource.query(
-      `
-        UPDATE "Posts"
-        SET title              = $1,
-            "shortDescription" = $2,
-            content            = $3,
-            "updatedAt"        = NOW()
-        WHERE id = $4
-          AND "deletedAt" IS NULL
-        RETURNING id
-      `,
-      [
-        body.body.title,
-        body.body.shortDescription,
-        body.body.content,
-        body.postId,
-      ],
-    );
+    return  await this.postsRepository.findOne({
+      where: { id, deletedAt: IsNull() },
+      relations:{
+        extendedLikesInfo: true,
+      }
+    });
   }
 
   async updateCounters(likesCount: number, dislikesCount: number, id: string) {

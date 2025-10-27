@@ -34,7 +34,7 @@ export class CreatePostByBlogIdUseCase
         shortDescription: dto.shortDescription,
         content: dto.content,
       },
-      blog.id
+      blog
     );
 
     console.log(post);

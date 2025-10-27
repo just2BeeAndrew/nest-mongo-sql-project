@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PostsViewDto } from '../../api/view-dto/posts.view-dto';
+import { PostRaw, PostsViewDto } from '../../api/view-dto/posts.view-dto';
 import { LikeStatus } from '../../../../core/dto/like-status';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,11 +7,14 @@ import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { FindPostsQueryParams } from '../../api/input-dto/find-posts-query-params.input-dto';
 import { LikeDetails } from '../../dto/like-details';
 import { Post } from '../../domain/entities/post.entity';
+import { PostStatus } from '../../domain/entities/post-status.entity';
 
 @Injectable()
 export class PostsQueryRepository {
   constructor(
     @InjectRepository(Post) private postsRepository: Repository<Post>,
+    @InjectRepository(PostStatus)
+    private postStatusRepository: Repository<PostStatus>,
   ) {}
 
   async findAll(
@@ -114,6 +117,7 @@ export class PostsQueryRepository {
     const post = await this.postsRepository
       .createQueryBuilder('p')
       .leftJoin('p.blog', 'b')
+      .leftJoin('p.extendedLikes', 'el')
       .select([
         'p.id AS id',
         'p.title AS title',
@@ -121,29 +125,37 @@ export class PostsQueryRepository {
         'p.content AS content',
         'p.blogId AS "blogId"',
         'b.name AS "blogName"',
-      ]);
+        'p.createdAt AS "createdAt"',
+        'el.likesCount AS "likesCount"',
+        'el.dislikesCount AS "dislikesCount"',
+      ])
+      .where('p.id = :id', {id})
+      .andWhere('p.deletedAt IS NULL ')
+      .getRawOne<PostRaw>()
 
     if (!post) return null;
 
-    // const newestLikesRaw = await this.dataSource.query(
-    //   `
-    // SELECT "userId", "login", "addedAt"
-    // FROM "Statuses"
-    // WHERE "categoryId" = $1
-    //   AND category = 'Post'
-    //   AND status = 'Like'
-    // ORDER BY "addedAt" DESC
-    // LIMIT 3
-    // `,
-    //   [id],
-    // );
-    //
-    // const newestLikes = newestLikesRaw.map(
-    //   (like) =>
-    //     new LikeDetails(new Date(like.addedAt), like.userId, like.login),
-    // );
+    const newestLikesRaw = await this.postStatusRepository
+      .createQueryBuilder('ps')
+      .leftJoin('ps.user', 'u')
+      .leftJoin('u.accountData', 'ad')
+      .select([
+        'ps.createdAt AS "addedAt"',
+        'u.id AS "userId"',
+        'ad.login AS login',
+      ])
+      .where('ps.postId=:id', { id })
+      .andWhere('ps.status = :status', { status: 'Like' })
+      .orderBy('ps.createdAt', 'DESC')
+      .limit(3)
+      .getRawMany();
 
-    return PostsViewDto.mapToView(post, status, [] /*newestLikes*/);
+    const newestLikes = newestLikesRaw.map(
+      (like) =>
+        new LikeDetails(new Date(like.addedAt), like.userId, like.login),
+    );
+
+    return PostsViewDto.mapToView(post, status, newestLikes);
   }
 
   async findPostsByBlogId(

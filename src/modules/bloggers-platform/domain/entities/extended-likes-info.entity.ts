@@ -7,7 +7,7 @@ export class ExtendedLikesInfo extends BaseEntity {
   @PrimaryColumn()
   postId: string;
 
-  @Column({ tyoe: Number, default: 0 })
+  @Column({ type: Number, default: 0 })
   likesCount: number;
 
   @Column({ type: Number, default: 0 })

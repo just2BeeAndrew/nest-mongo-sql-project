@@ -27,19 +27,20 @@ export class UpdatePostByBlogIdUseCase
     if (!blog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        extension: [{ message: 'Blog not found', field: 'blog' }],
+        extension: [{ message: 'Blog not found', field: 'blogId' }],
       });
     }
 
-    const post = await this.postsRepository.update({
-      postId: command.postId,
-      body: command.body,
-    });
-    if (post[0].length === 0) {
+    const post = await this.postsRepository.findById(command.postId);
+    if (!post) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        extension: [{ message: 'Post not found', field: 'post' }],
+        extension: [{ message: 'Post not found', field: 'postId' }],
       });
     }
+
+    post.update(command.body)
+
+    await this.postsRepository.savePost(post)
   }
 }

@@ -25,7 +25,7 @@ import { CommentLikeStatusUseCase } from './application/usecases/comment-like-st
 import { FindCommentByIdQueryHandler } from './application/queries/find-comments-by-id.query-handler';
 import { FindCommentsByPostIdQueryHandler } from './application/queries/find-comment-by-post-id.query-handler';
 import { PostLikeStatusUseCase } from './application/usecases/post-like-status.usecase';
-import { StatusRepository } from './infrastructure/status.repository';
+import { PostStatusRepository } from './infrastructure/post-status.repository';
 import { CommentsRepository } from './infrastructure/comments.repository';
 import { CommentsQueryRepository } from './infrastructure/query/comments.query-repository';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
@@ -68,7 +68,7 @@ const queries = [
     PostsQueryRepository,
     CommentsRepository,
     CommentsQueryRepository,
-    StatusRepository,
+    PostStatusRepository,
     ...useCases,
     ...queries,
   ],

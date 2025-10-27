@@ -3,6 +3,7 @@ import { AccountData } from './account-data.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
 import { Session } from './session.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
+import { PostStatus } from '../../../bloggers-platform/domain/entities/post-status.entity';
 
 @Entity('User')
 export class User {
@@ -25,6 +26,9 @@ export class User {
 
   @OneToMany(() => Session, (session) => session.user)
   sessions: Session[];
+
+  @OneToMany(()=> PostStatus, (postStatus) => postStatus.user)
+  postStatus: PostStatus[];
 //createdAt updated at deletedAt
   static create(dto: CreateUserDto) {
     const user = new User();

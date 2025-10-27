@@ -3,7 +3,7 @@ import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 import { LikeStatus } from '../../../../core/dto/like-status';
-import { StatusRepository } from '../../infrastructure/status.repository';
+import { PostStatusRepository } from '../../infrastructure/post-status.repository';
 import { CalculateStatusCountCommand } from './calculate-status-count.usecase';
 import { Category } from '../../../../core/dto/category';
 
@@ -22,7 +22,7 @@ export class CommentLikeStatusUseCase
   constructor(
     private commandBus: CommandBus,
     private commentsRepository: CommentsRepository,
-    private statusRepository: StatusRepository,
+    private statusRepository: PostStatusRepository,
   ) {}
 
   async execute(command: CommentLikeStatusCommand) {
