@@ -14,7 +14,7 @@ import { UpdatePostDto } from '../../dto/update-post.dto';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 
-@Entity()
+@Entity('Post')
 export class Post extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
@@ -45,7 +45,7 @@ export class Post extends BaseEntity {
     post.title = dto.title;
     post.shortDescription = dto.shortDescription;
     post.content = dto.content;
-    post.blog = blog;
+    post.blogId = blog.id;
 
     return post;
   }

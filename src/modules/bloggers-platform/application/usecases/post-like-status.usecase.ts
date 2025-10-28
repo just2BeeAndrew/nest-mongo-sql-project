@@ -48,7 +48,6 @@ export class PostLikeStatusUseCase
     const existingStatus = await this.statusRepository.find(
       command.userId,
       command.postId,
-      Category.Post,
     );
 
     const currentStatus = existingStatus
@@ -74,20 +73,20 @@ export class PostLikeStatusUseCase
       //   });
     }
 
-    const updatedCounts =
-      await this.commandBus.execute<CalculateStatusCountCommand>(
-        new CalculateStatusCountCommand(
-          post.likesCount,
-          post.dislikesCount,
-          currentStatus,
-          command.newStatus,
-        ),
-      );
-
-    await this.postsRepository.updateCounters(
-      updatedCounts.likesCount,
-      updatedCounts.dislikesCount,
-      post.id,
-    );
+    // const updatedCounts =
+    //   await this.commandBus.execute<CalculateStatusCountCommand>(
+    //     new CalculateStatusCountCommand(
+    //       post.likesCount,
+    //       post.dislikesCount,
+    //       currentStatus,
+    //       command.newStatus,
+    //     ),
+    //   );
+    //
+    // await this.postsRepository.updateCounters(
+    //   updatedCounts.likesCount,
+    //   updatedCounts.dislikesCount,
+    //   post.id,
+    // );
   }
 }

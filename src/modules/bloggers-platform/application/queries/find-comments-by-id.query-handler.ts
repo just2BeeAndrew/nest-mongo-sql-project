@@ -30,7 +30,6 @@ export class FindCommentByIdQueryHandler
       const status = await this.statusRepository.find(
         query.userId,
         query.commentId,
-        Category.Comment,
       );
       userStatus = status ? status.status : LikeStatus.None;
     }

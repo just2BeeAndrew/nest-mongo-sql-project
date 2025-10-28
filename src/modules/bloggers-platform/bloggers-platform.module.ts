@@ -33,6 +33,9 @@ import { PostsController } from './api/posts.controller';
 import { CommentsController } from './api/comments.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Blog } from './domain/entities/blog.entity';
+import { Post } from './domain/entities/post.entity';
+import { PostStatus } from './domain/entities/post-status.entity';
+import { ExtendedLikesInfo } from './domain/entities/extended-likes-info.entity';
 
 const useCases = [
   CreateBlogUseCase,
@@ -59,8 +62,17 @@ const queries = [
 ];
 
 @Module({
-  imports: [CqrsModule, UserAccountsModule, TypeOrmModule.forFeature([Blog])],
-  controllers: [BlogsController, BlogsSuperAdminController, PostsController, CommentsController],
+  imports: [
+    CqrsModule,
+    UserAccountsModule,
+    TypeOrmModule.forFeature([Blog, Post, PostStatus, ExtendedLikesInfo]),
+  ],
+  controllers: [
+    BlogsController,
+    BlogsSuperAdminController,
+    PostsController,
+    CommentsController,
+  ],
   providers: [
     BlogsRepository,
     BlogsQueryRepository,

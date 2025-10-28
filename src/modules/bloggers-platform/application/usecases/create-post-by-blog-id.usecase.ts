@@ -28,6 +28,8 @@ export class CreatePostByBlogIdUseCase
       });
     }
 
+    console.log(blog);
+
     const post = Post.create(
       {
         title: dto.title,

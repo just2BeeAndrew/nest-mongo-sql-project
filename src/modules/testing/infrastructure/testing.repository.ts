@@ -15,5 +15,8 @@ export class TestingRepository {
     await this.dataSource.query(`TRUNCATE TABLE "EmailConfirmation";`);
     await this.dataSource.query(`TRUNCATE TABLE "Session" CASCADE;`);
     await this.dataSource.query(`TRUNCATE TABLE "Blog" CASCADE;`);
+    await this.dataSource.query(`TRUNCATE TABLE "Post"CASCADE;`);
+    await this.dataSource.query(`TRUNCATE TABLE "PostStatus" CASCADE;`);
+    await this.dataSource.query(`TRUNCATE TABLE "ExternalLikesInfo" CASCADE;`);
   }
 }

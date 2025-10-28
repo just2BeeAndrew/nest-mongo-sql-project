@@ -37,7 +37,6 @@ export class CommentLikeStatusUseCase
     const existingStatus = await this.statusRepository.find(
       command.userId,
       command.commentId,
-      Category.Comment,
     );
 
     const currentStatus = existingStatus

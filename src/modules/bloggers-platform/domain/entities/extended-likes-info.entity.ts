@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { BaseEntity } from '../../../../core/entities/base.entity';
 import { Post } from './post.entity';
 
-@Entity()
+@Entity('ExternalLikesInfo')
 export class ExtendedLikesInfo extends BaseEntity {
   @PrimaryColumn()
   postId: string;
