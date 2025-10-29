@@ -37,6 +37,8 @@ export class PostsViewDto {
   extendedLikesInfo: LikesInfoViewDto;
 
   static mapToView(post: PostRaw, status: LikeStatus, likes: LikeDetails[]): PostsViewDto {
+    console.log("PostsViewDTO", post, status, likes);
+
     const dto = new PostsViewDto();
 
     dto.id = post.id;

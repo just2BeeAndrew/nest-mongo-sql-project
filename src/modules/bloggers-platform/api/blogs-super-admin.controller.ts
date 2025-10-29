@@ -57,7 +57,6 @@ export class BlogsSuperAdminController {
     const blogId = await this.commandBus.execute<CreateBlogCommand, string>(
       new CreateBlogCommand(body),
     );
-
     return this.queryBus.execute(new FindBlogByIdQuery(blogId));
   }
 
@@ -91,7 +90,7 @@ export class BlogsSuperAdminController {
     );
 
     return this.queryBus.execute(
-      new FindPostByIdQuery(postId, LikeStatus.None),
+      new FindPostByIdQuery(postId),
     );
   }
 

@@ -30,6 +30,7 @@ export class FindPostByIdQueryHandler
         query.userId,
         query.postId,
       );
+
       userStatus = status ? status.status : LikeStatus.None;
     }
 

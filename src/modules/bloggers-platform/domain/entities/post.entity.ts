@@ -47,6 +47,8 @@ export class Post extends BaseEntity {
     post.content = dto.content;
     post.blogId = blog.id;
 
+    post.extendedLikesInfo = ExtendedLikesInfo.create();
+
     return post;
   }
 

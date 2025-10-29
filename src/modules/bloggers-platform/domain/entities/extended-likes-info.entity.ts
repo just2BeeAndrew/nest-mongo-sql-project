@@ -16,4 +16,11 @@ export class ExtendedLikesInfo extends BaseEntity {
   @OneToOne(() => Post)
   @JoinColumn({ name: 'postId' })
   post: Post;
+
+  static create(){
+    const extendedLikesInfo = new ExtendedLikesInfo();
+    extendedLikesInfo.likesCount = 0;
+    extendedLikesInfo.dislikesCount = 0;
+    return extendedLikesInfo;
+  }
 }

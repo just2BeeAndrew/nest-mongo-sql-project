@@ -27,7 +27,7 @@ export class PostsQueryRepository {
     const posts = await this.postsRepository
       .createQueryBuilder('p')
       .innerJoin('p.blog', 'b')
-      .innerJoin('p.extendedLikes', 'el')
+      .innerJoin('p.extendedLikesInfo', 'el')
       .select([
         'p.id AS id',
         'p.title AS title',
@@ -123,7 +123,7 @@ export class PostsQueryRepository {
     const post = await this.postsRepository
       .createQueryBuilder('p')
       .leftJoin('p.blog', 'b')
-      .leftJoin('p.extendedLikes', 'el')
+      .leftJoin('p.extendedLikesInfo', 'el')
       .select([
         'p.id AS id',
         'p.title AS title',
@@ -174,7 +174,7 @@ export class PostsQueryRepository {
     const posts = await this.postsRepository
       .createQueryBuilder('p')
       .innerJoin('p.blog', 'b')
-      .innerJoin('p.extendedLikes', 'el')
+      .innerJoin('p.extendedLikesInfo', 'el')
       .select([
         'p.id AS id',
         'p.title AS title',
@@ -247,7 +247,7 @@ export class PostsQueryRepository {
         .getRawMany();
 
       statusMap = statuses.reduce((map, status) => {
-        map.set(status.categoryId, status.status);
+        map.set(status.postId, status.status);
         return map;
       }, new Map<string, LikeStatus>());
     }

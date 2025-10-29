@@ -14,6 +14,7 @@ export class PostStatusRepository {
   ) {}
 
   async find(userId: string, postId: string) {
+    console.log(userId);
     return await this.postStatusRepository.findOne({
       where: { userId: userId, postId: postId },
     });

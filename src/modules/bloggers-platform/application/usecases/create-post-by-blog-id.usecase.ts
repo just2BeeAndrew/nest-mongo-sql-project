@@ -28,8 +28,6 @@ export class CreatePostByBlogIdUseCase
       });
     }
 
-    console.log(blog);
-
     const post = Post.create(
       {
         title: dto.title,
@@ -38,8 +36,6 @@ export class CreatePostByBlogIdUseCase
       },
       blog
     );
-
-    console.log(post);
 
     await this.postsRepository.savePost(post);
 
