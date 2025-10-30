@@ -36,7 +36,7 @@ export function pipesSetup(app: INestApplication) {
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
-      stopAtFirstError: false,
+      stopAtFirstError: true,
 
       exceptionFactory: (errors) => {
         const formattedErrors = errorFormatter(errors);

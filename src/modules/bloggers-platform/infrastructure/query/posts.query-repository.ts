@@ -22,101 +22,15 @@ export class PostsQueryRepository {
     query: FindPostsQueryParams,
     userId: string | null,
   ): Promise<PaginatedViewDto<PostsViewDto[]>> {
-    const sortDirection = query.sortDirection.toUpperCase() as 'ASC' | 'DESC';
-
-    const posts = await this.postsRepository
-      .createQueryBuilder('p')
-      .innerJoin('p.blog', 'b')
-      .innerJoin('p.extendedLikesInfo', 'el')
-      .select([
-        'p.id AS id',
-        'p.title AS title',
-        'p.shortDescription AS "shortDescription"',
-        'p.content AS content',
-        'p.blogId AS "blogId"',
-        'b.name AS "blogName"',
-        'p.createdAt AS "createdAt"',
-        'el.likesCount AS "likesCount"',
-        'el.dislikesCount AS "dislikesCount"',
-      ])
-      .andWhere('p.deletedAt IS NULL ')
-      .orderBy(`p.${query.sortBy}`, sortDirection)
-      .limit(query.pageSize)
-      .offset(query.calculateSkip())
-      .getRawMany();
-
-    const postsCount = await this.postsRepository
-      .createQueryBuilder('p')
-      .select('COUNT(*)', 'count')
-      .where('p.deletedAt IS NULL')
-      .getRawOne();
-
-    const totalCount = parseInt(postsCount?.count || '0', 10);
-
+    const posts = await this.getPosts(query, null);
+    const totalCount = await this.getPostsCount(null);
     const postIds = posts.map((post) => post.id);
 
-    const subNewestLikes = this.postStatusRepository
-      .createQueryBuilder('ps')
-      .leftJoin('ps.user', 'u') // Исправлено: было 'p.user', должно быть 'ps.user'
-      .select('ps.postId', 'postId')
-      .addSelect('ps.userId', 'userId')
-      .addSelect('u.login', 'login')
-      .addSelect('ps.createdAt', 'addedAt')
-      .addSelect(
-        'CAST(ROW_NUMBER() OVER (PARTITION BY ps."postId" ORDER BY ps."createdAt" DESC) AS INT)',
-        'likeDetails',
-      )
-      .where('ps.postId = ANY(:postIds)', { postIds })
-      .andWhere('ps.status = :status', { status: 'Like' });
+    const newestLikes = await this.getNewestLikes(postIds);
+    const likesMap = this.buildLikesMap(newestLikes);
+    const statusMap = await this.getUserStatusMap(userId, postIds);
 
-    const newestLikes = await this.dataSource
-      .createQueryBuilder()
-      .select('t.postId', 'postId')
-      .addSelect('t.userId', 'userId')
-      .addSelect('t.login', 'login')
-      .addSelect('t.addedAt', 'addedAt')
-      .from(`(${subNewestLikes.getQuery()})`, 't')
-      .where('t.likeDetails <= 3')
-      .setParameters(subNewestLikes.getParameters())
-      .getRawMany();
-
-    const likesMap = new Map<string, LikeDetails[]>();
-    for (const like of newestLikes) {
-      if (!likesMap.has(like.postId)) likesMap.set(like.postId, []);
-      likesMap
-        .get(like.postId)!
-        .push(new LikeDetails(new Date(like.addedAt), like.userId, like.login));
-    }
-
-    let statusMap = new Map<string, LikeStatus>();
-    if (userId) {
-      const statuses = await this.postStatusRepository
-        .createQueryBuilder('ps')
-        .select(['ps.postId AS postId', 'ps.status AS status'])
-        .where('ps.userId = :userId', { userId })
-        .andWhere('ps.postId = ANY(:postIds)', { postIds })
-        .getRawMany();
-
-      statusMap = statuses.reduce((map, status) => {
-        map.set(status.categoryId, status.status);
-        return map;
-      }, new Map<string, LikeStatus>());
-    }
-
-    const items = posts.map((post) =>
-      PostsViewDto.mapToView(
-        post,
-        statusMap.get(post.id) ?? LikeStatus.None,
-        likesMap.get(post.id) ?? [],
-      ),
-    );
-
-    return PaginatedViewDto.mapToView({
-      items,
-      totalCount,
-      page: query.pageNumber,
-      size: query.pageSize,
-    });
+    return this.buildPaginatedResponse(posts, totalCount, query, statusMap, likesMap);
   }
 
   async findById(id: string, status: LikeStatus): Promise<PostsViewDto | null> {
@@ -169,9 +83,31 @@ export class PostsQueryRepository {
     query: FindPostsQueryParams,
     userId: string | null,
   ): Promise<PaginatedViewDto<PostsViewDto[]>> {
+    const posts = await this.getPosts(query, blogId);
+    const totalCount = await this.getPostsCount(blogId);
+    const postIds = posts.map((post) => post.id);
+
+    const newestLikes = await this.getNewestLikes(postIds);
+    const likesMap = this.buildLikesMap(newestLikes);
+    const statusMap = await this.getUserStatusMap(userId, postIds);
+
+    return this.buildPaginatedResponse(posts, totalCount, query, statusMap, likesMap);
+  }
+
+  private async getPosts(
+    query: FindPostsQueryParams,
+    blogId: string | null,
+  ) {
+    enum SortByEnum {
+      title = 'p.title',
+      blogName = "b.name",
+      createdAt = "p.createdAt",
+    }
+
+    const sortBy = SortByEnum[query.sortBy] || SortByEnum.createdAt
     const sortDirection = query.sortDirection.toUpperCase() as 'ASC' | 'DESC';
 
-    const posts = await this.postsRepository
+    const queryBuilder = this.postsRepository
       .createQueryBuilder('p')
       .innerJoin('p.blog', 'b')
       .innerJoin('p.extendedLikesInfo', 'el')
@@ -185,31 +121,42 @@ export class PostsQueryRepository {
         'p.createdAt AS "createdAt"',
         'el.likesCount AS "likesCount"',
         'el.dislikesCount AS "dislikesCount"',
-      ])
-      .where('p.blogId = :blogId', { blogId })
-      .andWhere('p.deletedAt IS NULL ')
-      .orderBy(`p.${query.sortBy}`, sortDirection)
+      ]);
+
+    if (blogId) {
+      queryBuilder.where('p.blogId = :blogId', { blogId });
+    }
+
+    return queryBuilder
+      .andWhere('p.deletedAt IS NULL')
+      .orderBy(sortBy, sortDirection)
       .limit(query.pageSize)
       .offset(query.calculateSkip())
       .getRawMany();
+  }
 
-    const postsCount = await this.postsRepository
+  private async getPostsCount(blogId: string | null): Promise<number> {
+    const queryBuilder = this.postsRepository
       .createQueryBuilder('p')
       .select('COUNT(*)', 'count')
-      .where('p.blogId = :blogId', { blogId })
-      .andWhere('p.deletedAt IS NULL')
-      .getRawOne();
+      .where('p.deletedAt IS NULL');
 
-    const totalCount = parseInt(postsCount?.count || '0', 10);
+    if (blogId) {
+      queryBuilder.andWhere('p.blogId = :blogId', { blogId });
+    }
 
-    const postIds = posts.map((post) => post.id);
+    const result = await queryBuilder.getRawOne();
+    return parseInt(result?.count || '0', 10);
+  }
 
+  private async getNewestLikes(postIds: string[]): Promise<any[]> {
     const subNewestLikes = this.postStatusRepository
       .createQueryBuilder('ps')
-      .leftJoin('ps.user', 'u') // Исправлено: было 'p.user', должно быть 'ps.user'
+      .leftJoin('ps.user', 'u')
+      .leftJoin('u.accountData', 'ad')
       .select('ps.postId', 'postId')
       .addSelect('ps.userId', 'userId')
-      .addSelect('u.login', 'login')
+      .addSelect('ad.login', 'login')
       .addSelect('ps.createdAt', 'addedAt')
       .addSelect(
         'CAST(ROW_NUMBER() OVER (PARTITION BY ps."postId" ORDER BY ps."createdAt" DESC) AS INT)',
@@ -218,40 +165,61 @@ export class PostsQueryRepository {
       .where('ps.postId = ANY(:postIds)', { postIds })
       .andWhere('ps.status = :status', { status: 'Like' });
 
-    const newestLikes = await this.dataSource
+    return this.dataSource
       .createQueryBuilder()
-      .select('t.postId', 'postId')
-      .addSelect('t.userId', 'userId')
+      .select('t."postId"', 'postId')
+      .addSelect('t."userId"', 'userId')
       .addSelect('t.login', 'login')
-      .addSelect('t.addedAt', 'addedAt')
+      .addSelect('t."addedAt"', 'addedAt')
       .from(`(${subNewestLikes.getQuery()})`, 't')
-      .where('t.likeDetails <= 3')
+      .where('t."likeDetails" <= 3')
       .setParameters(subNewestLikes.getParameters())
       .getRawMany();
+  }
 
+  private buildLikesMap(newestLikes: any[]): Map<string, LikeDetails[]> {
     const likesMap = new Map<string, LikeDetails[]>();
+
     for (const like of newestLikes) {
-      if (!likesMap.has(like.postId)) likesMap.set(like.postId, []);
+      if (!likesMap.has(like.postId)) {
+        likesMap.set(like.postId, []);
+      }
       likesMap
         .get(like.postId)!
         .push(new LikeDetails(new Date(like.addedAt), like.userId, like.login));
     }
 
-    let statusMap = new Map<string, LikeStatus>();
-    if (userId) {
-      const statuses = await this.postStatusRepository
-        .createQueryBuilder('ps')
-        .select(['ps.postId AS postId', 'ps.status AS status'])
-        .where('ps.userId = :userId', { userId })
-        .andWhere('ps.postId = ANY(:postIds)', { postIds })
-        .getRawMany();
+    return likesMap;
+  }
 
-      statusMap = statuses.reduce((map, status) => {
-        map.set(status.postId, status.status);
-        return map;
-      }, new Map<string, LikeStatus>());
+  private async getUserStatusMap(
+    userId: string | null,
+    postIds: string[],
+  ): Promise<Map<string, LikeStatus>> {
+    if (!userId) {
+      return new Map<string, LikeStatus>();
     }
 
+    const statuses = await this.postStatusRepository
+      .createQueryBuilder('ps')
+      .select(['ps.postId AS postId', 'ps.status AS status'])
+      .where('ps.userId = :userId', { userId })
+      .andWhere('ps.postId = ANY(:postIds)', { postIds })
+      .getRawMany();
+
+    return statuses.reduce((map, status) => {
+      map.set(status.postId, status.status);
+      return map;
+    }, new Map<string, LikeStatus>());
+  }
+
+  private buildPaginatedResponse(
+    posts: any[],
+    totalCount: number,
+    query: FindPostsQueryParams,
+    statusMap: Map<string, LikeStatus>,
+    likesMap: Map<string, LikeDetails[]>,
+  ): PaginatedViewDto<PostsViewDto[]> {
     const items = posts.map((post) =>
       PostsViewDto.mapToView(
         post,
