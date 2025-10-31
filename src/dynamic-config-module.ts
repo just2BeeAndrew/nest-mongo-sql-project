@@ -4,13 +4,17 @@ import {join} from 'path';
 import * as dotenv from 'dotenv'
 dotenv.config();
 
+console.log('DB_HOST:', process.env.NODE_ENV);
+
+
 export const configModule = ConfigModule.forRoot({
   isGlobal: true,
   envFilePath: [
     process.env.ENV_FILE_PATH?.trim() || '',
-    join(__dirname,`env`,`.env.${process.env.NODE_ENV}.local`),
-    join(__dirname,`env`,`.env.${process.env.NODE_ENV}`),
-    join(__dirname,`env`,'.env.production'),
+    join(__dirname, '..', 'env', `.env.${process.env.NODE_ENV}.local`),
+    join(__dirname, '..', 'env', `.env.${process.env.NODE_ENV}`),
+    join(__dirname, '..', 'env', '.env.production'),
   ],
   load: [dbConfig]
 });
+
