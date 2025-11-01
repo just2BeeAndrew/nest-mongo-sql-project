@@ -4,6 +4,7 @@ import { PostsRepository } from '../../infrastructure/posts.repository';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 import { CommentsRepository } from '../../infrastructure/comments.repository';
+import { checkExistingUserAndPost } from '../../utils/check-existing-user-and-post';
 
 export class CreateCommentCommand {
   constructor(
@@ -24,21 +25,12 @@ export class CreateCommentUseCase
   ) {}
 
   async execute(command: CreateCommentCommand) {
-    const user = await this.usersRepository.findById(command.userId);
-    if (!user) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        extension: [{ message: 'User not found', field: 'user' }],
-      });
-    }
-
-    const post = await this.postsRepository.findById(command.postId);
-    if (!post) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        extension: [{ message: 'Post not found', field: 'post' }],
-      });
-    }
+    const { user, post } = await checkExistingUserAndPost(
+      command.userId,
+      command.postId,
+      this.usersRepository,
+      this.postsRepository,
+    );
     // const commentId = await this.commentsRepository.create({
     //   postId: command.postId,
     //   content: command.content,

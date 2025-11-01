@@ -58,6 +58,11 @@ export class Post extends BaseEntity {
     this.content = dto.content;
   }
 
+  updateCounters(likesCount: number, dislikesCount: number) {
+    this.extendedLikesInfo.likesCount = likesCount;
+    this.extendedLikesInfo.dislikesCount = dislikesCount;
+  }
+
   softDelete() {
     if (this.deletedAt !== null) {
       throw new DomainException({
