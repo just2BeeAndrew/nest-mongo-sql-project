@@ -3,6 +3,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -13,6 +14,7 @@ import { ExtendedLikesInfo } from './extended-likes-info.entity';
 import { UpdatePostDto } from '../../dto/update-post.dto';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
+import {Comment} from './comment.entity';
 
 @Entity('Post')
 export class Post extends BaseEntity {
@@ -39,6 +41,9 @@ export class Post extends BaseEntity {
 
   @Column({ type: 'uuid' })
   blogId: string;
+
+  @OneToMany(()=> Comment, (comments)=> comments.post)
+  comments: Comment[];
 
   static create(dto: CreatePostDto, blog: Blog) {
     const post = new Post();

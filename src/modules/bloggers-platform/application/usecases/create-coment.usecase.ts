@@ -31,13 +31,13 @@ export class CreateCommentUseCase
       this.usersRepository,
       this.postsRepository,
     );
-    // const commentId = await this.commentsRepository.create({
-    //   postId: command.postId,
-    //   content: command.content,
-    //   userId: user.id,
-    //   userLogin: user.login,
-    // });
-    //
-    // return commentId;
+    const commentId = await this.commentsRepository.create({
+      postId: command.postId,
+      content: command.content,
+      userId: user.id,
+      userLogin: user.login,
+    });
+
+    return commentId;
   }
 }
