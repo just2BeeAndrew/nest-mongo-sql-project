@@ -2,7 +2,6 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CommentsViewDto } from '../../api/view-dto/comments.view-dto';
 import { CommentsQueryRepository } from '../../infrastructure/query/comments.query-repository';
 import { LikeStatus } from '../../../../core/dto/like-status';
-import { Category } from '../../../../core/dto/category';
 import { PostStatusRepository } from '../../infrastructure/post-status.repository';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
@@ -20,14 +19,14 @@ export class FindCommentByIdQueryHandler
 {
   constructor(
     private readonly commentsQueryRepository: CommentsQueryRepository,
-    private readonly statusRepository: PostStatusRepository,
+    private readonly postStatusRepository: PostStatusRepository,
   ) {}
 
   async execute(query: FindCommentByIdQuery): Promise<CommentsViewDto> {
     let userStatus: LikeStatus = LikeStatus.None;
 
     if (query.userId) {
-      const status = await this.statusRepository.find(
+      const status = await this.postStatusRepository.find(
         query.userId,
         query.commentId,
       );

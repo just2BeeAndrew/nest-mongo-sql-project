@@ -1,40 +1,46 @@
 import { Injectable } from '@nestjs/common';
 import { CommentsViewDto } from '../../api/view-dto/comments.view-dto';
 import { LikeStatus } from '../../../../core/dto/like-status';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { FindCommentsByPostIdQueryParams } from '../../api/input-dto/find-comments-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
+import { Comment } from '../../domain/entities/comment.entity';
+import { CommentStatus } from '../../domain/entities/comment-status.entity';
 
 @Injectable()
 export class CommentsQueryRepository {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(Comment)
+    private readonly commentRepository: Repository<Comment>,
+    @InjectRepository(CommentStatus)
+    private readonly commentStatusRepository: Repository<CommentStatus>,
+    @InjectDataSource() private dataSource: DataSource,
+  ) {}
 
   async findById(
     id: string,
     status: LikeStatus,
   ): Promise<CommentsViewDto | null> {
-    const comment = await this.dataSource.query(
-      `
-        SELECT c.id,
-               c.content,
-               c."createdAt",
-               ci."userId",
-               ci."userLogin",
-               l."likesCount",
-               l."dislikesCount"
-        FROM "Comments" c
-               JOIN "CommentatorInfo" ci ON c.id = ci.id
-               LEFT JOIN "LikesInfo" l ON c.id = l.id
-        WHERE c.id = $1
-          AND c."deletedAt" IS NULL
-      `,
-      [id],
-    );
+    const comment = await this.commentRepository
+      .createQueryBuilder('c')
+      .leftJoin('c.likesInfo', 'l')
+      .leftJoin('c.user', 'u')
+      .select([
+        'c.id AS id',
+        'c.content AS content',
+        'c.userId AS "userId"',
+        'u.login AS "userLogin"',
+        'l.likesCount AS "likesCount"',
+        'l.dislikesCount AS "dislikesCount"',
+      ])
+      .where('c.id = :id', { id })
+      .andWhere('c.deletedAt IS NULL')
+      .getRawOne();
 
-    if (comment.length === 0) return null;
+    if (!comment) return null;
 
-    return CommentsViewDto.mapToView(comment[0], status);
+    return CommentsViewDto.mapToView(comment, status);
   }
 
   async findCommentsByPostId(
@@ -42,52 +48,54 @@ export class CommentsQueryRepository {
     query: FindCommentsByPostIdQueryParams,
     userId: string | null,
   ): Promise<PaginatedViewDto<CommentsViewDto[]>> {
-    const comments = await this.dataSource.query(
-      `
-        SELECT c.id,
-               c.content,
-               ci."userId",
-               ci."userLogin",
-               c."createdAt",
-               li."likesCount",
-               li."dislikesCount"
-        FROM "Comments" c
-               JOIN "CommentatorInfo" ci ON c.id = ci.id
-               LEFT JOIN "LikesInfo" li ON c.id = li.id
-        WHERE c."postId" = $1
-          AND c."deletedAt" IS NULL
-        ORDER BY "${query.sortBy}" ${query.sortDirection}
-        LIMIT $2 OFFSET $3
-      `,
-      [postId, query.pageSize, query.calculateSkip()],
-    );
+    const sortDirection = query.sortDirection.toUpperCase() as 'ASC' | 'DESC';
 
-    const totalCountResult = await this.dataSource.query(
-      `
-      SELECT COUNT(*) as count
-      FROM "Comments"
-      WHERE "postId" = $1
-        AND "deletedAt" IS NULL
-    `,
-      [postId],
-    );
+    enum SortByEnum {
+      createdAt = 'c.createdAt',
+      userLogin = 'u.login',
+    }
+    const sortBy = SortByEnum[query.sortBy] || SortByEnum.createdAt;
 
-    const totalCount = parseInt(totalCountResult[0]?.count || '0', 10);
+    const comments = await this.commentRepository
+      .createQueryBuilder('c')
+      .leftJoin('c.likesInfo', 'l')
+      .leftJoin('c.user', 'u')
+      .select([
+        'c.id AS id',
+        'c.content AS content',
+        'c.userId AS "userId"',
+        'u.login AS "userLogin"',
+        'c.createdAt AS "createdAt"',
+        'l.likesCount AS "likesCount"',
+        'l.dislikesCount AS "dislikesCount"',
+      ])
+      .where('c.postId = :postId ', { postId })
+      .andWhere('c.deletedAt IS NULL')
+      .orderBy(sortBy, sortDirection)
+      .limit(query.pageSize)
+      .offset(query.calculateSkip())
+      .getRawMany();
+
+    const totalCountResult = await this.commentRepository
+      .createQueryBuilder('c')
+      .select('COUNT(*)', 'count')
+      .where('c.deletedAt IS NULL')
+      .andWhere('c.postId = :postId ', { postId })
+      .getRawOne();
+
+    const totalCount = parseInt(totalCountResult?.count || '0', 10);
 
     const commentIds = comments.map((comment) => comment.id);
 
     let statusMap = new Map<string, LikeStatus>();
+
     if (userId) {
-      const statuses = await this.dataSource.query(
-        `
-      SELECT "categoryId", "status"
-      FROM "Statuses"
-      WHERE "userId" = $1
-        AND "categoryId" = ANY($2)
-        AND category = 'Comment'
-      `,
-        [userId, commentIds],
-      );
+      const statuses = await this.commentStatusRepository
+        .createQueryBuilder('cs')
+        .select(['cs.commentid AS "commentId" ', 'cs.status AS status'])
+        .where('cs.userId AS "userId"', { userId })
+        .andWhere('cs.commentId = ANY(:commentId', { commentIds })
+        .getRawMany();
 
       statusMap = statuses.reduce((map, status) => {
         map.set(status.categoryId, status.status);

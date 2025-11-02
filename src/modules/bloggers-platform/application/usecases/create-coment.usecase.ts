@@ -1,10 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '../../../user-accounts/infrastructure/users.repository';
 import { PostsRepository } from '../../infrastructure/posts.repository';
-import { DomainException } from '../../../../core/exception/filters/domain-exception';
-import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
-import { CommentsRepository } from '../../infrastructure/comments.repository';
 import { checkExistingUserAndPost } from '../../utils/check-existing-user-and-post';
+import { Comment } from '../../domain/entities/comment.entity';
 
 export class CreateCommentCommand {
   constructor(
@@ -21,7 +19,6 @@ export class CreateCommentUseCase
   constructor(
     private usersRepository: UsersRepository,
     private postsRepository: PostsRepository,
-    private commentsRepository: CommentsRepository,
   ) {}
 
   async execute(command: CreateCommentCommand) {
@@ -31,13 +28,9 @@ export class CreateCommentUseCase
       this.usersRepository,
       this.postsRepository,
     );
-    const commentId = await this.commentsRepository.create({
-      postId: command.postId,
-      content: command.content,
-      userId: user.id,
-      userLogin: user.login,
-    });
 
-    return commentId;
+    const comment = Comment.create(command.content, post, user);
+
+    return comment.id;
   }
 }

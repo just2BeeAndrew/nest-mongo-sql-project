@@ -5,6 +5,7 @@ import { Session } from './session.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { PostStatus } from '../../../bloggers-platform/domain/entities/post-status.entity';
 import { Comment } from '../../../bloggers-platform/domain/entities/comment.entity';
+import { CommentStatus } from '../../../bloggers-platform/domain/entities/comment-status.entity';
 
 @Entity('User')
 export class User {
@@ -33,6 +34,9 @@ export class User {
 
   @OneToMany(() => Comment, (comments) => comments.user)
   comments: Comment[];
+
+  @OneToMany(()=> CommentStatus, (commentStatus) => commentStatus.user)
+  commentStatus: CommentStatus[];
 
   //createdAt updated at deletedAt
   static create(dto: CreateUserDto) {

@@ -19,8 +19,10 @@ export class ExtendedLikesInfo extends BaseEntity {
 
   static create(){
     const extendedLikesInfo = new ExtendedLikesInfo();
+
     extendedLikesInfo.likesCount = 0;
     extendedLikesInfo.dislikesCount = 0;
+
     return extendedLikesInfo;
   }
 }

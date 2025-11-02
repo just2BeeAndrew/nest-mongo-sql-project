@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, IsNull, Repository } from 'typeorm';
 import { PostStatus } from '../domain/entities/post-status.entity';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class PostStatusRepository {
 
   async find(userId: string, postId: string) {
     return await this.postStatusRepository.findOne({
-      where: { userId: userId, postId: postId },
+      where: { userId: userId, postId: postId, deletedAt: IsNull() },
     });
   }
 }

@@ -30,7 +30,13 @@ export class PostsQueryRepository {
     const likesMap = this.buildLikesMap(newestLikes);
     const statusMap = await this.getUserStatusMap(userId, postIds);
 
-    return this.buildPaginatedResponse(posts, totalCount, query, statusMap, likesMap);
+    return this.buildPaginatedResponse(
+      posts,
+      totalCount,
+      query,
+      statusMap,
+      likesMap,
+    );
   }
 
   async findById(id: string, status: LikeStatus): Promise<PostsViewDto | null> {
@@ -91,20 +97,24 @@ export class PostsQueryRepository {
     const likesMap = this.buildLikesMap(newestLikes);
     const statusMap = await this.getUserStatusMap(userId, postIds);
 
-    return this.buildPaginatedResponse(posts, totalCount, query, statusMap, likesMap);
+    return this.buildPaginatedResponse(
+      posts,
+      totalCount,
+      query,
+      statusMap,
+      likesMap,
+    );
   }
 
-  private async getPosts(
-    query: FindPostsQueryParams,
-    blogId: string | null,
-  ) {
+  private async getPosts(query: FindPostsQueryParams, blogId: string | null) {
     enum SortByEnum {
       title = 'p.title',
-      blogName = "b.name",
-      createdAt = "p.createdAt",
+      blogName = 'b.name',
+      createdAt = 'p.createdAt',
     }
 
-    const sortBy = SortByEnum[query.sortBy] || SortByEnum.createdAt
+    const sortBy = SortByEnum[query.sortBy] || SortByEnum.createdAt;
+
     const sortDirection = query.sortDirection.toUpperCase() as 'ASC' | 'DESC';
 
     const queryBuilder = this.postsRepository
@@ -123,11 +133,8 @@ export class PostsQueryRepository {
         'el.dislikesCount AS "dislikesCount"',
       ]);
 
-    if (blogId) {
-      queryBuilder.where('p.blogId = :blogId', { blogId });
-    }
-
     return queryBuilder
+      .where('p.blogId = :blogId', { blogId })
       .andWhere('p.deletedAt IS NULL')
       .orderBy(sortBy, sortDirection)
       .limit(query.pageSize)
@@ -139,11 +146,8 @@ export class PostsQueryRepository {
     const queryBuilder = this.postsRepository
       .createQueryBuilder('p')
       .select('COUNT(*)', 'count')
-      .where('p.deletedAt IS NULL');
-
-    if (blogId) {
-      queryBuilder.andWhere('p.blogId = :blogId', { blogId });
-    }
+      .where('p.deletedAt IS NULL')
+      .andWhere('p.blogId = :blogId', { blogId });
 
     const result = await queryBuilder.getRawOne();
     return parseInt(result?.count || '0', 10);

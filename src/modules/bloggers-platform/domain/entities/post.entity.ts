@@ -15,6 +15,7 @@ import { UpdatePostDto } from '../../dto/update-post.dto';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 import {Comment} from './comment.entity';
+import { PostStatus } from './post-status.entity';
 
 @Entity('Post')
 export class Post extends BaseEntity {
@@ -41,6 +42,9 @@ export class Post extends BaseEntity {
 
   @Column({ type: 'uuid' })
   blogId: string;
+
+  @OneToMany(()=> PostStatus, (postStatus) => postStatus.post)
+  postStatus: PostStatus[];
 
   @OneToMany(()=> Comment, (comments)=> comments.post)
   comments: Comment[];
