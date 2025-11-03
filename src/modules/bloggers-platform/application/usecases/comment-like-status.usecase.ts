@@ -3,9 +3,10 @@ import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 import { LikeStatus } from '../../../../core/dto/like-status';
-import { PostStatusRepository } from '../../infrastructure/post-status.repository';
 import { CalculateStatusCountCommand } from './calculate-status-count.usecase';
-import { Category } from '../../../../core/dto/category';
+import { CommentStatusRepository } from '../../infrastructure/comment-status.repository';
+import { CommentStatus } from '../../domain/entities/comment-status.entity';
+import { UsersRepository } from '../../../user-accounts/infrastructure/users.repository';
 
 export class CommentLikeStatusCommand {
   constructor(
@@ -22,7 +23,8 @@ export class CommentLikeStatusUseCase
   constructor(
     private commandBus: CommandBus,
     private commentsRepository: CommentsRepository,
-    private statusRepository: PostStatusRepository,
+    private commentStatusRepository: CommentStatusRepository,
+    private usersRepository: UsersRepository,
   ) {}
 
   async execute(command: CommentLikeStatusCommand) {
@@ -34,7 +36,15 @@ export class CommentLikeStatusUseCase
       });
     }
 
-    const existingStatus = await this.statusRepository.find(
+    const user = await this.usersRepository.findById(command.userId);
+    if (!user) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        extension: [{ message: 'User not found', field: 'user' }],
+      });
+    }
+
+    const existingStatus = await this.commentStatusRepository.find(
       command.userId,
       command.commentId,
     );
@@ -47,34 +57,29 @@ export class CommentLikeStatusUseCase
       if (existingStatus.status === command.newStatus) {
         return;
       } else {
-        await this.statusRepository.updateStatus(
-          existingStatus.id,
-          command.newStatus,
-        );
+        existingStatus.update(command.newStatus);
+        await this.commentStatusRepository.saveStatus(existingStatus);
       }
     } else if (command.newStatus !== LikeStatus.None) {
-      await this.statusRepository.create({
-        userId: command.userId,
-        categoryId: command.commentId,
-        category: Category.Comment,
-        status: command.newStatus,
-      });
+      const status = CommentStatus.create(command.newStatus, comment, user);
+
+      await this.commentStatusRepository.saveStatus(status);
     }
 
     const updatedCounts =
       await this.commandBus.execute<CalculateStatusCountCommand>(
         new CalculateStatusCountCommand(
-          comment.likesCount,
-          comment.dislikesCount,
+          comment.likesInfo.likesCount,
+          comment.likesInfo.dislikesCount,
           currentStatus,
           command.newStatus,
         ),
       );
-
-    await this.commentsRepository.updateCounters(
+    comment.updateCounters(
       updatedCounts.likesCount,
       updatedCounts.dislikesCount,
-      comment.id,
     );
+
+    await this.commentsRepository.saveComment(comment);
   }
 }

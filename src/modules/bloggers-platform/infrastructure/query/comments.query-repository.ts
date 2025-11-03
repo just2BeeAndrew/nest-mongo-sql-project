@@ -26,11 +26,13 @@ export class CommentsQueryRepository {
       .createQueryBuilder('c')
       .leftJoin('c.likesInfo', 'l')
       .leftJoin('c.user', 'u')
+      .leftJoin('u.accountData', 'ac')
       .select([
         'c.id AS id',
         'c.content AS content',
         'c.userId AS "userId"',
-        'u.login AS "userLogin"',
+        'ac.login AS "userLogin"',
+        'c.createdAt AS "createdAt"',
         'l.likesCount AS "likesCount"',
         'l.dislikesCount AS "dislikesCount"',
       ])
@@ -92,7 +94,7 @@ export class CommentsQueryRepository {
     if (userId) {
       const statuses = await this.commentStatusRepository
         .createQueryBuilder('cs')
-        .select(['cs.commentid AS "commentId" ', 'cs.status AS status'])
+        .select(['cs.commentId AS "commentId" ', 'cs.status AS status'])
         .where('cs.userId AS "userId"', { userId })
         .andWhere('cs.commentId = ANY(:commentId', { commentIds })
         .getRawMany();

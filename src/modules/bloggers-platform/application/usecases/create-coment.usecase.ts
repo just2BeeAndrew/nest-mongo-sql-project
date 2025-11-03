@@ -3,6 +3,7 @@ import { UsersRepository } from '../../../user-accounts/infrastructure/users.rep
 import { PostsRepository } from '../../infrastructure/posts.repository';
 import { checkExistingUserAndPost } from '../../utils/check-existing-user-and-post';
 import { Comment } from '../../domain/entities/comment.entity';
+import { CommentsRepository } from '../../infrastructure/comments.repository';
 
 export class CreateCommentCommand {
   constructor(
@@ -19,6 +20,7 @@ export class CreateCommentUseCase
   constructor(
     private usersRepository: UsersRepository,
     private postsRepository: PostsRepository,
+    private commentRepository: CommentsRepository,
   ) {}
 
   async execute(command: CreateCommentCommand) {
@@ -30,6 +32,8 @@ export class CreateCommentUseCase
     );
 
     const comment = Comment.create(command.content, post, user);
+
+    await this.commentRepository.saveComment(comment);
 
     return comment.id;
   }

@@ -52,4 +52,13 @@ export class Comment extends BaseEntity {
 
     return comment;
   }
+
+  updateComment(content: string) {
+    this.content = content;
+  }
+
+  updateCounters(likesCount: number, dislikesCount: number) {
+    this.likesInfo.likesCount = likesCount;
+    this.likesInfo.dislikesCount = dislikesCount;
+  }
 }

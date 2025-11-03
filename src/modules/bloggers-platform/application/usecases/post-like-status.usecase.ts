@@ -2,8 +2,6 @@ import { LikeStatus } from '../../../../core/dto/like-status';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostsRepository } from '../../infrastructure/posts.repository';
 import { PostStatusRepository } from '../../infrastructure/post-status.repository';
-import { DomainException } from '../../../../core/exception/filters/domain-exception';
-import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 import { UsersRepository } from '../../../user-accounts/infrastructure/users.repository';
 import { CalculateStatusCountCommand } from './calculate-status-count.usecase';
 import { checkExistingUserAndPost } from '../../utils/check-existing-user-and-post';
@@ -50,15 +48,12 @@ export class PostLikeStatusUseCase
         return;
       } else {
         existingStatus.update(command.newStatus);
+        await this.postStatusRepository.saveStatus(existingStatus);
       }
     } else if (command.newStatus !== LikeStatus.None) {
-      PostStatus.create(
-        {
-          postId: command.postId,
-          status: command.newStatus,
-        },
-        user,
-      );
+      const status = PostStatus.create(command.newStatus, post, user);
+
+      await this.postStatusRepository.saveStatus(status);
     }
 
     const updatedCounts =
@@ -72,5 +67,7 @@ export class PostLikeStatusUseCase
       );
 
     post.updateCounters(updatedCounts.likesCount, updatedCounts.dislikesCount);
+
+    await this.postsRepository.savePost(post);
   }
 }

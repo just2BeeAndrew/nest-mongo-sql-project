@@ -35,9 +35,9 @@ export class PostStatus extends BaseEntity {
   static create(status: LikeStatus, post: Post, user: User): PostStatus {
     const postStatus = new PostStatus();
 
+    postStatus.userId = user.id;
     postStatus.postId = post.id;
     postStatus.status = status;
-    postStatus.userId = user.id;
 
     return postStatus;
   }

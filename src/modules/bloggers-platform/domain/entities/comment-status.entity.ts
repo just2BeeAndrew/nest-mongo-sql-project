@@ -25,5 +25,17 @@ export class CommentStatus {
   @Column({ type: 'uuid' })
   userId: string;
 
-  static create
+  static create(status: LikeStatus, comment: Comment, user: User ) {
+    const commentStatus = new CommentStatus();
+
+    commentStatus.commentId = comment.id;
+    commentStatus.userId = user.id;
+    commentStatus.status = status;
+
+    return commentStatus;
+  }
+
+  update(newStatus: LikeStatus){
+    this.status = newStatus;
+  }
 }

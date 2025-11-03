@@ -10,6 +10,10 @@ export class PostStatusRepository {
     @InjectDataSource() private dataSource: DataSource,
   ) {}
 
+  async saveStatus(postStatus: PostStatus): Promise<PostStatus> {
+    return this.postStatusRepository.save(postStatus);
+  }
+
   async find(userId: string, postId: string) {
     return await this.postStatusRepository.findOne({
       where: { userId: userId, postId: postId, deletedAt: IsNull() },

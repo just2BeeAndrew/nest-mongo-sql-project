@@ -17,25 +17,23 @@ export class DeleteCommentUseCase
   constructor(private commentsRepository: CommentsRepository) {}
 
   async execute(command: DeleteCommentCommand) {
-    const comment = await this.commentsRepository.softDelete({
-      commentId: command.commentId,
-      userId: command.userId,
-    });
-    if (comment[0].length === 0) {
-      const commentIsExist = await this.commentsRepository.isExist(
-        command.commentId,
-      );
-      if (commentIsExist.length === 0) {
-        throw new DomainException({
-          code: DomainExceptionCode.NotFound,
-          extension: [{ message: 'Comment not found', field: 'comment' }],
-        });
-      } else {
-        throw new DomainException({
-          code: DomainExceptionCode.Forbidden,
-          extension: [{ message: 'User is not owner', field: 'user' }],
-        });
-      }
+    const comment = await this.commentsRepository.findById(
+      command.commentId,
+    );
+    if (!comment) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        extension: [{ message: 'User not found', field: 'user' }],
+      });
     }
+
+    if (comment.userId !== command.userId) {
+      throw new DomainException({
+        code: DomainExceptionCode.Forbidden,
+        extension: [{ message: 'User is not owner', field: 'user' }],
+      });
+    }
+
+    await this.commentsRepository.softDelete(comment.id);
   }
 }

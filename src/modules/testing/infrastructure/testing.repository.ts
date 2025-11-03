@@ -18,5 +18,8 @@ export class TestingRepository {
     await this.dataSource.query(`TRUNCATE TABLE "Post"CASCADE;`);
     await this.dataSource.query(`TRUNCATE TABLE "PostStatus" CASCADE;`);
     await this.dataSource.query(`TRUNCATE TABLE "ExternalLikesInfo" CASCADE;`);
+    await this.dataSource.query(`TRUNCATE TABLE "Comment" CASCADE;`);
+    await this.dataSource.query(`TRUNCATE TABLE "CommentStatus" CASCADE;`);
+    await this.dataSource.query(`TRUNCATE TABLE "LikesInfo" CASCADE;`);
   }
 }

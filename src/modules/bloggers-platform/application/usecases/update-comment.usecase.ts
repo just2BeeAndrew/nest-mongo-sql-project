@@ -18,27 +18,23 @@ export class UpdateCommentUseCase
   constructor(private commentsRepository: CommentsRepository) {}
 
   async execute(command: UpdateCommentCommand) {
-    const comment = await this.commentsRepository.update({
-      userId: command.userId,
-      commentId: command.commentId,
-      content: command.content,
-    });
+    const comment = await this.commentsRepository.findById(command.commentId);
 
-    if (comment[0].length === 0) {
-      const commentIsExist = await this.commentsRepository.isExist(
-        command.commentId,
-      );
-      if (commentIsExist.length === 0) {
-        throw new DomainException({
-          code: DomainExceptionCode.NotFound,
-          extension: [{ message: 'Comment not found', field: 'comment' }],
-        });
-      } else {
-        throw new DomainException({
-          code: DomainExceptionCode.Forbidden,
-          extension: [{ message: 'User is not owner', field: 'user' }],
-        });
-      }
+    if (!comment) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        extension: [{ message: 'Comment not found', field: 'comment' }],
+      });
     }
+
+    if (comment.userId !== comment.userId) {
+      throw new DomainException({
+        code: DomainExceptionCode.Forbidden,
+        extension: [{ message: 'User is not owner', field: 'user' }],
+      });
+    }
+
+    comment.updateComment(command.content)
+    await this.commentsRepository.saveComment(comment);
   }
 }

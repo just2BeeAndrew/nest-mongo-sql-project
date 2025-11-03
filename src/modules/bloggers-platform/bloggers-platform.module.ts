@@ -36,6 +36,10 @@ import { Blog } from './domain/entities/blog.entity';
 import { Post } from './domain/entities/post.entity';
 import { PostStatus } from './domain/entities/post-status.entity';
 import { ExtendedLikesInfo } from './domain/entities/extended-likes-info.entity';
+import { Comment } from './domain/entities/comment.entity';
+import { CommentStatus } from './domain/entities/comment-status.entity';
+import { LikesInfo } from './domain/entities/likes-info';
+import { CommentStatusRepository } from './infrastructure/comment-status.repository';
 
 const useCases = [
   CreateBlogUseCase,
@@ -65,7 +69,15 @@ const queries = [
   imports: [
     CqrsModule,
     UserAccountsModule,
-    TypeOrmModule.forFeature([Blog, Post, PostStatus, ExtendedLikesInfo]),
+    TypeOrmModule.forFeature([
+      Blog,
+      Comment,
+      CommentStatus,
+      LikesInfo,
+      Post,
+      PostStatus,
+      ExtendedLikesInfo,
+    ]),
   ],
   controllers: [
     BlogsController,
@@ -81,6 +93,7 @@ const queries = [
     CommentsRepository,
     CommentsQueryRepository,
     PostStatusRepository,
+    CommentStatusRepository,
     ...useCases,
     ...queries,
   ],
