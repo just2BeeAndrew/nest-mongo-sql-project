@@ -27,7 +27,7 @@ export class UpdateCommentUseCase
       });
     }
 
-    if (comment.userId !== comment.userId) {
+    if (command.userId !== comment.userId) {
       throw new DomainException({
         code: DomainExceptionCode.Forbidden,
         extension: [{ message: 'User is not owner', field: 'user' }],

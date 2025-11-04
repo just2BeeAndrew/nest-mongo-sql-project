@@ -44,7 +44,6 @@ export function pipesSetup(app: INestApplication) {
         const extensions = formattedErrors.map(
           (error) => new Extension(error.message, error.field),
         );
-
         throw new DomainException({
           code: DomainExceptionCode.ValidationError,
           extension: extensions,

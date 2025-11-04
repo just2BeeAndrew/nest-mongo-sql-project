@@ -44,6 +44,8 @@ export class PostsController {
     @Param('postId') postId: string,
     @Body() likeStatus: LikesStatusInputDto,
   ) {
+    console.log(likeStatus);
+
     return this.commandBus.execute<PostLikeStatusCommand>(
       new PostLikeStatusCommand(user.id, postId, likeStatus.likeStatus),
     );

@@ -22,6 +22,7 @@ export class PostsQueryRepository {
     query: FindPostsQueryParams,
     userId: string | null,
   ): Promise<PaginatedViewDto<PostsViewDto[]>> {
+    console.log('query', query);
     const posts = await this.getPosts(query, null);
     const totalCount = await this.getPostsCount(null);
     const postIds = posts.map((post) => post.id);
@@ -131,11 +132,14 @@ export class PostsQueryRepository {
         'p.createdAt AS "createdAt"',
         'el.likesCount AS "likesCount"',
         'el.dislikesCount AS "dislikesCount"',
-      ]);
+      ])
+      .where('p.deletedAt IS NULL')
+
+    if (blogId !== null) {
+      queryBuilder.andWhere('p.blogId = :blogId', { blogId });
+    }
 
     return queryBuilder
-      .where('p.blogId = :blogId', { blogId })
-      .andWhere('p.deletedAt IS NULL')
       .orderBy(sortBy, sortDirection)
       .limit(query.pageSize)
       .offset(query.calculateSkip())
@@ -146,8 +150,11 @@ export class PostsQueryRepository {
     const queryBuilder = this.postsRepository
       .createQueryBuilder('p')
       .select('COUNT(*)', 'count')
-      .where('p.deletedAt IS NULL')
-      .andWhere('p.blogId = :blogId', { blogId });
+      .where('p.deletedAt IS NULL');
+
+    if (blogId !== null) {
+      queryBuilder.andWhere('p.blogId = :blogId', { blogId });
+    }
 
     const result = await queryBuilder.getRawOne();
     return parseInt(result?.count || '0', 10);
@@ -206,7 +213,7 @@ export class PostsQueryRepository {
 
     const statuses = await this.postStatusRepository
       .createQueryBuilder('ps')
-      .select(['ps.postId AS postId', 'ps.status AS status'])
+      .select(['ps.postId AS "postId"', 'ps.status AS status'])
       .where('ps.userId = :userId', { userId })
       .andWhere('ps.postId = ANY(:postIds)', { postIds })
       .getRawMany();
