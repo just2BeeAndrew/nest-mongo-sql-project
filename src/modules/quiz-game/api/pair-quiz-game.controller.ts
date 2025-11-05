@@ -1,0 +1,4 @@
+import { Controller } from '@nestjs/common';
+
+@Controller('pair-quiz-game')
+export class PairQuizGameController {}

@@ -12,9 +12,12 @@ import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-pla
 import { PostsController } from './modules/bloggers-platform/api/posts.controller';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CommentsController } from './modules/bloggers-platform/api/comments.controller';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { CoreModule } from './core/core.module';
 import { CoreConfig } from './core/config/core.config';
+import { QuizQuestionsSuperAdminController } from './modules/quiz-game/api/quiz-questions-super-admin.controller';
+import { QuizGameModule } from './modules/quiz-game/quiz-game.module';
+import { PairQuizGameController } from './modules/quiz-game/api/pair-quiz-game.controller';
 
 const testingModule:any = [];
 if(process.env.NODE_ENV === 'testing'){
@@ -36,8 +39,10 @@ if(process.env.NODE_ENV === 'testing'){
     UserAccountsModule,
     TestingModule,
     NotificationsModule,
+    QuizGameModule,
     ...testingModule,
     CqrsModule.forRoot({}),
+    QuizGameModule,
   ],
   controllers: [
     AppController,
@@ -45,6 +50,8 @@ if(process.env.NODE_ENV === 'testing'){
     BlogsSuperAdminController,
     PostsController,
     CommentsController,
+    QuizQuestionsSuperAdminController,
+    PairQuizGameController,
   ],
   providers: [AppService, CoreConfig],
   exports: [CoreConfig]
