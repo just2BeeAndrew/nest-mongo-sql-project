@@ -1,26 +1,21 @@
 import {
   Column,
   Entity,
-  JoinColumn,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { BaseEntity } from '../../../../core/entities/base.entity';
 
-@Entity()
-export class Game {
-  @PrimaryGeneratedColumn('increment')
-  public id: number;
+export enum GameStatus {
+  PendingSecondPlayer = 'PendingSecondPlayer',
+  Active = 'Active',
+  Finished = 'Finished',
+}
 
-  @OneToOne(() => PlayerProgress)
-  @JoinColumn()
-  @Column()
-  firstPlayerProgress: PlayerProgress
+@Entity({ name: 'Game' })
+export class Game extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @OneToOne(() => PlayerProgress)
-  @JoinColumn()
-  @Column()
-  secondPlayerProgress: PlayerProgress
-
-  @Column({array: true})
-  questions: Question[]; // массив вопросов для этой игры, хранящийся в виде массива, а не связи
+  @Column({ type: 'text' })
+  status: GameStatus;
 }
