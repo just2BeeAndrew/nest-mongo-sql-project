@@ -15,6 +15,7 @@ export enum Environments {
   STAGING = 'staging',
   PRODUCTION = 'production',
   TESTING = 'testing',
+  MIGRATION = 'migration',
 }
 
 @Injectable()
