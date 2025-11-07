@@ -7,8 +7,10 @@ import { Answer } from './domain/entity/answer.entity';
 import { Game } from './domain/entity/game.entity';
 import { GameQuestion } from './domain/entity/game-question.entity';
 import { Player } from './domain/entity/player.entity';
+import { CreateQuestionUseCase } from './application/usecases/create-question.usecase';
+import { QuestionRepository } from './infrastructure/question.repository';
 
-const useCases = [];
+const useCases = [CreateQuestionUseCase];
 
 const queries = [];
 
@@ -17,7 +19,7 @@ const queries = [];
     TypeOrmModule.forFeature([Answer, Game, GameQuestion, Player, Question]),
   ],
   controllers: [PairQuizGameController, QuizQuestionsSuperAdminController],
-  providers: [...useCases, ...queries],
+  providers: [QuestionRepository, ...useCases, ...queries],
   exports: [],
 })
 export class QuizGameModule {}

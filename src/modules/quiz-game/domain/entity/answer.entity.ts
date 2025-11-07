@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../../../core/entities/base.entity';
 import { Player } from './player.entity';
 
@@ -7,20 +7,15 @@ export enum AnswerStatus {
   Incorrect = 'Incorrect',
 }
 
-@Entity({name: 'Answer'})
-export class Answer extends BaseEntity{
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column({type: "text"})
+@Entity({ name: 'Answer' })
+export class Answer extends BaseEntity {
+  @Column({ type: 'text' })
   answerStatus: AnswerStatus;
 
-  @ManyToOne(()=> Player, (player) = player.answers )
-  @JoinColumn({name:'playerId'})
+  @ManyToOne(() => Player, (player = player.answers))
+  @JoinColumn({ name: 'playerId' })
   player: Player;
 
-  @Column({type:'uuid'})
+  @Column({ type: 'uuid' })
   playerId: string;
-
-
 }

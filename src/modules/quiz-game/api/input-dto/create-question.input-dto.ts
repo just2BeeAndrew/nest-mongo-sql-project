@@ -4,13 +4,13 @@ import {
   correctAnswersConstants,
 } from '../../constants/create-questions.constants';
 
-export class CreateQuestionInput {
+export class CreateQuestionInputDto {
   @IsString()
   @Length(bodyConstants.minLength, bodyConstants.maxLength)
   body: string;
 
   @IsArray()
-  @IsString({each: true})
+  @IsString({ each: true })
   @ArrayMinSize(correctAnswersConstants.minSize)
   correctAnswers: string[];
 }

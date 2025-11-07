@@ -4,19 +4,16 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
 import { BcryptService } from '../../../bcrypt/application/bcrypt.service';
-import { DataSource } from 'typeorm';
 import { User } from '../../domain/entities/user.entity';
 
 export class CreateUserCommand {
   constructor(public readonly dto: CreateUserInputDto) {}
 }
-//TODO: уточнить расположение репозиториев и методов сущности
 @CommandHandler(CreateUserCommand)
 export class CreateUserUseCase
   implements ICommandHandler<CreateUserCommand, string>
 {
   constructor(
-    private readonly dataSource: DataSource,
     private readonly usersRepository: UsersRepository,
     private readonly bcryptService: BcryptService,
   ) {}
@@ -45,7 +42,6 @@ export class CreateUserUseCase
     const passwordHash = await this.bcryptService.createHash(
       command.dto.password,
     );
-    //TODO: показать на код ревью
     const user = User.create({
       login: command.dto.login,
       email: command.dto.email,

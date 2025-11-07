@@ -5,7 +5,6 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Post } from './post.entity';
 import { BaseEntity } from '../../../../core/entities/base.entity';
@@ -15,9 +14,6 @@ import { CommentStatus } from './comment-status.entity';
 
 @Entity('Comment')
 export class Comment extends BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
   @Column({ type: 'text' })
   content: string;
 

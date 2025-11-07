@@ -22,7 +22,7 @@ import { FindUserByIdQuery } from '../application/queries/find-user-by-id.query-
 import { DeleteUserCommand } from '../application/usecases/delete-user.usecase';
 
 @Controller('sa/users')
-export class UsersSuperAdminOntroller {
+export class UsersSuperAdminController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
@@ -32,7 +32,10 @@ export class UsersSuperAdminOntroller {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() body: CreateUserInputDto) {
-    const userId = await this.commandBus.execute<CreateUserByAdminCommand,string>(new CreateUserByAdminCommand(body));
+    const userId = await this.commandBus.execute<
+      CreateUserByAdminCommand,
+      string
+    >(new CreateUserByAdminCommand(body));
 
     return this.queryBus.execute(new FindUserByIdQuery(userId));
   }
@@ -40,7 +43,9 @@ export class UsersSuperAdminOntroller {
   @Get()
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async findAllUsers(@Query() query: FindUsersQueryParams): Promise<PaginatedViewDto<UsersViewDto[]>> {
+  async findAllUsers(
+    @Query() query: FindUsersQueryParams,
+  ): Promise<PaginatedViewDto<UsersViewDto[]>> {
     return this.queryBus.execute(new FindAllUsersQuery(query));
   }
 
@@ -48,6 +53,8 @@ export class UsersSuperAdminOntroller {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
-    return this.commandBus.execute<DeleteUserCommand>(new DeleteUserCommand(id) );
+    return this.commandBus.execute<DeleteUserCommand>(
+      new DeleteUserCommand(id),
+    );
   }
 }

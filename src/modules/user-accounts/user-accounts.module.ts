@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { UsersSuperAdminOntroller } from './api/users-super-admin.сontroller';
+import { UsersSuperAdminController } from './api/users-super-admin.сontroller';
 import { UsersRepository } from './infrastructure/users.repository';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { PasswordRecoveryUseCase } from './application/usecases/password-recovery.usecase';
@@ -75,7 +75,7 @@ const queries = [
     ThrottlerModule.forRoot([{ ttl: 10000, limit: 5 }]),
     TypeOrmModule.forFeature([User, AccountData, EmailConfirmation, Session]),
   ],
-  controllers: [UsersSuperAdminOntroller, AuthController, SecurityDevicesController],
+  controllers: [UsersSuperAdminController, AuthController, SecurityDevicesController],
   providers: [
     UserAccountsConfig,
     AuthService,

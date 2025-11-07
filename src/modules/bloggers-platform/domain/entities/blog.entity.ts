@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../core/entities/base.entity';
 import { CreateBlogDto } from '../../dto/create-blog.dto';
 import { UpdateBlogDto } from '../../dto/update-blog.dto';
@@ -8,9 +8,6 @@ import { Post } from './post.entity';
 
 @Entity('Blog')
 export class Blog extends BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  public id: string;
-
   @Column({ type: 'text', collation: 'C.utf8' })
   public name: string;
 
