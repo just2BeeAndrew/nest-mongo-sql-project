@@ -9,17 +9,19 @@ import { GameQuestion } from './domain/entity/game-question.entity';
 import { Player } from './domain/entity/player.entity';
 import { CreateQuestionUseCase } from './application/usecases/create-question.usecase';
 import { QuestionRepository } from './infrastructure/question.repository';
+import { FindQuestionByIdQueryHandler } from './application/queries/find-question-by-id.query-handler';
+import { QuestionQueryRepository } from './infrastructure/query/question.query-repository';
 
 const useCases = [CreateQuestionUseCase];
 
-const queries = [];
+const queries = [FindQuestionByIdQueryHandler];
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Answer, Game, GameQuestion, Player, Question]),
   ],
   controllers: [PairQuizGameController, QuizQuestionsSuperAdminController],
-  providers: [QuestionRepository, ...useCases, ...queries],
+  providers: [QuestionRepository, QuestionQueryRepository, ...useCases, ...queries],
   exports: [],
 })
 export class QuizGameModule {}

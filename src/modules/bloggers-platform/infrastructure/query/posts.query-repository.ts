@@ -22,7 +22,6 @@ export class PostsQueryRepository {
     query: FindPostsQueryParams,
     userId: string | null,
   ): Promise<PaginatedViewDto<PostsViewDto[]>> {
-    console.log('query', query);
     const posts = await this.getPosts(query, null);
     const totalCount = await this.getPostsCount(null);
     const postIds = posts.map((post) => post.id);
