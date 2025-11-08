@@ -6,10 +6,10 @@ export class LikesInfo {
   @PrimaryColumn()
   commentId: string;
 
-  @Column({ type: Number, default: 0 })
+  @Column({ type: 'int', default: 0 })
   likesCount: number;
 
-  @Column({ type: Number, default: 0 })
+  @Column({ type: 'int', default: 0 })
   dislikesCount: number;
 
   @OneToOne(() => Comment)

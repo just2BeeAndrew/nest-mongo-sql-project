@@ -12,7 +12,7 @@ export class Answer extends BaseEntity {
   @Column({ type: 'text' })
   answerStatus: AnswerStatus;
 
-  @ManyToOne(() => Player, (player = player.answers))
+  @ManyToOne(() => Player, (player) => player.answers)
   @JoinColumn({ name: 'playerId' })
   player: Player;
 

@@ -11,10 +11,6 @@ const envFilePaths = [
 
 config({ path: envFilePaths });
 
-console.log('DB_USERNAME:', process.env.DB_USERNAME);
-console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
-console.log('DB_NAME:', process.env.DB_NAME);
-
 export default new DataSource({
   type: 'postgres',
   host: 'localhost',
@@ -22,6 +18,6 @@ export default new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  migrations: [__dirname + '/migrations/*.ts'],
-  entities: ['src/**/*.entity.ts'],
+  entities: [__dirname + '/**/*.entity.js'],
+  migrations: [__dirname + '/migrations/*.js'],
 });
