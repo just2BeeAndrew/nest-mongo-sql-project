@@ -1,8 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { QuestionViewDto } from '../../api/view-dto/question.view-dto';
 import { QuestionQueryRepository } from '../../infrastructure/query/question.query-repository';
-import { DomainException } from '../../../../core/exception/filters/domain-exception';
-import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
+import { DomainExceptionFactory } from '../../../../core/exception/filters/domain-exception-factory';
 
 export class FindQuestionByIdQuery {
   constructor(public questionId: string) {}
@@ -22,10 +21,7 @@ export class FindQuestionByIdQueryHandler
     const question =
       await this.questionQueryRepository.findQuestionById(questionId);
     if (!question) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        extension: [{ message: 'Question does not exist', field: 'questionId' }],
-      });
+      throw DomainExceptionFactory.notFound('questionId', 'Question not found');
     }
 
     return question;

@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentsRepository } from '../../infrastructure/comments.repository';
 import { DomainException } from '../../../../core/exception/filters/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exception/filters/domain-exception-codes';
+import { DomainExceptionFactory } from '../../../../core/exception/filters/domain-exception-factory';
 
 export class DeleteCommentCommand {
   constructor(
@@ -28,10 +29,7 @@ export class DeleteCommentUseCase
     }
 
     if (comment.userId !== command.userId) {
-      throw new DomainException({
-        code: DomainExceptionCode.Forbidden,
-        extension: [{ message: 'User is not owner', field: 'user' }],
-      });
+      throw DomainExceptionFactory.notFound('questionId', 'Question not found');
     }
 
     await this.commentsRepository.softDelete(comment.id);

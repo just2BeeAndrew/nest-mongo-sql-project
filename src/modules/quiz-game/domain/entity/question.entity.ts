@@ -21,4 +21,13 @@ export class Question extends BaseEntity {
 
     return question;
   }
+
+  updateQuestion(body: string, correctAnswers: string[]) {
+    this.body = body;
+    this.correctAnswers = correctAnswers;
+  }
+
+  updatePublish(published: boolean) {
+    this.published = published;
+  }
 }

@@ -11,8 +11,16 @@ import { CreateQuestionUseCase } from './application/usecases/create-question.us
 import { QuestionRepository } from './infrastructure/question.repository';
 import { FindQuestionByIdQueryHandler } from './application/queries/find-question-by-id.query-handler';
 import { QuestionQueryRepository } from './infrastructure/query/question.query-repository';
+import { DeleteQuestionUseCase } from './application/usecases/delete-question.usecase';
+import { PublishQuestionUseCase } from './application/usecases/publish-question.usecase';
+import { UpdateQuestionUseCase } from './application/usecases/update-question.usecase';
 
-const useCases = [CreateQuestionUseCase];
+const useCases = [
+  CreateQuestionUseCase,
+  DeleteQuestionUseCase,
+  PublishQuestionUseCase,
+  UpdateQuestionUseCase,
+];
 
 const queries = [FindQuestionByIdQueryHandler];
 
@@ -21,7 +29,12 @@ const queries = [FindQuestionByIdQueryHandler];
     TypeOrmModule.forFeature([Answer, Game, GameQuestion, Player, Question]),
   ],
   controllers: [PairQuizGameController, QuizQuestionsSuperAdminController],
-  providers: [QuestionRepository, QuestionQueryRepository, ...useCases, ...queries],
+  providers: [
+    QuestionRepository,
+    QuestionQueryRepository,
+    ...useCases,
+    ...queries,
+  ],
   exports: [],
 })
 export class QuizGameModule {}
