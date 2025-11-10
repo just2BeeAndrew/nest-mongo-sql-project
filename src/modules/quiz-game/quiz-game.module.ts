@@ -14,6 +14,7 @@ import { QuestionQueryRepository } from './infrastructure/query/question.query-r
 import { DeleteQuestionUseCase } from './application/usecases/delete-question.usecase';
 import { PublishQuestionUseCase } from './application/usecases/publish-question.usecase';
 import { UpdateQuestionUseCase } from './application/usecases/update-question.usecase';
+import { FindAllQuestionsQueryHandler } from './application/queries/find-all-questions.query-handler';
 
 const useCases = [
   CreateQuestionUseCase,
@@ -22,7 +23,7 @@ const useCases = [
   UpdateQuestionUseCase,
 ];
 
-const queries = [FindQuestionByIdQueryHandler];
+const queries = [FindAllQuestionsQueryHandler, FindQuestionByIdQueryHandler];
 
 @Module({
   imports: [

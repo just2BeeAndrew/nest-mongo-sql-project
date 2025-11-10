@@ -23,6 +23,7 @@ import { PublishQuestionCommand } from '../application/usecases/publish-question
 import { FindQuestionsQueryParams } from './input-dto/find-questions-query-params.input-dto';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto';
 import { QuestionViewDto } from './view-dto/question.view-dto';
+import { FindAllQuestionsQuery } from '../application/queries/find-all-questions.query-handler';
 
 @Controller('sa/quiz/questions')
 export class QuizQuestionsSuperAdminController {
