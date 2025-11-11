@@ -1,6 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../core/entities/base.entity';
 import { CreateQuestionDomainDto } from '../dto/create-question.domain.dto';
+import { GameQuestion } from './game-question.entity';
 
 @Entity({ name: 'Question' })
 export class Question extends BaseEntity {
@@ -12,6 +13,9 @@ export class Question extends BaseEntity {
 
   @Column({ type: 'boolean', default: false })
   published: boolean;
+
+  @OneToMany(() => GameQuestion, (gameQuestions) => gameQuestions.question)
+  gameQuestions: GameQuestion[];
 
   static create(dto: CreateQuestionDomainDto) {
     const question = new Question();

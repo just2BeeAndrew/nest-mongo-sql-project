@@ -1,8 +1,9 @@
 import {
   Column,
-  Entity,
+  Entity, OneToMany,
 } from 'typeorm';
 import { BaseEntity } from '../../../../core/entities/base.entity';
+import { GameQuestion } from './game-question.entity';
 
 export enum GameStatus {
   PendingSecondPlayer = 'PendingSecondPlayer',
@@ -14,4 +15,7 @@ export enum GameStatus {
 export class Game extends BaseEntity {
   @Column({ type: 'text' })
   status: GameStatus;
+
+  @OneToMany(() => GameQuestion, gameQuestions => gameQuestions.game)
+  gameQuestions: GameQuestion[];
 }
