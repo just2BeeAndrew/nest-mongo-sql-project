@@ -1,0 +1,17 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Game, GameStatus } from '../../domain/entity/game.entity';
+import { Repository } from 'typeorm';
+
+@Injectable()
+export class GameRepository {
+  constructor(
+    @InjectRepository(Game) private readonly gameRepository: Repository<Game>,
+  ) {}
+
+  async findGamePending() {
+    return await this.gameRepository.findOne({
+      where: { status: GameStatus.PendingSecondPlayer },
+    });
+  }
+}

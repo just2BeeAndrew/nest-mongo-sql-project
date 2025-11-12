@@ -14,7 +14,7 @@ export enum GameStatus {
 
 @Entity({ name: 'Game' })
 export class Game extends BaseEntity {
-  @Column({ type: 'text' })
+  @Column({ type: 'text', default: GameStatus.PendingSecondPlayer })
   status: GameStatus;
 
   @OneToMany(() => GameQuestion, gameQuestions => gameQuestions.game)
@@ -22,4 +22,12 @@ export class Game extends BaseEntity {
 
   @OneToMany(() => Player, players => players.game)
   players: Player[];
+
+  static createGame(player: Player, question: GameQuestion[] ) {
+    const game = new Game();
+    game.gameQuestions = question;
+    game.players = [player];
+
+    return game;
+  }
 }

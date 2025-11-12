@@ -12,7 +12,7 @@ import { Game } from './game.entity';
 
 @Entity({ name: 'Player' })
 export class Player extends BaseEntity {
-  @Column({ type: 'int' })
+  @Column({ type: 'int', default: 0 })
   score: number;
 
   @OneToMany(() => Answer, (answers) => answers.player)
@@ -29,8 +29,17 @@ export class Player extends BaseEntity {
   @JoinColumn({ name: 'gameId' })
   game: Game;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid' , nullable: true, default: null })
   gameId: string;
+
+  static createPlayer(user: User){
+    const player = new Player()
+
+    player.userId = user.id;
+    player.answers = []
+
+    return player;
+  }
 
 
 }
