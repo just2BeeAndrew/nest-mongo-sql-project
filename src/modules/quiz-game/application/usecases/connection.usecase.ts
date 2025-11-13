@@ -1,35 +1,54 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { GameRepository } from '../../infrastructure/query/game.repository';
+import { GameRepository } from '../../infrastructure/game.repository';
 import { UsersRepository } from '../../../user-accounts/infrastructure/users.repository';
 import { DomainExceptionFactory } from '../../../../core/exception/filters/domain-exception-factory';
-import { Game } from '../../domain/entity/game.entity';
+import { Game, GameStatus } from '../../domain/entity/game.entity';
 import { Player } from '../../domain/entity/player.entity';
+import { PlayerRepository } from '../../infrastructure/player.repository';
+import { QuestionRepository } from '../../infrastructure/question.repository';
 
-export class ConnectionCommand{
-  constructor(public userId:string) {
-  }
+export class ConnectionCommand {
+  constructor(public userId: string) {}
 }
 
 @CommandHandler(ConnectionCommand)
 export class ConnectionUseCase implements ICommandHandler<ConnectionCommand> {
-  constructor(private gameRepository: GameRepository,
-              private usersRepository: UsersRepository,) {
-  }
+  constructor(
+    private gameRepository: GameRepository,
+    private usersRepository: UsersRepository,
+    private playersRepository: PlayerRepository,
+    private questionRepository: QuestionRepository,
+  ) {}
 
-  async execute({userId}: ConnectionCommand) {
+  async execute({ userId }: ConnectionCommand) {
+    //нашёл пользователя для создания связи
     const user = await this.usersRepository.findById(userId);
     if (!user) {
-      throw DomainExceptionFactory.notFound()
+      throw DomainExceptionFactory.notFound();
     }
-    const player = Player.createPlayer(user)
 
-    const question =
+    //создал игрока
+    const player = Player.createPlayer(user);
+    await this.playersRepository.save(player);
 
-    const game = await this.gameRepository.findGamePending()
+    //выбрал 5 случайных вопросов для игры
+    const gameQuestion = await this.questionRepository.getRandomQuestion();
+
+    //проверяю наличие игры
+    let game = await this.gameRepository.findGamePending();
+
+    //если игры нет, то создаю игру
     if (!game) {
-      Game.createGame(player)
-
-
+      game = Game.createGame(player, gameQuestion);
+      await this.gameRepository.saveGame(game);
+    } else {
+      game.addPlayer(player);
+      if (game.players.length === 2) {
+        game.updateStatus(GameStatus.Active);
+      }
+      await this.gameRepository.saveGame(game);
     }
+
+    return game.id;
   }
 }

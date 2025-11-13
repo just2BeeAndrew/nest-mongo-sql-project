@@ -30,4 +30,12 @@ export class Game extends BaseEntity {
 
     return game;
   }
+
+  addPlayer(player: Player) {
+    this.players.push(player);
+  }
+
+  updateStatus(gameStatus: GameStatus) {
+    this.status = gameStatus;
+  }
 }

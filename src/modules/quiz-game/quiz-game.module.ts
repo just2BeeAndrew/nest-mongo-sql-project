@@ -15,8 +15,12 @@ import { DeleteQuestionUseCase } from './application/usecases/delete-question.us
 import { PublishQuestionUseCase } from './application/usecases/publish-question.usecase';
 import { UpdateQuestionUseCase } from './application/usecases/update-question.usecase';
 import { FindAllQuestionsQueryHandler } from './application/queries/find-all-questions.query-handler';
+import { GameRepository } from './infrastructure/game.repository';
+import { PlayerRepository } from './infrastructure/player.repository';
+import { ConnectionUseCase } from './application/usecases/connection.usecase';
 
 const useCases = [
+  ConnectionUseCase,
   CreateQuestionUseCase,
   DeleteQuestionUseCase,
   PublishQuestionUseCase,
@@ -31,6 +35,8 @@ const queries = [FindAllQuestionsQueryHandler, FindQuestionByIdQueryHandler];
   ],
   controllers: [PairQuizGameController, QuizQuestionsSuperAdminController],
   providers: [
+    GameRepository,
+    PlayerRepository,
     QuestionRepository,
     QuestionQueryRepository,
     ...useCases,

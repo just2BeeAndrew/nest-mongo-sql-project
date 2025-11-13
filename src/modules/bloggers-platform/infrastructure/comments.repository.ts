@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, IsNull, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Comment } from '../domain/entities/comment.entity';
 
 @Injectable()
 export class CommentsRepository {
   constructor(
-    @InjectDataSource() private dataSource: DataSource,
     @InjectRepository(Comment) private commentRepository: Repository<Comment>,
   ) {}
 
@@ -24,6 +23,6 @@ export class CommentsRepository {
   }
 
   async softDelete(commentId: string) {
-    return await this.commentRepository.softDelete({id: commentId});
+    return await this.commentRepository.softDelete({ id: commentId });
   }
 }
