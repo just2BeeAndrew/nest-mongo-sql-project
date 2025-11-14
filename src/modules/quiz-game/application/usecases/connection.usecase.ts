@@ -21,6 +21,10 @@ export class ConnectionUseCase implements ICommandHandler<ConnectionCommand> {
   ) {}
 
   async execute({ userId }: ConnectionCommand) {
+    const isActivePlayer = await this.playersRepository.isActivePlayer(userId);
+    if (isActivePlayer) {
+      throw DomainExceptionFactory.forbidden()
+    }
     //нашёл пользователя для создания связи
     const user = await this.usersRepository.findById(userId);
     if (!user) {
