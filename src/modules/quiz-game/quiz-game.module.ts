@@ -18,6 +18,8 @@ import { FindAllQuestionsQueryHandler } from './application/queries/find-all-que
 import { GameRepository } from './infrastructure/game.repository';
 import { PlayerRepository } from './infrastructure/player.repository';
 import { ConnectionUseCase } from './application/usecases/connection.usecase';
+import { FindGameByIdQueryHandler } from './application/queries/find-game-by-id.query-handler';
+import { GameQueryRepository } from './infrastructure/query/game.query-repository';
 
 const useCases = [
   ConnectionUseCase,
@@ -27,7 +29,11 @@ const useCases = [
   UpdateQuestionUseCase,
 ];
 
-const queries = [FindAllQuestionsQueryHandler, FindQuestionByIdQueryHandler];
+const queries = [
+  FindAllQuestionsQueryHandler,
+  FindGameByIdQueryHandler,
+  FindQuestionByIdQueryHandler,
+];
 
 @Module({
   imports: [
@@ -36,6 +42,7 @@ const queries = [FindAllQuestionsQueryHandler, FindQuestionByIdQueryHandler];
   controllers: [PairQuizGameController, QuizQuestionsSuperAdminController],
   providers: [
     GameRepository,
+    GameQueryRepository,
     PlayerRepository,
     QuestionRepository,
     QuestionQueryRepository,

@@ -10,6 +10,7 @@ import { ExtractUserFromAccessToken } from '../../../core/decorators/param/extra
 import { AccessContextDto } from '../../../core/dto/access-context.dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ConnectionCommand } from '../application/usecases/connection.usecase';
+import { FindGameByIdQuery } from '../application/queries/find-game-by-id.query-handler';
 
 @Controller('pair-quiz-game/pairs')
 export class PairQuizGameController {
@@ -22,8 +23,10 @@ export class PairQuizGameController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async connection(@ExtractUserFromAccessToken() user: AccessContextDto) {
-    const game = this.commandBus.execute<ConnectionCommand>(
+    const gameId = await this.commandBus.execute<ConnectionCommand>(
       new ConnectionCommand(user.id),
     );
+
+    return this.queryBus.execute(new FindGameByIdQuery(gameId));
   }
 }
