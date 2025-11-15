@@ -40,6 +40,4 @@ export class Player extends BaseEntity {
 
     return player;
   }
-
-
 }

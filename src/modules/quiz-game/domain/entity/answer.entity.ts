@@ -9,6 +9,9 @@ export enum AnswerStatus {
 
 @Entity({ name: 'Answer' })
 export class Answer extends BaseEntity {
+  @Column({type: "uuid"})
+  questionId: string;
+
   @Column({ type: 'text' })
   answerStatus: AnswerStatus;
 
